@@ -1,0 +1,19 @@
+/* Default Navbar Link Style */
+.navbar-nav .nav-link {
+    color: #000;  /* Default text color */
+    transition: all 0.3s ease; /* Smooth transition */
+}
+
+/* Hover Effect */
+.navbar-nav .nav-link:hover {
+    color: var(--primary-red);  /* Change text color on hover */
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: var(--primary-red);  /* Hover color */
+    color: white;  /* Change text color on hover */
+}
+
+#home-title {
+    color: var(--primary-red);
+}
