@@ -1,11 +1,12 @@
 :root {
   --primary-red: rgba(251,37,50,1);
-  --primary-pink: rgba(252,58,112,1);
-  --primary-yellow: rgba(253,174,46,1);
-  --primary-green: rgba(175,217,9,1);
-  --primary-teal: rgba(24,179,141,1);
-  --primary-blue: rgba(19,149,255,1);
-  --primary-purple: rgba(139,63,255,1);
+  --secondary-blue: rgba(13,110,253,1);
+  --pink: rgba(252,58,112,1);
+  --orange: rgba(253,174,46,1);
+  --green: rgba(175,217,9,1);
+  --teal: rgba(24,179,141,1);
+  --blue: rgba(19,149,255,1);
+  --purple: rgba(139,63,255,1);
   --defaultwhite: rgba(255, 255, 255, 1);
   --defaultalert: rgba(218, 30, 40, 1);
   --default-warning: rgba(241, 194, 27, 1);

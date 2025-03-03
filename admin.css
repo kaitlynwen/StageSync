@@ -1,6 +1,6 @@
 /* Default Navbar Link Style */
 .navbar-nav .nav-link {
-    color: #000;  /* Default text color */
+    color: var(--coolgray-90);  /* Default text color */
     transition: all 0.3s ease; /* Smooth transition */
 }
 
@@ -16,4 +16,27 @@
 
 #home-title {
     color: var(--primary-red);
+}
+
+/* FullCalendar Styling */
+.fc {
+    font-family: var(--body-m-font-family);
+}
+
+.fc-toolbar-title {
+    font-family: var(--heading-4-font-family);
+    font-weight: var(--heading-4-font-weight);
+    color: var(--secondary-blue);
+}
+
+.fc-event-title {
+    font-family: var(--body-m-font-family);
+}
+
+.fc-daygrid-day-number {
+    font-family: var(--body-m-font-family);
+}
+
+.fc-event-time {
+    font-family: var(--body-m-font-family);
 }
