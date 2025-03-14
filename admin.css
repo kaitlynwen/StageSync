@@ -1,21 +1,37 @@
+.logo {
+    display: flex;
+    align-items: center;
+    color: var(--primary);
+}
+
+.logo img {
+    margin-right: 10px; /* Adjust spacing between image and text */
+}
+
 /* Default Navbar Link Style */
 .navbar-nav .nav-link {
-    color: var(--coolgray-90);  /* Default text color */
+    color: var(--coolgray-80);  /* Default text color */
     transition: all 0.3s ease; /* Smooth transition */
 }
 
 /* Hover Effect */
 .navbar-nav .nav-link:hover {
-    color: var(--primary-red);  /* Change text color on hover */
+    color: var(--primary);  /* Change text color on hover */
 }
 
 .dropdown-menu .dropdown-item:hover {
-    background-color: var(--primary-red);  /* Hover color */
+    background-color: var(--primary);  /* Hover color */
     color: white;  /* Change text color on hover */
 }
 
+.navbar-nav .nav-item .nav-link.active {
+    background-color: var(--coolgray-20);
+    color: var(--coolgray-90);
+    border-radius: 5px; /* Rounded corners */
+}
+
 #home-title {
-    color: var(--primary-red);
+    color: var(--primary);
 }
 
 /* FullCalendar Styling */
@@ -26,7 +42,7 @@
 .fc-toolbar-title {
     font-family: var(--heading-4-font-family);
     font-weight: var(--heading-4-font-weight);
-    color: var(--secondary-blue);
+    color: var(--secondary);
 }
 
 .fc-event-title {
@@ -39,4 +55,12 @@
 
 .fc-event-time {
     font-family: var(--body-m-font-family);
+}
+
+.fc .fc-button {
+    background-color: var(--coolgray-80);
+}
+
+.fc-col-header-cell-cushion {
+    color: var(--secondary);
 }
