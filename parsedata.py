@@ -94,26 +94,14 @@ def extract_schedule(file_path, group_name):
     
     # Parse the date range into a list of dates
     start_date_str, end_date_str = date_range.split('-')
-    start_date = datetime.strptime(start_date_str, "%m_%d")
-    end_date = datetime.strptime(end_date_str, "%m_%d")
-    start_date = start_date.replace(year=datetime.now().year)
-    end_date = end_date.replace(year=datetime.now().year)
+    start_date = datetime.strptime(start_date_str, "%m_%d").replace(year=datetime.now().year)
+    end_date = datetime.strptime(end_date_str, "%m_%d").replace(year=datetime.now().year)
 
     dates = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 
     # Load the Excel file
     xl = pd.ExcelFile(file_path)
     schedule = []
-    
-    day_map = {
-        "monday": 0,
-        "tuesday": 1,
-        "wednesday": 2,
-        "thursday": 3,
-        "friday": 4,
-        "saturday": 5,
-        "sunday": 6
-    }
     
     for sheet_name in xl.sheet_names:
         # Skip the "info" sheet
@@ -132,11 +120,16 @@ def extract_schedule(file_path, group_name):
                     time_range = df[time_col][idx]
                     start_time, end_time = parse_time_range(time_range)
 
-                    # Map sheet name to the corresponding day index in the dates list
-                    sheet_day = sheet_name.lower()  # Normalize the sheet name to lowercase
-                    if sheet_day in day_map:
-                        day_of_week = day_map[sheet_day]
-                        event_date = dates[day_of_week]  # Get the starting date for that day
+                    # Find the correct event date dynamically
+                    event_date = None
+                    for date in dates:
+                        if date.strftime("%A").lower() == sheet_name.lower():
+                            event_date = date
+                            break
+                    
+                    if event_date is None:
+                        print(f"Warning: Could not match sheet '{sheet_name}' to a valid date.")
+                        continue  # Skip if no matching date is found
                     
                     # Adjust event date and time for crossing midnight
                     start_date, end_date = adjust_event_date(event_date, start_time, end_time)
@@ -144,21 +137,22 @@ def extract_schedule(file_path, group_name):
                         "Start Date": start_date.strftime('%Y-%m-%d'),
                         "End Date": end_date.strftime('%Y-%m-%d'),
                         "Start": f"{start_time.strftime('%I:%M%p')}",
-                        "End":f"{end_time.strftime('%I:%M%p')}",
+                        "End": f"{end_time.strftime('%I:%M%p')}",
                         "Location": col,
                         "Group": group_name
                     })
 
     # Combine consecutive time slots
-    schedule = combine_consecutive_slots(schedule)  # This is where the combining happens
+    schedule = combine_consecutive_slots(schedule)
 
     # Convert schedule into FullCalendar event format
     calendar_events = convert_schedule_to_calendar_events(schedule)
     
     return date_range, calendar_events
 
+
 if __name__ == "__main__":
-    file_path = "sample pac data/Spring Rehearsal Schedule (3_17-3_23).xlsx"  # Update if needed
+    file_path = "sample pac data/Spring Rehearsal Schedule (2_28-3_7).xlsx"  # Update if needed
     group_name = input("Enter the dance group name: ")
     date_range, calendar_events = extract_schedule(file_path, group_name)
     
