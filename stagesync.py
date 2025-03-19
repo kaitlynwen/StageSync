@@ -34,8 +34,8 @@ app.secret_key = os.environ.get('APP_SECRET_KEY', 'your_default_secret_key')  # 
 def home():
     # Temporarily bypass authentication and default to admin
     user_info = {
-        'user': 'Admin User',  # Set this to whatever identifier you want for your admin
-        'is_admin': True  # Explicitly set is_admin to True to simulate an admin user
+        'user': 'Admin User',
+        'is_admin': True
     }
     
     # Check if the user is an admin
