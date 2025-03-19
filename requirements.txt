@@ -5,6 +5,3 @@ python-dotenv
 gunicorn
 pandas
 datetime
-re
-urllib
-json
