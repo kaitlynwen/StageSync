@@ -1,77 +1,53 @@
 #!/usr/bin/env python
 
 #-----------------------------------------------------------------------
-# penny.py
-# Author: Bob Dondero
+# stagesync.py
+# Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 #-----------------------------------------------------------------------
 
-import time
+from flask import render_template
 import flask
-import database
+import os
+import dotenv
+import auth
 
 #-----------------------------------------------------------------------
 
-app = flask.Flask(__name__, template_folder='.')
+# Load environment variables
+dotenv.load_dotenv()
+
+# Initialize Flask app
+app = flask.Flask(
+    'stagesync', 
+    template_folder='templates',  # Folder for HTML files
+    static_folder='static'  # Folder for CSS, JS, and images
+)
+
+# Secret key setup (set up in .env)
+app.secret_key = os.environ.get('APP_SECRET_KEY', 'your_default_secret_key')  # Make sure .env has the APP_SECRET_KEY
 
 #-----------------------------------------------------------------------
 
-def get_ampm():
-    if time.strftime('%p') == "AM":
-        return 'morning'
-    return 'afternoon'
-
-def get_current_time():
-    return time.asctime(time.localtime())
-
-#-----------------------------------------------------------------------
-
+# Routes
 @app.route('/', methods=['GET'])
-@app.route('/index', methods=['GET'])
-def index():
-
-    html_code = flask.render_template('index.html',
-        ampm=get_ampm(),
-        current_time=get_current_time())
-    response = flask.make_response(html_code)
-    return response
-
-#-----------------------------------------------------------------------
-
-@app.route('/searchform', methods=['GET'])
-def search_form():
-
-    prev_author = flask.request.cookies.get('prev_author')
-    if prev_author is None:
-        prev_author = '(None)'
-
-    html_code = flask.render_template('searchform.html',
-        ampm=get_ampm(),
-        current_time=get_current_time(),
-        prev_author=prev_author)
-    response = flask.make_response(html_code)
-    return response
-
-#-----------------------------------------------------------------------
-
-@app.route('/searchresults', methods=['GET'])
-def search_results():
-
-    author = flask.request.args.get('author')
-    if author is None:
-        author = ''
-    author = author.strip()
-
-    if author == '':
-        prev_author = '(None)'
-        books = []
+@app.route('/home', methods=['GET'])
+def home():
+    # Temporarily bypass authentication and default to admin
+    user_info = {
+        'user': 'Admin User',  # Set this to whatever identifier you want for your admin
+        'is_admin': True  # Explicitly set is_admin to True to simulate an admin user
+    }
+    
+    # Check if the user is an admin
+    if user_info.get('is_admin', False):
+        # Render home-admin.html if the user is an admin
+        return render_template('home-admin.html', user=user_info)
     else:
-        prev_author = author
-        books = database.get_books(author) # Exception handling omitted
-    html_code = flask.render_template('searchresults.html',
-        ampm=get_ampm(),
-        current_time=get_current_time(),
-        author=prev_author,
-        books=books)
-    response = flask.make_response(html_code)
-    response.set_cookie('prev_author', prev_author)
-    return response
+        # Render home.html for regular users
+        return render_template('home.html', user=user_info)
+
+#-----------------------------------------------------------------------
+
+# If the file is being executed directly, run the app
+if __name__ == '__main__':
+    app.run(debug=True)
