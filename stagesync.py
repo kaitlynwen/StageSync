@@ -9,7 +9,7 @@ from flask import render_template
 import flask
 import os
 import dotenv
-import auth
+# import auth
 
 #-----------------------------------------------------------------------
 
