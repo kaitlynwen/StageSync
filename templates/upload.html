@@ -39,20 +39,28 @@
 
       <!-- Main Content Section -->
       <div class="col-md-10 main-content">
-        <div
-          class="d-flex justify-content-between align-items-center pt-4 px-4"
-        >
-          <p class="d-flex align-items-center fs-2 fw-bold mb-0">
+        <div class="d-flex justify-content-between align-items-center pt-4 px-4">
+          <p class="d-flex align-items-center fs-2 fw-bold mb-1">
             Upcoming Rehearsals
           </p>
         </div>
         <div class="d-flex justify-content-between align-items-center px-4">
-          <p
-          id="subtitle"
-          class="d-flex align-items-center fs-6 fw-bold"
-          >
+          <p id="subtitle" class="d-flex align-items-center fs-6 fw-bold">
             Upload new PAC rehearsal space schedule information below
           </p>
+        </div>
+
+        <!-- File Upload Form -->
+        <div class="mt-4 px-4">
+          <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="file" class="form-label">Choose a file to upload:</label>
+              <input type="file" class="form-control" id="file" name="file" required />
+            </div>
+            <div class="mt-2">
+              <button type="submit" class="btn btn-primary">Upload File</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

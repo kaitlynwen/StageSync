@@ -5,10 +5,11 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 #-----------------------------------------------------------------------
 
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 import flask
 import os
 import dotenv
+import tempfile
 # import auth
 
 #-----------------------------------------------------------------------
@@ -26,7 +27,19 @@ app = flask.Flask(
 # Secret key setup (set up in .env)
 app.secret_key = os.environ.get('APP_SECRET_KEY', 'your_default_secret_key')  # Make sure .env has the APP_SECRET_KEY
 
+# Set temporary storage location for testing
+UPLOAD_FOLDER = tempfile.mkdtemp()
+
+# Allowable file extensions
+ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
+
 #-----------------------------------------------------------------------s
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+#-----------------------------------------------------------------------
 
 # Define user info function (currently hardcoded for bypassing authentication)
 def get_user_info():
@@ -62,13 +75,32 @@ def view():
     user_info = get_user_info()
     return render_template('view.html', user=user_info)
 
-@app.route('/upload-data', methods=['GET'])
+@app.route('/upload-data', methods=['GET', 'POST'])
 def upload():
     user_info = get_user_info()
     if user_info.get('is_admin', False):
         return render_template('upload.html', user=user_info)
     else:
         return redirect(url_for('home'))
+
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'No file part', 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return 'No selected file', 400
+
+        if file and allowed_file(file.filename):
+            # Secure the filename and save the file to the temporary folder
+            filename = os.path.join(UPLOAD_FOLDER, file.filename)
+            file.save(filename)
+            return 'File uploaded successfully', 200
+        else:
+            return 'Invalid file type', 400
+    return render_template('upload.html')
 
 @app.route('/generate-schedule', methods=['GET'])
 def generate():
