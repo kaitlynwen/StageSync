@@ -5,7 +5,7 @@
       <ul class="navbar-nav ml-auto text-left w-100 justify-content-between ml-lg-0 d-lg-flex align-items-left">
 
         <!-- Logo Section -->
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="href="{{ url_for('home') }}"">
             <div class="logo-container p-2 mb-4">
                 <div class="logo">
                   <img class="icon-container" height="35" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
@@ -16,7 +16,7 @@
 
         <!-- Settings Section -->
         <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="settings.html">
+          <a class="nav-link d-flex align-items-center" href="{{ url_for('settings') }}">
               <i class='bx bxs-cog bx-sm px-2'></i> 
               Settings
           </a>
@@ -39,7 +39,7 @@
 
         <!-- Update Button -->
         <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="update.html">
+          <a class="nav-link d-flex align-items-center" href="{{ url_for('update') }}">
               <i class='bx bxs-edit bx-sm px-2' ></i>
               Update Availability
           </a>
@@ -47,7 +47,7 @@
 
         <!-- View Schedule Button -->
         <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="view.html">
+          <a class="nav-link d-flex align-items-center" href="{{ url_for('view') }}">
               <i class='bx bxs-calendar-event bx-sm px-2' ></i>
               View Schedule
           </a>
@@ -62,7 +62,7 @@
 
         <!-- Upload Reho Info Button -->
         <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="upload.html">
+          <a class="nav-link d-flex align-items-center" href="{{ url_for('upload') }}">
               <i class='bx bxs-cloud-upload bx-sm px-2' ></i>
               Upload Rehearsal Data
           </a>
@@ -70,7 +70,7 @@
 
         <!-- Generate Schedule Button -->
         <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="generate.html">
+          <a class="nav-link d-flex align-items-center" href="{{ url_for('generate') }}">
               <i class='bx bxs-calendar bx-sm px-2' ></i>
               Generate Schedule
           </a>
@@ -78,7 +78,7 @@
 
         <!-- Published Schedule Button -->
         <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="publish.html">
+          <a class="nav-link d-flex align-items-center" href="{{ url_for('publish') }}">
               <i class='bx bxs-share-alt bx-sm px-2' ></i>
               Published Schedule
           </a>
@@ -86,15 +86,15 @@
 
         <!-- Manage Members Dropdown -->
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="manage.html" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="{{ url_for('manage_members') }}" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               <i class='bx bxs-user-detail bx-sm px-2'></i>
               Manage Members
             </a>
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end bg-light" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="add-remove.html">Add/Remove Admins</a></li>
-                <li><a class="dropdown-item" href="groups.html">Groups</a></li>
-                <li><a class="dropdown-item" href="availability.html">View Availability</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('manage_admins') }}">Add/Remove Admins</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('manage_groups') }}">Groups</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('availability') }}">View Availability</a></li>
             </ul>
         </li>
 

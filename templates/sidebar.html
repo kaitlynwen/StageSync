@@ -1,57 +1,58 @@
 <!-- Sidebar Links -->
 <nav class="navbar">
-    <!-- Container wrapper -->
-    <div class="container-fluid">
-      <ul class="navbar-nav ml-auto text-left w-100 justify-content-between ml-lg-0 d-lg-flex align-items-left">
+  <!-- Container wrapper -->
+  <div class="container-fluid">
+    <ul class="navbar-nav ml-auto text-left w-100 justify-content-between ml-lg-0 d-lg-flex align-items-left">
 
-        <!-- Logo Section -->
-        <a class="navbar-brand" href="#">
-            <div class="logo-container p-2 mb-4">
-                <div class="logo">
-                  <img class="icon-container" height="35" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
-                  <div class="text-wrapper fs-4 fw-bold">StageSync</div>
-                </div>
-            </div>
+      <!-- Logo Section -->
+      <a class="navbar-brand" href="href="{{ url_for('home') }}"">
+          <div class="logo-container p-2 mb-4">
+              <div class="logo">
+                <img class="icon-container" height="35" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
+                <div class="text-wrapper fs-4 fw-bold">StageSync</div>
+              </div>
+          </div>
+      </a>
+
+      <!-- Settings Section -->
+      <li class="nav-item">
+        <a class="nav-link d-flex align-items-center" href="{{ url_for('settings') }}">
+            <i class='bx bxs-cog bx-sm px-2'></i> 
+            Settings
         </a>
+      </li>
 
-        <!-- Settings Section -->
-        <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="settings.html">
-              <i class='bx bxs-cog bx-sm px-2'></i> 
-              Settings
-          </a>
-        </li>
+      <!-- Main Menu Label -->
+      <div class="nav-item">
+        <span class="d-flex align-items-center pt-4 p-2">
+          <h6>MAIN MENU</h6>
+        </span>
+      </div>
 
-        <!-- Main Menu Label -->
-        <div class="nav-item">
-          <span class="d-flex align-items-center pt-4 p-2">
-            <h6>MAIN MENU</h6>
-          </span>
-        </div>
+      <!-- Home Button -->
+      <li class="nav-item">
+        <a class="nav-link d-flex align-items-center" href="#">
+            <i class='bx bxs-home bx-sm px-2' ></i>
+            Home
+        </a>
+      </li>
 
-        <!-- Home Button -->
-        <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="#">
-              <i class='bx bxs-home bx-sm px-2' ></i>
-              Home
-          </a>
-        </li>
+      <!-- Update Button -->
+      <li class="nav-item">
+        <a class="nav-link d-flex align-items-center" href="{{ url_for('update') }}">
+            <i class='bx bxs-edit bx-sm px-2' ></i>
+            Update Availability
+        </a>
+      </li>
 
-        <!-- Update Button -->
-        <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="update.html">
-              <i class='bx bxs-edit bx-sm px-2' ></i>
-              Update Availability
-          </a>
-        </li>
+      <!-- View Schedule Button -->
+      <li class="nav-item">
+        <a class="nav-link d-flex align-items-center" href="{{ url_for('view') }}">
+            <i class='bx bxs-calendar-event bx-sm px-2' ></i>
+            View Schedule
+        </a>
+      </li>
 
-        <!-- View Schedule Button -->
-        <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="view.html">
-              <i class='bx bxs-calendar-event bx-sm px-2' ></i>
-              View Schedule
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+    </ul>
+  </div>
+</nav>
