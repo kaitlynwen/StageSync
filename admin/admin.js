@@ -1,21 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Load Sidebar
-  function loadSidebar() {
-      fetch("./sidebar-admin.html")
-          .then((response) => response.text())
-          .then((data) => {
-              let sidebar = document.getElementById("sidebar-container");
-              if (sidebar) {
-                  sidebar.innerHTML = data; // Insert the sidebar HTML
-                  console.log("Sidebar content loaded:", data);
-                  setActiveNavLink(); // Call the function after content is loaded
-              }
-          })
-          .catch((error) => console.error("Error loading sidebar:", error));
-  }
-
-  loadSidebar(); // Call sidebar function
-
   function setActiveNavLink() {
       let sidebar = document.getElementById("sidebar-container");
       if (!sidebar) {
