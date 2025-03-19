@@ -86,13 +86,13 @@
 
         <!-- Manage Members Dropdown -->
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="{{ url_for('manage_members') }}" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               <i class='bx bxs-user-detail bx-sm px-2'></i>
               Manage Members
             </a>
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end bg-light" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('manage_admins') }}">Add/Remove Admins</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('manage_users') }}">Add/Remove Admins</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('manage_groups') }}">Groups</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('availability') }}">View Availability</a></li>
             </ul>
