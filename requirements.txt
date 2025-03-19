@@ -1,6 +1,7 @@
 Flask
 psycopg2
 SQLAlchemy
+flask-sqlalchemy
 python-dotenv
 gunicorn
 pandas
