@@ -5,7 +5,7 @@
       <ul class="navbar-nav ml-auto text-left w-100 justify-content-between ml-lg-0 d-lg-flex align-items-left">
 
         <!-- Logo Section -->
-        <a class="navbar-brand" href="href="{{ url_for('home') }}"">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
             <div class="logo-container p-2 mb-4">
                 <div class="logo">
                   <img class="icon-container" height="35" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
@@ -31,7 +31,7 @@
 
         <!-- Home Button -->
         <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="#">
+          <a class="nav-link d-flex align-items-center" href="{{ url_for('home') }}">
               <i class='bx bxs-home bx-sm px-2' ></i>
               Home
           </a>
