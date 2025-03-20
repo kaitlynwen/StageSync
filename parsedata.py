@@ -114,9 +114,9 @@ def convert_schedule_to_calendar_events(schedule):
 ########################################################################
 
 
-def extract_schedule(file_path, group_name):
-    # Extract the date range from the filename
-    date_range_match = re.search(r"\((\d{1,2}_\d{1,2}-\d{1,2}_\d{1,2})\)", file_path)
+def extract_schedule(file, group_name):
+    # Extract the date range from the filename (file is a file object here)
+    date_range_match = re.search(r"\((\d{1,2}_\d{1,2}-\d{1,2}_\d{1,2})\)", file.filename)
     date_range = date_range_match.group(1) if date_range_match else "Unknown"
 
     # Parse the date range into a list of dates
@@ -132,12 +132,11 @@ def extract_schedule(file_path, group_name):
         start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)
     ]
 
-    # Load the Excel file
-    xl = pd.ExcelFile(file_path)
+    # Use pandas to read the Excel file from the in-memory file object
+    xl = pd.ExcelFile(io.BytesIO(file.read()))  # Load file into memory
     schedule = []
 
     for sheet_name in xl.sheet_names:
-        # Skip the "info" sheet
         if sheet_name.lower() == "info":
             continue
 
@@ -147,7 +146,7 @@ def extract_schedule(file_path, group_name):
 
         time_col = df.columns[0]  # First column is the time slots
 
-        for col in df.columns[1:]:  # Loop through rehearsal space columns
+        for col in df.columns[1:]:
             for idx, cell in df[col].items():
                 if group_name.lower() in str(cell).lower():
                     time_range = df[time_col][idx]
@@ -160,26 +159,20 @@ def extract_schedule(file_path, group_name):
                             event_dates.append(date)
 
                     if len(event_dates) == 0:
-                        print(
-                            f"Warning: Could not match sheet '{sheet_name}' to a valid date."
-                        )
-                        continue  # Skip if no matching date is found
+                        print(f"Warning: Could not match sheet '{sheet_name}' to a valid date.")
+                        continue
 
                     # Adjust event date and time for crossing midnight
                     for event_date in event_dates:
-                        start_date, end_date = adjust_event_date(
-                            event_date, start_time, end_time
-                        )
-                        schedule.append(
-                            {
-                                "Start Date": start_date.strftime("%Y-%m-%d"),
-                                "End Date": end_date.strftime("%Y-%m-%d"),
-                                "Start": f"{start_time.strftime('%I:%M%p')}",
-                                "End": f"{end_time.strftime('%I:%M%p')}",
-                                "Location": col,
-                                "Group": group_name,
-                            }
-                        )
+                        start_date, end_date = adjust_event_date(event_date, start_time, end_time)
+                        schedule.append({
+                            "Start Date": start_date.strftime("%Y-%m-%d"),
+                            "End Date": end_date.strftime("%Y-%m-%d"),
+                            "Start": f"{start_time.strftime('%I:%M%p')}",
+                            "End": f"{end_time.strftime('%I:%M%p')}",
+                            "Location": col,
+                            "Group": group_name,
+                        })
 
     # Combine consecutive time slots
     schedule = combine_consecutive_slots(schedule)
@@ -196,7 +189,7 @@ if __name__ == "__main__":
     file_path = (
         "sample pac data/Spring Rehearsal Schedule (2_28-3_14).xlsx"  # Update if needed
     )
-    group_name = input("Enter the dance group name: ")
+    group_name = "kokopops"
     date_range, calendar_events = extract_schedule(file_path, group_name)
 
     print(f"Schedule for {group_name} (Valid for {date_range}):\n")

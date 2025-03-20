@@ -10,6 +10,7 @@ import flask
 import os
 import dotenv
 import tempfile
+import parsedata
 # import auth
 
 #-----------------------------------------------------------------------
@@ -77,29 +78,25 @@ def view():
 
 @app.route('/upload-data', methods=['GET', 'POST'])
 def upload():
-    user_info = get_user_info()
-    if user_info.get('is_admin', False):
-        return render_template('upload.html', user=user_info)
-    else:
-        return redirect(url_for('home'))
-
-def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
-            return 'No file part', 400
+            return "No file part", 400
 
         file = request.files['file']
 
         if file.filename == '':
-            return 'No selected file', 400
+            return "No selected file", 400
 
         if file and allowed_file(file.filename):
-            # Secure the filename and save the file to the temporary folder
-            filename = os.path.join(UPLOAD_FOLDER, file.filename)
-            file.save(filename)
-            return 'File uploaded successfully', 200
+            group_name = "kokopops"
+
+            date_range, calendar_events = parsedata.extract_schedule(file, group_name)
+
+            return render_template('upload.html', calendar_events=calendar_events, date_range=date_range)
+
         else:
-            return 'Invalid file type', 400
+            return "Invalid file type. Only CSV and XLSX are allowed", 400
+
     return render_template('upload.html')
 
 @app.route('/generate-schedule', methods=['GET'])

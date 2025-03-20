@@ -2,4 +2,4 @@ FileStructure.txt
 References.txt
 .DS*
 diff-event-colors*
-_pycache_
+__pycache__

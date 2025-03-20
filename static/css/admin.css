@@ -1,66 +1,24 @@
-.logo {
-    display: flex;
-    align-items: center;
-    color: var(--primary);
+/* Custom Theme Variables */
+:root {
+    --primary: oklch(0.705 0.213 47.604); /* orange 500 */
+    --secondary: oklch(0.592 0.249 0.584); /* pink 600 */
 }
-
-.logo img {
-    margin-right: 10px; /* Adjust spacing between image and text */
-}
-
-/* Default Navbar Link Style */
-.navbar-nav .nav-link {
-    color: var(--coolgray-80);  /* Default text color */
-    transition: all 0.3s ease; /* Smooth transition */
-}
-
-/* Hover Effect */
-.navbar-nav .nav-link:hover {
-    color: var(--primary);  /* Change text color on hover */
-}
-
-.dropdown-menu .dropdown-item:hover {
-    background-color: var(--primary);  /* Hover color */
-    color: white;  /* Change text color on hover */
-}
-
-.navbar-nav .nav-item .nav-link.active {
-    background-color: var(--coolgray-20);
-    color: var(--coolgray-90);
-    border-radius: 5px; /* Rounded corners */
-}
-
-#subtitle {
-    color: var(--primary);
-}
-
 /* FullCalendar Styling */
-.fc {
-    font-family: var(--body-m-font-family);
-}
-
 .fc-toolbar-title {
-    font-family: var(--heading-4-font-family);
-    font-weight: var(--heading-4-font-weight);
-    color: var(--secondary);
+    font-weight: 600;
+    color: var(--secondary) ;
 }
 
-.fc-event-title {
-    font-family: var(--body-m-font-family);
-}
+/* Drag and Drop Styling */
+.drop-zone {
+    border: 2px dashed var(--secondary);
+    text-align: center;
+    cursor: pointer;
+  }
 
-.fc-daygrid-day-number {
-    font-family: var(--body-m-font-family);
-}
-
-.fc-event-time {
-    font-family: var(--body-m-font-family);
-}
-
-.fc .fc-button {
-    background-color: var(--coolgray-80);
-}
-
-.fc-col-header-cell-cushion {
-    color: var(--secondary);
-}
+  .drop-zone .file-info {
+    display: none;
+  }
+  .drop-zone .file-info span {
+    color:  var(--secondary);
+  }
