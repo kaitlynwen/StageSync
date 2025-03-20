@@ -1,58 +1,63 @@
 <!-- Sidebar Links -->
-<nav class="navbar">
-  <!-- Container wrapper -->
-  <div class="container-fluid">
-    <ul class="navbar-nav ml-auto text-left w-100 justify-content-between ml-lg-0 d-lg-flex align-items-left">
+<nav class="h-full min-h-screen p-4">
+  <!-- Logo Section -->
+  <a href="{{ url_for('home') }}" class="flex items-center space-x-2 p-1 mb-6">
+    <img
+      class="h-auto w-1/6"
+      src="{{ url_for('static', filename='img/logo.png') }}"
+      alt="Logo"
+    />
+    <span class="text-2xl font-bold text-neutral-950 ml-2">StageSync</span>
+  </a>
 
-      <!-- Logo Section -->
-      <a class="navbar-brand" href="href="{{ url_for('home') }}"">
-          <div class="logo-container p-2 mb-4">
-              <div class="logo">
-                <img class="icon-container" height="35" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
-                <div class="text-wrapper fs-4 fw-bold">StageSync</div>
-              </div>
-          </div>
+  <!-- Settings Section -->
+  <ul class="space-y-2">
+    <li>
+      <a
+        href="{{ url_for('settings') }}"
+        class="flex items-center text-neutral-800 hover:bg-neutral-200 p-1 mb-1 rounded-md transition"
+      >
+        <i class="bx bxs-cog bx-sm mr-2"></i>
+        <span>Settings</span>
       </a>
+    </li>
 
-      <!-- Settings Section -->
-      <li class="nav-item">
-        <a class="nav-link d-flex align-items-center" href="{{ url_for('settings') }}">
-            <i class='bx bxs-cog bx-sm px-2'></i> 
-            Settings
-        </a>
-      </li>
+    <!-- Main Menu Label -->
+    <li class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500">
+      Main Menu
+    </li>
 
-      <!-- Main Menu Label -->
-      <div class="nav-item">
-        <span class="d-flex align-items-center pt-4 p-2">
-          <h6>MAIN MENU</h6>
-        </span>
-      </div>
+    <!-- Home Button -->
+    <li>
+      <a
+        href="{{ url_for('home') }}"
+        class="flex items-center text-neutral-800 hover:bg-neutral-200 p-1 mb-1 rounded-md transition"
+      >
+        <i class="bx bxs-home bx-sm mr-2"></i>
+        <span>Home</span>
+      </a>
+    </li>
 
-      <!-- Home Button -->
-      <li class="nav-item">
-        <a class="nav-link d-flex align-items-center" href="#">
-            <i class='bx bxs-home bx-sm px-2' ></i>
-            Home
-        </a>
-      </li>
+    <!-- Update Button -->
+    <li>
+      <a
+        href="{{ url_for('update') }}"
+        class="flex items-center text-neutral-800 hover:bg-neutral-200 p-1 mb-1 rounded-md transition"
+      >
+        <i class="bx bxs-edit bx-sm mr-2"></i>
+        <span>Update Availability</span>
+      </a>
+    </li>
 
-      <!-- Update Button -->
-      <li class="nav-item">
-        <a class="nav-link d-flex align-items-center" href="{{ url_for('update') }}">
-            <i class='bx bxs-edit bx-sm px-2' ></i>
-            Update Availability
-        </a>
-      </li>
-
-      <!-- View Schedule Button -->
-      <li class="nav-item">
-        <a class="nav-link d-flex align-items-center" href="{{ url_for('view') }}">
-            <i class='bx bxs-calendar-event bx-sm px-2' ></i>
-            View Schedule
-        </a>
-      </li>
-
-    </ul>
-  </div>
+    <!-- View Schedule Button -->
+    <li>
+      <a
+        href="{{ url_for('view') }}"
+        class="flex items-center text-neutral-800 hover:bg-neutral-200 p-1 mb-1 rounded-md transition"
+      >
+        <i class="bx bxs-calendar-event bx-sm mr-2"></i>
+        <span>View Schedule</span>
+      </a>
+    </li>
+  </ul>
 </nav>

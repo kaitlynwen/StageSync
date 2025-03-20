@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Boxicons -->
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- FullCalendar Styles and Scripts -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
+      integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/admin.css') }}"
+    />
+    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+  </head>
+
+  <body class="flex flex-col min-h-screen font-sans bg-white">
+    <div class="flex flex-grow">
+      <!-- Sidebar Section -->
+      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+        {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
+        include 'sidebar.html' %} {% endif %}
+      </div>
+
+      <!-- Main Content Section -->
+      <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
+        <div class="flex justify-between items-center mt-2">
+          <p class="text-3xl font-bold">Update Availability</p>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <p id="subtitle" class="text-lg font-bold text-orange-500 py-4">
+            Please list all conflicts AFTER 5PM on weekdays and ANYTIME on
+            weekends
+          </p>
+        </div>
+
+        <div class="flex justify-between items-center mt-2">
+          <p class="text-xl font-bold">Weekly Conflicts</p>
+        </div>
+
+        <div class="flex justify-between items-center mt-2">
+          <p class="text-m font-normal">
+            WEEKLY Conflict Format:
+            hour:minute(AM/PM)-hour:minute(AM/PM);hour:minute(AM/PM)-hour:minute(AM/PM)
+          </p>
+        </div>
+
+        <div class="flex justify-between items-center mt-2">
+          <form></form>
+        </div>
+
+        <div class="flex justify-between items-center mt-2">
+          <p class="text-xl font-bold">One-Time Conflicts</p>
+        </div>
+
+        <div class="flex justify-between items-center mt-2">
+          <p class="text-m font-normal">
+            ONE-TIME Conflict Format:
+            month/day.hour:minute(AM/PM)-hour:minute(AM/PM);month/day.hour:minute(AM/PM)-hour:minute(AM/PM)
+          </p>
+        </div>
+
+        <div class="flex justify-between items-center mt-2">
+          <form></form>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-neutral-900 py-4 mt-auto">
+      {% include 'footer.html' %}
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+  </body>
+</html>

@@ -56,15 +56,15 @@ def get_user_info():
 @app.route('/home', methods=['GET'])
 def home():
     user_info = get_user_info()
-    if user_info.get('is_admin', False):
-        return render_template('home-admin.html', user=user_info)
-    else:
-        return render_template('home.html', user=user_info)
+    return render_template('home.html', user=user_info)
 
 @app.route('/settings', methods=['GET'])
 def settings():
     user_info = get_user_info()
-    return render_template('settings.html', user=user_info)
+    if user_info.get('is_admin', False):
+        return render_template('settings-admin.html', user=user_info)
+    else:
+        return render_template('settings.html', user=user_info)
 
 @app.route('/update-availability', methods=['GET'])
 def update():
