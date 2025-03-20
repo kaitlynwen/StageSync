@@ -5,17 +5,13 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # -----------------------------------------------------------------------
 
-from flask import Flask, render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request
 import flask
 import os
 import dotenv
 import tempfile
 import parsedata
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Enum, ForeignKey, Column
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
 # import auth
 
 # -----------------------------------------------------------------------
@@ -40,7 +36,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
     True  # If needed, disable for performance
 )
-db = SQLAlchemy(app)
 
 # Set temporary storage location for testing
 UPLOAD_FOLDER = tempfile.mkdtemp()
@@ -173,48 +168,6 @@ def availability():
         return render_template("availability.html", user=user_info)
     else:
         return redirect(url_for("home"))
-
-
-# -----------------------------------------------------------------------
-
-
-class Availability(db.Model):
-    __tablename__ = "availability"
-
-    # Columns
-    id = db.Column(db.Integer, primary_key=True)  # auto incrementing ID
-    netid = db.Column(db.String(50), ForeignKey("users.netid"), nullable=False)
-    day_of_week = db.Column(
-        Enum(
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-            name="days_of_week",
-        ),
-        nullable=False,
-    )  # days of the week (e.g., 'Monday')
-    start_time = db.Column(db.Time, nullable=False)  # start time of the time conflict
-    end_time = db.Column(db.Time, nullable=False)  # end time of the time conflict
-    is_recurring = db.Column(
-        db.Boolean, nullable=False, default=False
-    )  # whether conflict is recurring
-    one_time_date = db.Column(db.Date, nullable=True)  # one-time date (if applicable)
-    notes = db.Column(db.String(500), nullable=True)  # any additional notes
-
-    # Relationship with the User model
-    user = relationship("User", backref="availability")
-
-    def __repr__(self):
-        return f"<Availability {self.netid} {self.day_of_week} {self.start_time} - {self.end_time}>"
-
-
-# Create tables
-with app.app_context():
-    db.create_all()
 
 # -----------------------------------------------------------------------
 
