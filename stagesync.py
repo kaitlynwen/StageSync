@@ -11,8 +11,9 @@ import os
 import dotenv
 import tempfile
 import parsedata
+
 # from flask_sqlalchemy import SQLAlchemy
-import auth
+# import auth
 import psycopg2
 from top import app
 
@@ -34,13 +35,6 @@ app.secret_key = os.environ.get(
     "APP_SECRET_KEY", "your_default_secret_key"
 )  # Make sure .env has the APP_SECRET_KEY
 
-# # Configure the database
-# app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
-#     True  # If needed, disable for performance
-# )
-
-# If not using SQLAlchemy
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Set temporary storage location for testing
@@ -62,16 +56,16 @@ def allowed_file(filename):
 # Define user info function (currently hardcoded for bypassing authentication)
 def get_user_info():
     user_info = auth.authenticate()
-    netid = user_info['user']
-    is_admin = False #Default false
+    netid = user_info["user"]
+    is_admin = False  # Default false
 
     # Based on PostgreSQL/authorsearch.py
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
 
             with conn.cursor() as cur:
-                query = 'SELECT is_admin FROM users '
-                query += 'WHERE netid = \'' + netid + '\''
+                query = "SELECT is_admin FROM users "
+                query += "WHERE netid = '" + netid + "'"
                 cur.execute(query)
 
                 row = cur.fetchone()
@@ -79,9 +73,26 @@ def get_user_info():
                     is_admin = row[0]
 
     except Exception as ex:
-        pass # for now
+        pass  # for now
 
     return {"user": netid, "is_admin": is_admin}
+
+
+# -----------------------------------------------------------------------
+
+
+def get_admin_users():
+    """Fetch all admin users from the database."""
+    admin_users = []
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT netid FROM users WHERE is_admin = TRUE")
+                admin_users = [row[0] for row in cur.fetchall()]
+    except Exception as ex:
+        print("Database error:", ex)
+
+    return admin_users
 
 
 # -----------------------------------------------------------------------
@@ -98,10 +109,7 @@ def home():
 @app.route("/settings", methods=["GET"])
 def settings():
     user_info = get_user_info()
-    if user_info.get("is_admin", False):
-        return render_template("settings-admin.html", user=user_info)
-    else:
-        return render_template("settings.html", user=user_info)
+    return render_template("settings.html", user=user_info)
 
 
 @app.route("/update-availability", methods=["GET"])
@@ -151,7 +159,7 @@ def generate():
         return redirect(url_for("home"))
 
 
-@app.route("/publish-schedule", methods=["GET"])
+@app.route("/published-schedule", methods=["GET"])
 def publish():
     user_info = get_user_info()
     if user_info.get("is_admin", False):
@@ -160,40 +168,91 @@ def publish():
         return redirect(url_for("home"))
 
 
-@app.route("/manage-members", methods=["GET"])
-def manage_members():
-    user_info = get_user_info()
-    if user_info.get("is_admin", False):
-        return render_template("manage-members.html", user=user_info)
-    else:
-        return redirect(url_for("home"))
-
-
-@app.route("/manage-users", methods=["GET"])
+@app.route("/manage-admins", methods=["GET"])
 def manage_users():
     user_info = get_user_info()
+    admin_info = get_admin_users()
     if user_info.get("is_admin", False):
-        return render_template("manage-users.html", user=user_info)
+        return render_template("manage-admins.html", user=user_info, admins=admin_info)
     else:
         return redirect(url_for("home"))
+
+
+@app.route("/remove-admins", methods=["POST"])
+def remove_admins():
+    try:
+        # Get the list of netids from the request body
+        data = request.get_json()
+        netids_to_remove = data.get("netids", [])
+
+        if not netids_to_remove:
+            return False
+
+        # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Update the is_admin flag to False for the selected users
+                query = """
+                    UPDATE users
+                    SET is_admin = FALSE
+                    WHERE netid = ANY(%s);
+                """
+                cur.execute(query, (netids_to_remove,))
+                conn.commit()
+
+        return True
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+@app.route("/add-admin", methods=["POST"])
+def add_admin():
+    try:
+        # Get the netid of the user to add as admin from the request body
+        data = request.get_json()
+        netid = data.get("netid")
+
+        if not netid:
+            return False
+
+        # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Update the is_admin flag to True for the selected user
+                query = """
+                    UPDATE users
+                    SET is_admin = TRUE
+                    WHERE netid = %s;
+                """
+                cur.execute(query, (netid,))
+                conn.commit()
+
+        return True
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
 
 
 @app.route("/manage-groups", methods=["GET"])
 def manage_groups():
     user_info = get_user_info()
     if user_info.get("is_admin", False):
-        return render_template("groups.html", user=user_info)
+        return render_template("manage-groups.html", user=user_info)
     else:
         return redirect(url_for("home"))
 
 
-@app.route("/availability", methods=["GET"])
+@app.route("/view-availability", methods=["GET"])
 def availability():
     user_info = get_user_info()
     if user_info.get("is_admin", False):
         return render_template("availability.html", user=user_info)
     else:
         return redirect(url_for("home"))
+
 
 # -----------------------------------------------------------------------
 

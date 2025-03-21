@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Boxicons -->
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- FullCalendar Styles and Scripts -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
+      integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/admin.css') }}"
+    />
+    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+
+    <!-- Set Title of Page -->
+    <title>Manage Admins - StageSync</title>
+  </head>
+
+  <body class="flex flex-col min-h-screen font-sans bg-white">
+    <div class="flex flex-grow">
+      <!-- Sidebar Section -->
+      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+        {% include 'sidebar-admin.html' %}
+      </div>
+
+      <!-- Main Content Section -->
+      <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
+        <div class="flex justify-between items-center mt-2">
+          <p class="text-3xl font-bold">Manage Admins</p>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <p id="subtitle" class="text-lg font-bold text-orange-500 py-4">
+            Manage members with administrator permissions below
+          </p>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <!-- table code from https://flowbite.com/docs/components/tables/ -->
+          <table
+            class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
+          >
+            <thead
+              class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
+            >
+              <tr>
+                <th scope="col" class="px-6 py-3"></th>
+                <th scope="col" class="px-6 py-3">netid</th>
+                <th scope="col" class="px-6 py-3">First Name</th>
+                <th scope="col" class="px-6 py-3">Last Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for admin in admins %}
+              <tr
+                class="bg-white border-b dark:bg-neutral-800 dark:border-neutral-700 border-neutral-200"
+              >
+                <td class="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    class="admin-checkbox"
+                    value="{{ admin.netid }}"
+                  />
+                </td>
+                <td class="px-6 py-4">{{ admin }}</td>
+                <td class="px-6 py-4">placeholder</td>
+                <td class="px-6 py-4">placeholder</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex justify-between mt-4">
+          <button
+            id="remove-admin-button"
+            class="text-white font-sm border-2 bg-orange-500 border-orange-500 hover:bg-orange-700 hover:border-orange-700 py-2 px-4 rounded-md"
+          >
+            Remove Selected Admins
+          </button>
+
+          <form id="add-admin-form">
+            <label for="netid" class="font-sm mr-2">NetID to Add as Admin:</label>
+            <input
+              type="text"
+              id="netid"
+              name="netid"
+              class="px-4 py-2 font-sm border rounded-md"
+              placeholder="Enter NetID"
+              required
+            />
+            <button
+              type="submit"
+              class="text-white bg-pink-500 border-2 border-pink-500 hover:bg-pink-700 hover:border-pink-700 py-2 px-4 rounded-md ml-2"
+            >
+              Add Admin
+            </button>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-neutral-900 py-4 mt-auto">
+      {% include 'footer.html' %}
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+  </body>
+</html>
