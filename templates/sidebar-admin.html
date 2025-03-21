@@ -99,9 +99,13 @@
     </li>
 
     <!-- Manage Members Dropdown -->
+    <!-- Dropdown Button -->
     <li class="relative group">
       <button
+        id="dropdownDefaultButton"
+        data-dropdown-toggle="dropdownMenu"
         class="w-full flex items-center justify-between text-neutral-800 hover:bg-neutral-200 p-1 mb-1 rounded-md transition-all duration-500"
+        type="button"
       >
         <div class="flex items-center">
           <i class="bx bxs-user-detail bx-sm mr-2"></i>
@@ -109,35 +113,42 @@
         </div>
         <i class="bx bx-chevron-down bx-sm"></i>
       </button>
+
       <!-- Dropdown Menu -->
-      <ul
-        class="hidden group-hover:block absolute left-0 w-56 bg-white shadow-lg rounded-md mt-1 p-1 mb-1 mb-1 space-y-1 transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100"
+      <div
+        id="dropdownMenu"
+        class="hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 w-full min-w-max"
       >
-        <li>
-          <a
-            href="{{ url_for('manage_users') }}"
-            class="block px-4 py-1 text-neutral-800 hover:bg-neutral-200 rounded-md"
-          >
-            Manage Admins
-          </a>
-        </li>
-        <li>
-          <a
-            href="{{ url_for('manage_groups') }}"
-            class="block px-4 py-1 text-neutral-800 hover:bg-neutral-200 rounded-md"
-          >
-            Manage Groups
-          </a>
-        </li>
-        <li>
-          <a
-            href="{{ url_for('availability') }}"
-            class="block px-4 py-1 text-neutral-800 hover:bg-neutral-200 rounded-md"
-          >
-            View Availability
-          </a>
-        </li>
-      </ul>
+        <ul
+          class="py-2 text-sm text-gray-700 dark:text-gray-200"
+          aria-labelledby="dropdownDefaultButton"
+        >
+          <li>
+            <a
+              href="{{ url_for('manage_users') }}"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              Manage Admins
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('manage_groups') }}"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              Manage Groups
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('availability') }}"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              View Availability
+            </a>
+          </li>
+        </ul>
+      </div>
     </li>
   </ul>
 </nav>

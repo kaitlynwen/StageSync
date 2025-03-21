@@ -54,7 +54,7 @@ def allowed_file(filename):
 
 
 # Define user info function (currently hardcoded for bypassing authentication)
-def get_user_info():
+"""def get_user_info():
     user_info = auth.authenticate()
     netid = user_info['user']
     is_admin = False #Default false
@@ -75,7 +75,10 @@ def get_user_info():
     except Exception as ex:
         pass # for now
 
-    return {"user": netid, "is_admin": is_admin}
+    return {"user": netid, "is_admin": is_admin}"""
+    
+def get_user_info():    
+     return {"user": "test", "is_admin": True}
 
 # -----------------------------------------------------------------------
 
