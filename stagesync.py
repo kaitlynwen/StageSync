@@ -11,31 +11,37 @@ import os
 import dotenv
 import tempfile
 import parsedata
-from flask_sqlalchemy import SQLAlchemy
-# import auth
+# from flask_sqlalchemy import SQLAlchemy
+import auth
+import psycopg2
+from top import app
+
 
 # -----------------------------------------------------------------------
 
 # Load environment variables
 dotenv.load_dotenv()
 
-# Initialize Flask app
-app = flask.Flask(
-    "stagesync",
-    template_folder="templates",  # Folder for HTML files
-    static_folder="static",  # Folder for CSS, JS, and images
-)
+# # Initialize Flask app
+# app = flask.Flask(
+#     "stagesync",
+#     template_folder="templates",  # Folder for HTML files
+#     static_folder="static",  # Folder for CSS, JS, and images
+# )
 
 # Secret key setup (set up in .env)
 app.secret_key = os.environ.get(
     "APP_SECRET_KEY", "your_default_secret_key"
 )  # Make sure .env has the APP_SECRET_KEY
 
-# Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
-    True  # If needed, disable for performance
-)
+# # Configure the database
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
+#     True  # If needed, disable for performance
+# )
+
+# If not using SQLAlchemy
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Set temporary storage location for testing
 UPLOAD_FOLDER = tempfile.mkdtemp()
@@ -55,7 +61,27 @@ def allowed_file(filename):
 
 # Define user info function (currently hardcoded for bypassing authentication)
 def get_user_info():
-    return {"user": "Admin User", "is_admin": True}
+    user_info = auth.authenticate()
+    netid = user_info['user']
+    is_admin = False #Default false
+
+    # Based on PostgreSQL/authorsearch.py
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+
+            with conn.cursor() as cur:
+                query = 'SELECT is_admin FROM users '
+                query += 'WHERE netid = \'' + netid + '\''
+                cur.execute(query)
+
+                row = cur.fetchone()
+                if row:
+                    is_admin = row[0]
+
+    except Exception as ex:
+        pass # for now
+
+    return {"user": netid, "is_admin": is_admin}
 
 
 # -----------------------------------------------------------------------

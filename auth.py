@@ -12,7 +12,7 @@ import re
 import json
 import flask
 
-from stagesync import app
+from top import app
 
 #-----------------------------------------------------------------------
 
