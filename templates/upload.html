@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Boxicons -->
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
 
     <!-- FullCalendar Styles and Scripts -->
     <script
@@ -15,13 +18,17 @@
       referrerpolicy="no-referrer"
     ></script>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/custom.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/tailwind.css') }}"
+    />
     <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
-    
+
     <!-- Set Title of Page -->
     <title>Upload Rehearsal Data - StageSync</title>
   </head>
@@ -47,13 +54,22 @@
 
         <!-- Uploading (Drag and Drop) -->
         <div class="flex justify-center items-center mt-10">
-          <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="w-full max-w-md">
+          <form
+            action="{{ url_for('upload') }}"
+            method="POST"
+            enctype="multipart/form-data"
+            class="w-full max-w-md"
+          >
             <div
               id="drop-zone"
               class="drop-zone p-8 border-2 border-dashed border-neutral-400 rounded-md hover:border-neutral-600 cursor-pointer"
             >
-              <p id="drop-text" class="font-semibold text-neutral-900 text-center">
-                Drag & drop <br /> or <span class="text-orange-500">browse</span>
+              <p
+                id="drop-text"
+                class="font-semibold text-neutral-900 text-center"
+              >
+                Drag & drop <br />
+                or <span class="text-orange-500">browse</span>
               </p>
               <input
                 type="file"
@@ -64,7 +80,8 @@
               />
               <div class="file-info mt-4 text-center">
                 <p class="text-neutral-700">
-                  Selected File: <span id="file-name" class="font-semibold">None</span>
+                  Selected File:
+                  <span id="file-name" class="font-semibold">None</span>
                 </p>
               </div>
             </div>
@@ -87,6 +104,6 @@
     </footer>
 
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/drag-drop.js') }}"></script>
   </body>
 </html>

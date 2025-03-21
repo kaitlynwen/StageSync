@@ -18,13 +18,14 @@
       referrerpolicy="no-referrer"
     ></script>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
     <!-- Custom CSS -->
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/admin.css') }}"
+      href="{{ url_for('static', filename='css/custom.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/tailwind.css') }}"
     />
     <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
 
@@ -96,7 +97,9 @@
           </button>
 
           <form id="add-admin-form">
-            <label for="netid" class="font-sm mr-2">NetID to Add as Admin:</label>
+            <label for="netid" class="font-sm mr-2"
+              >NetID to Add as Admin:</label
+            >
             <input
               type="text"
               id="netid"
@@ -121,6 +124,6 @@
       {% include 'footer.html' %}
     </footer>
 
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/manage-admins.js') }}"></script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 /* Custom Theme Variables */
 :root {
-    --primary: oklch(0.705 0.213 47.604); /* orange 500 */
-    --secondary: oklch(0.592 0.249 0.584); /* pink 600 */
+    --primary: var(--color-orange-500); /* orange 500 */
+    --secondary: var(--color-pink-600); /* pink 600 */
 }
 /* FullCalendar Styling */
 .fc-toolbar-title {
@@ -11,7 +11,7 @@
 
 /* Drag and Drop Styling */
 .drop-zone {
-    border: 2px dashed var(--secondary);
+    border: 2px dashed var(--);
     text-align: center;
     cursor: pointer;
   }
@@ -20,5 +20,5 @@
     display: none;
   }
   .drop-zone .file-info span {
-    color:  var(--secondary);
+    color:  var(--color-neutral-300);
   }

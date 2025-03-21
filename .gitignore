@@ -3,3 +3,4 @@ References.txt
 .DS*
 diff-event-colors*
 __pycache__
+node_modules
