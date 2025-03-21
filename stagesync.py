@@ -5,7 +5,7 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # -----------------------------------------------------------------------
 
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, jsonify
 import flask
 import os
 import dotenv
@@ -54,18 +54,18 @@ def allowed_file(filename):
 
 
 # Define user info function (currently hardcoded for bypassing authentication)
-def get_user_info():
+"""def get_user_info():
     user_info = auth.authenticate()
-    netid = user_info["user"]
-    is_admin = False  # Default false
+    netid = user_info['user']
+    is_admin = False #Default false
 
     # Based on PostgreSQL/authorsearch.py
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
 
             with conn.cursor() as cur:
-                query = "SELECT is_admin FROM users "
-                query += "WHERE netid = '" + netid + "'"
+                query = 'SELECT is_admin FROM users '
+                query += 'WHERE netid = \'' + netid + '\''
                 cur.execute(query)
 
                 row = cur.fetchone()
@@ -73,9 +73,12 @@ def get_user_info():
                     is_admin = row[0]
 
     except Exception as ex:
-        pass  # for now
+        pass # for now
 
     return {"user": netid, "is_admin": is_admin}
+"""
+def get_user_info():
+    return {"user": "Admin User", "is_admin": True}
 
 
 # -----------------------------------------------------------------------
@@ -178,35 +181,6 @@ def manage_users():
         return redirect(url_for("home"))
 
 
-@app.route("/remove-admins", methods=["POST"])
-def remove_admins():
-    try:
-        # Get the list of netids from the request body
-        data = request.get_json()
-        netids_to_remove = data.get("netids", [])
-
-        if not netids_to_remove:
-            return False
-
-        # Connect to the database
-        with psycopg2.connect(DATABASE_URL) as conn:
-            with conn.cursor() as cur:
-                # Update the is_admin flag to False for the selected users
-                query = """
-                    UPDATE users
-                    SET is_admin = FALSE
-                    WHERE netid = ANY(%s);
-                """
-                cur.execute(query, (netids_to_remove,))
-                conn.commit()
-
-        return True
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return False
-
-
 @app.route("/add-admin", methods=["POST"])
 def add_admin():
     try:
@@ -215,7 +189,7 @@ def add_admin():
         netid = data.get("netid")
 
         if not netid:
-            return False
+            return jsonify({"error": "NetID is required"}), 400  # Return error with status code 400
 
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -229,11 +203,11 @@ def add_admin():
                 cur.execute(query, (netid,))
                 conn.commit()
 
-        return True
+        return jsonify({"message": "Admin added successfully"}), 200  # Return success with status code 200
 
     except Exception as e:
         print(f"Error: {e}")
-        return False
+        return jsonify({"error": "Internal Server Error"}), 500  # Return error with status code 500
 
 
 @app.route("/manage-groups", methods=["GET"])
