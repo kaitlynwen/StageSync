@@ -13,7 +13,7 @@ import tempfile
 import parsedata
 
 # from flask_sqlalchemy import SQLAlchemy
-# import auth
+import auth
 import psycopg2
 from top import app
 
@@ -54,7 +54,7 @@ def allowed_file(filename):
 
 
 # Define user info function (currently hardcoded for bypassing authentication)
-"""def get_user_info():
+def get_user_info():
     user_info = auth.authenticate()
     netid = user_info['user']
     is_admin = False #Default false
@@ -76,10 +76,6 @@ def allowed_file(filename):
         pass # for now
 
     return {"user": netid, "is_admin": is_admin}
-"""
-def get_user_info():
-    return {"user": "Admin User", "is_admin": True}
-
 
 # -----------------------------------------------------------------------
 
