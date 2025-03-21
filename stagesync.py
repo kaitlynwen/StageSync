@@ -205,6 +205,36 @@ def add_admin():
         print(f"Error: {e}")
         return jsonify({"error": "Internal Server Error"}), 500  # Return error with status code 500
 
+@app.route("/remove-admins", methods=["POST"])
+def remove_admins():
+    try:
+        # Get the netids of users to remove from admin from the request body
+        data = request.get_json()
+        # print("data: ", data) for testing
+        netids = data.get("netids", [])
+        # print(netids) for testing
+
+        if not netids:
+            return jsonify({"error": "NetID(s) required"}), 400  # Return error with status code 400
+
+        # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Update the is_admin flag to False for the selected users
+                query = """
+                    UPDATE users
+                    SET is_admin = FALSE
+                    WHERE netid = ANY(%s);
+                """
+                cur.execute(query, (netids,))
+                conn.commit()
+
+        return jsonify({"message": "Admins removed successfully"}), 200  # Return success with status code 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500  # Return error with status code 500
+
 
 @app.route("/manage-groups", methods=["GET"])
 def manage_groups():
