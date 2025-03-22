@@ -76,9 +76,11 @@ def allowed_file(filename):
         pass # for now
 
     return {"user": netid, "is_admin": is_admin}"""
-    
-def get_user_info():    
-     return {"user": "test", "is_admin": True}
+
+
+def get_user_info():
+    return {"user": "test", "is_admin": True}
+
 
 # -----------------------------------------------------------------------
 
@@ -95,6 +97,39 @@ def get_admin_users():
         print("Database error:", ex)
 
     return admin_users
+
+
+# -----------------------------------------------------------------------
+
+
+def get_groups():
+    """Fetch all groups of members from the database."""
+    groups = {}
+
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT 
+                            rehearsal_groups.title AS group_name, 
+                            users.first_name, 
+                            users.last_name
+                        FROM group_members
+                        JOIN rehearsal_groups ON group_members.groupid = rehearsal_groups.groupid
+                        JOIN users ON group_members.netid = users.netid
+                        ORDER BY rehearsal_groups.title, users.last_name, users.first_name;
+                    """
+                )
+                for group_name, first_name, last_name in cur.fetchall():
+                    if group_name not in groups:
+                        groups[group_name] = [] 
+                    groups[group_name].append({"first_name": first_name, "last_name": last_name})
+
+    except Exception as ex:
+        print("Database error:", ex)
+
+    # Convert dictionary to list of dictionaries
+    return [{"title": group, "members": members} for group, members in groups.items()]
 
 
 # -----------------------------------------------------------------------
@@ -188,7 +223,10 @@ def add_admin():
         netid = data.get("netid")
 
         if not netid:
-            return jsonify({"success": False, "message": "NetID is required"}), 400  # Return error with status code 400
+            return (
+                jsonify({"success": False, "message": "NetID is required"}),
+                400,
+            )  # Return error with status code 400
 
         # Check to see if netid exists in database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -202,7 +240,9 @@ def add_admin():
                 exists = cur.fetchone()[0]
 
                 if not exists:
-                    return jsonify({"success": False, "message": "NetID does not exist"})
+                    return jsonify(
+                        {"success": False, "message": "NetID does not exist"}
+                    )
 
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -220,7 +260,11 @@ def add_admin():
 
     except Exception as e:
         print(f"Error: {e}")
-        return jsonify({"error": "Internal Server Error"}), 500  # Return error with status code 500
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
+
 
 @app.route("/remove-admins", methods=["POST"])
 def remove_admins():
@@ -232,7 +276,10 @@ def remove_admins():
         # print(netids) for testing
 
         if not netids:
-            return jsonify({"success": False, "message": "NetID(s) required"}), 400  # Return error with status code 400
+            return (
+                jsonify({"success": False, "message": "NetID(s) required"}),
+                400,
+            )  # Return error with status code 400
 
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -250,14 +297,18 @@ def remove_admins():
 
     except Exception as e:
         print(f"Error: {e}")
-        return jsonify({"error": "Internal Server Error"}), 500  # Return error with status code 500
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
 
 
 @app.route("/manage-groups", methods=["GET"])
 def manage_groups():
     user_info = get_user_info()
+    group_info = get_groups()
     if user_info.get("is_admin", False):
-        return render_template("manage-groups.html", user=user_info)
+        return render_template("manage-groups.html", user=user_info, groups=group_info)
     else:
         return redirect(url_for("home"))
 
