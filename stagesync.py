@@ -87,8 +87,10 @@ def get_admin_users():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT netid FROM users WHERE is_admin = TRUE")
-                admin_users = [row[0] for row in cur.fetchall()]
+                cur.execute("SELECT netid, first_name, last_name FROM users WHERE is_admin = TRUE")
+                for netid, first_name, last_name in cur.fetchall():
+                    admin_users.append({"netid":netid, "first_name": first_name, "last_name": last_name})
+                    
     except Exception as ex:
         print("Database error:", ex)
 

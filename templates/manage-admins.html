@@ -80,12 +80,12 @@
                   <input
                     type="checkbox"
                     class="admin-checkbox"
-                    value="{{ admin }}"
+                    value="{{ admin.netid }}"
                   />
                 </td>
-                <td class="px-6 py-4">{{ admin }}</td>
-                <td class="px-6 py-4">placeholder</td>
-                <td class="px-6 py-4">placeholder</td>
+                <td class="px-6 py-4">{{ admin.netid }}</td>
+                <td class="px-6 py-4">{{ admin.first_name }}</td>
+                <td class="px-6 py-4">{{ admin.last_name }}</td>
               </tr>
               {% endfor %}
             </tbody>
