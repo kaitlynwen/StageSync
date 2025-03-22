@@ -188,7 +188,21 @@ def add_admin():
         netid = data.get("netid")
 
         if not netid:
-            return jsonify({"error": "NetID is required"}), 400  # Return error with status code 400
+            return jsonify({"success": False, "message": "NetID is required"}), 400  # Return error with status code 400
+
+        # Check to see if netid exists in database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                query = """
+                    SELECT EXISTS(SELECT 1 
+                    FROM users
+                    WHERE netid = %s);
+                """
+                cur.execute(query, (netid,))
+                exists = cur.fetchone()[0]
+
+                if not exists:
+                    return jsonify({"success": False, "message": "NetID does not exist"})
 
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -202,7 +216,7 @@ def add_admin():
                 cur.execute(query, (netid,))
                 conn.commit()
 
-        return jsonify({"message": "Admin added successfully"}), 200  # Return success with status code 200
+        return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:
         print(f"Error: {e}")
@@ -218,7 +232,7 @@ def remove_admins():
         # print(netids) for testing
 
         if not netids:
-            return jsonify({"error": "NetID(s) required"}), 400  # Return error with status code 400
+            return jsonify({"success": False, "message": "NetID(s) required"}), 400  # Return error with status code 400
 
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -232,7 +246,7 @@ def remove_admins():
                 cur.execute(query, (netids,))
                 conn.commit()
 
-        return jsonify({"message": "Admins removed successfully"}), 200  # Return success with status code 200
+        return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:
         print(f"Error: {e}")

@@ -32,7 +32,7 @@ document
             alert("Admin permissions removed successfully");
             location.reload(); // Reload the page to reflect changes
           } else {
-            alert("An error occurred. Please try again.");
+            alert("An error occurred: " + data.message);
           }
         })
         .catch((error) => {
