@@ -61,218 +61,251 @@
           </p>
         </div>
 
-        <div class="flex justify-between items-center mt-6">
-          <p class="text-xl font-bold">Weekly Conflicts</p>
-        </div>
+        <!-- Form Start Here -->
+        <form action="{{ url_for('update') }}" method="POST">
+          <!-- Weekly Conflicts Section -->
+          <div class="flex justify-between items-center mt-6">
+            <p class="text-xl font-bold">Weekly Conflicts</p>
+          </div>
 
-        <div class="flex justify-between items-center mt-4">
-          <p class="text-m font-normal">
-            <strong>Weekly Conflict Format:</strong><br />
-            Please list your weekly conflicts in the following format:
-          </p>
-        </div>
+          <div class="flex justify-between items-center mt-4">
+            <p class="text-m font-normal">
+              <strong>Weekly Conflict Format:</strong><br />
+              Please list your weekly conflicts in the following format:
+            </p>
+          </div>
 
-        <div class="flex justify-between items-center mt-2">
-          <ul class="list-disc pl-5 mt-2">
-            <li>
-              <strong>Start Time</strong> - <strong>End Time</strong> for each
-              conflict period.
-            </li>
-            <li>
-              Separate multiple conflict periods for the same day with a
-              semicolon (<code>;</code>).
-            </li>
-            <li>
-              For each conflict period, specify the start and end times using
-              <strong>hour:minute(AM/PM)</strong>.
-            </li>
-          </ul>
-        </div>
+          <div class="flex justify-between items-center mt-2">
+            <ul class="list-disc pl-5 mt-2">
+              <li>
+                <strong>Start Time</strong> - <strong>End Time</strong> for each
+                conflict period.
+              </li>
+              <li>
+                Separate multiple conflict periods for the same day with a
+                semicolon (<code>;</code>).
+              </li>
+              <li>
+                For each conflict period, specify the start and end times using
+                <strong>hour:minute(AM/PM)</strong>.
+              </li>
+            </ul>
+          </div>
 
-        <div class="flex justify-right items-center mt-2">
-          <strong>Example:</strong>&nbsp;6:00PM-8:00PM; 10:00PM-11:00PM (This
-          means two separate conflicts on the same day.)
-        </div>
+          <div class="flex justify-right items-center mt-2">
+            <strong>Example:</strong>&nbsp;6:00PM-8:00PM; 10:00PM-11:00PM (This
+            means two separate conflicts on the same day.)
+          </div>
 
-        <div class="flex justify-between items-center mt-6">
-          <table
-            class="w-screen text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
-          >
-            <tbody>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">Monday</th>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="monday_conflicts"
-                  />
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">Tuesday</th>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="tuesday_conflicts"
-                  />
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">Wednesday</th>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="wednesday_conflicts"
-                  />
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">Thursday</th>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="thursday_conflicts"
-                  />
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">Friday</th>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="friday_conflicts"
-                  />
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">Saturday</th>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="saturday_conflicts"
-                  />
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">Sunday</th>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="sunday_conflicts"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="flex justify-between items-center mt-8">
-          <p class="text-xl font-bold">One-Time Conflicts</p>
-        </div>
-
-        <div class="flex justify-between items-center mt-4">
-          <p class="text-m font-normal">
-            <strong>One-Time Conflict Format:</strong><br />
-            Please list your one-time conflicts in the following format:
-          </p>
-        </div>
-
-        <div class="flex justify-between items-center mt-2">
-          <ul class="list-disc pl-5 mt-2">
-            <li>
-              <strong>Start Date</strong> and <strong>End Date</strong> for each
-              conflict period in the format <strong>month/day</strong>.
-            </li>
-            <li>
-              <strong>Start Time</strong> - <strong>End Time</strong> for each
-              conflict period in <strong>hour:minute(AM/PM)</strong>.
-            </li>
-            <li>
-              Separate multiple conflict periods with a semicolon
-              (<code>;</code>).
-            </li>
-          </ul>
-        </div>
-
-        <div class="flex justify-right items-center mt-2">
-          <strong>Example:</strong>&nbsp;03/15.6:00PM-8:00PM;
-          03/16.10:00AM-12:00PM (This means two separate conflicts on different
-          dates.)
-        </div>
-
-        <div class="flex justify-between items-center mt-6">
-          <!-- table code from https://flowbite.com/docs/components/tables/ -->
-          <table
-            class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
-          >
-            <thead
-              class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
+          <div class="flex justify-between items-center mt-6">
+            <table
+              class="w-screen text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
             >
-              <tr>
-                <th scope="col" class="px-6 py-3">Conflict</th>
-                <th scope="col" class="px-6 py-3">
-                  Explanation and Notes (Optional)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="one_time_conflict"
-                  />
-                </td>
-                <td class="px-6 py-4">
-                  <input
-                    class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                    type="text"
-                    name="conflict_notes"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              <tbody>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <th
+                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  >
+                    Monday
+                  </th>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="monday_conflicts"
+                    />
+                  </td>
+                </tr>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <th
+                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  >
+                    Tuesday
+                  </th>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="tuesday_conflicts"
+                    />
+                  </td>
+                </tr>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <th
+                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  >
+                    Wednesday
+                  </th>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="wednesday_conflicts"
+                    />
+                  </td>
+                </tr>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <th
+                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  >
+                    Thursday
+                  </th>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="thursday_conflicts"
+                    />
+                  </td>
+                </tr>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <th
+                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  >
+                    Friday
+                  </th>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="friday_conflicts"
+                    />
+                  </td>
+                </tr>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <th
+                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  >
+                    Saturday
+                  </th>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="saturday_conflicts"
+                    />
+                  </td>
+                </tr>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <th
+                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  >
+                    Sunday
+                  </th>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="sunday_conflicts"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        <div class="flex justify-center items-center mt-5">
-          <button
-            type="reset"
-            class="text-orange-500 font-semibold font-lg border-2 border-orange-500 hover:bg-orange-100 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
-          >
-            Discard Changes
-          </button>
-          <button
-            type="submit"
-            class="text-white font-semibold font-lg bg-2 border-2 border-orange-500 bg-orange-500 hover:bg-orange-700 hover:border-orange-700 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
-          >
-            Save Changes
-          </button>
-        </div>
+          <!-- One-Time Conflicts Section -->
+          <div class="flex justify-between items-center mt-8">
+            <p class="text-xl font-bold">One-Time Conflicts</p>
+          </div>
+
+          <div class="flex justify-between items-center mt-4">
+            <p class="text-m font-normal">
+              <strong>One-Time Conflict Format:</strong><br />
+              Please list your one-time conflicts in the following format:
+            </p>
+          </div>
+
+          <div class="flex justify-between items-center mt-2">
+            <ul class="list-disc pl-5 mt-2">
+              <li>
+                <strong>Start Date</strong> and <strong>End Date</strong> for
+                each conflict period in the format <strong>month/day</strong>.
+              </li>
+              <li>
+                <strong>Start Time</strong> - <strong>End Time</strong> for each
+                conflict period in <strong>hour:minute(AM/PM)</strong>.
+              </li>
+              <li>
+                Separate multiple conflict periods with a semicolon
+                (<code>;</code>).
+              </li>
+            </ul>
+          </div>
+
+          <div class="flex justify-right items-center mt-2">
+            <strong>Example:</strong>&nbsp;03/15.6:00PM-8:00PM;
+            03/16.10:00AM-12:00PM (This means two separate conflicts on
+            different dates.)
+          </div>
+
+          <div class="flex justify-between items-center mt-6">
+            <table
+              class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
+            >
+              <thead
+                class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
+              >
+                <tr>
+                  <th scope="col" class="px-6 py-3">Conflict</th>
+                  <th scope="col" class="px-6 py-3">
+                    Explanation and Notes (Optional)
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+                >
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="one_time_conflict"
+                    />
+                  </td>
+                  <td class="px-6 py-4">
+                    <input
+                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
+                      type="text"
+                      name="conflict_notes"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex justify-center items-center mt-5">
+            <button
+              type="reset"
+              class="text-orange-500 font-semibold font-lg border-2 border-orange-500 hover:bg-orange-100 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
+            >
+              Discard Changes
+            </button>
+            <button
+              type="submit"
+              class="text-white font-semibold font-lg bg-2 border-2 border-orange-500 bg-orange-500 hover:bg-orange-700 hover:border-orange-700 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
       </main>
     </div>
 

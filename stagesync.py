@@ -6,6 +6,7 @@
 # -----------------------------------------------------------------------
 
 from flask import render_template, redirect, url_for, request, jsonify
+from datetime import datetime
 import flask
 import os
 import dotenv
@@ -147,11 +148,80 @@ def settings():
     return render_template("settings.html", user=user_info)
 
 
-@app.route("/update-availability", methods=["GET"])
+@app.route("/update-availability", methods=["GET", "POST"])
 def update():
-    user_info = get_user_info()
-    return render_template("update.html", user=user_info)
+    if request.method == "GET":
+        user_info = get_user_info()
+        return render_template("update.html", user=user_info)
 
+    else:
+        user_info = get_user_info()  # Fetch user info (netid) for the current user
+        user_netid = user_info['user']  # Get the user netid
+        weekly_conflicts = {
+            "Monday": request.form['monday_conflicts'],
+            "Tuesday": request.form['tuesday_conflicts'],
+            "Wednesday": request.form['wednesday_conflicts'],
+            "Thursday": request.form['thursday_conflicts'],
+            "Friday": request.form['friday_conflicts'],
+            "Saturday": request.form['saturday_conflicts'],
+            "Sunday": request.form['sunday_conflicts'],
+        }
+        one_time_conflicts = request.form['one_time_conflict']
+        conflict_notes = request.form['conflict_notes']
+        
+        # Parse and insert weekly conflicts
+        for day, conflicts in weekly_conflicts.items():
+            if conflicts:
+                for conflict in conflicts.split(';'):
+                    start_time, end_time = conflict.split('-')
+                    start_time = convert_to_24hr_format(start_time.strip())
+                    end_time = convert_to_24hr_format(end_time.strip())
+                    insert_weekly_conflict(user_netid, day, start_time, end_time)
+
+        # Parse and insert one-time conflicts
+        if one_time_conflicts:
+            one_time_list = one_time_conflicts.split(';')
+            for conflict in one_time_list:
+                date_str, time_range = conflict.split('.')
+                date_str = date_str.strip()
+                time_range = time_range.strip()
+                date = datetime.strptime(date_str, '%m/%d').replace(year=datetime.now().year)
+                day = date.strftime('%A')
+                start_time, end_time = time_range.split('-')
+                start_time = convert_to_24hr_format(start_time.strip())
+                end_time = convert_to_24hr_format(end_time.strip())
+                insert_one_time_conflict(user_netid, date, day, start_time, end_time, conflict_notes)
+
+        success_message = "Availability successfully updated!"
+        return render_template("update.html", user=user_info, success_message=success_message)
+
+# Convert time to 24-hour format for PostgreSQL
+def convert_to_24hr_format(time_str):
+    return datetime.strptime(time_str, '%I:%M%p').strftime('%H:%M:%S')
+
+# Insert weekly conflict into the database
+def insert_weekly_conflict(netid, day, start_time, end_time):
+    conn = psycopg2.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO availability (netid, day_of_week, start_time, end_time, is_recurring, one_time_date, notes)
+        VALUES (%s, %s, %s, %s, FALSE, NULL, NULL)
+    """, (netid, day, start_time, end_time))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+# Insert one-time conflict into the database
+def insert_one_time_conflict(netid, one_time_date, day, start_time, end_time, notes):
+    conn = psycopg2.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO availability (netid, day_of_week, start_time, end_time, is_recurring, one_time_date, notes)
+        VALUES (%s, %s, %s, %s, TRUE, %s, %s)
+    """, (netid, day, start_time, end_time, one_time_date, notes))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 @app.route("/view-schedule", methods=["GET"])
 def view():
