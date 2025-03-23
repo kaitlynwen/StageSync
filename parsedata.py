@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import io
 import pandas as pd
 import re
 
@@ -114,9 +115,9 @@ def convert_schedule_to_calendar_events(schedule):
 ########################################################################
 
 
-def extract_schedule(file, group_name):
-    # Extract the date range from the filename (file is a file object here)
-    date_range_match = re.search(r"\((\d{1,2}_\d{1,2}-\d{1,2}_\d{1,2})\)", file.filename)
+def extract_schedule(file_path, group_name):
+    # Extract the date range from the filename (file_path is now a string)
+    date_range_match = re.search(r"\((\d{1,2}_\d{1,2}-\d{1,2}_\d{1,2})\)", file_path)
     date_range = date_range_match.group(1) if date_range_match else "Unknown"
 
     # Parse the date range into a list of dates
@@ -132,8 +133,10 @@ def extract_schedule(file, group_name):
         start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)
     ]
 
-    # Use pandas to read the Excel file from the in-memory file object
-    xl = pd.ExcelFile(io.BytesIO(file.read()))  # Load file into memory
+    # Open the file in binary mode and read it into memory
+    with open(file_path, "rb") as f:
+        xl = pd.ExcelFile(io.BytesIO(f.read()))  # Load file into memory
+
     schedule = []
 
     for sheet_name in xl.sheet_names:
