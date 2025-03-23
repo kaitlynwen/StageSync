@@ -154,11 +154,16 @@ def update():
         user_info = get_user_info()
         user_netid = user_info['user']
         weekly_conflicts = get_weekly_conflict(user_netid)
-        return render_template("update.html", user=user_info, conflicts=weekly_conflicts)
+        one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
+        return render_template("update.html", user=user_info, 
+                               weekly_conflicts=weekly_conflicts,
+                               one_time_conflicts=one_time_conflicts,
+                               conflict_notes=conflict_notes)
 
     else:
         user_info = get_user_info()  # Fetch user info (netid) for the current user
         user_netid = user_info['user']  # Get the user netid
+        delete_conflict(user_netid)
         weekly_conflicts = {
             "Monday": request.form['monday_conflicts'],
             "Tuesday": request.form['tuesday_conflicts'],
@@ -194,8 +199,14 @@ def update():
                 end_time = convert_to_24hr_format(end_time.strip())
                 insert_one_time_conflict(user_netid, date, day, start_time, end_time, conflict_notes)
 
+        weekly_conflicts = get_weekly_conflict(user_netid)
+        one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
         success_message = "Availability successfully updated!"
-        return render_template("update.html", user=user_info, success_message=success_message)
+        return render_template("update.html", user=user_info,
+                               success_message=success_message,
+                               weekly_conflicts=weekly_conflicts,
+                               one_time_conflicts=one_time_conflicts,
+                               conflict_notes=conflict_notes)
 
 # Convert time to 24-hour format for PostgreSQL
 def convert_to_24hr_format(time_str):
@@ -204,6 +215,16 @@ def convert_to_24hr_format(time_str):
 # Convert time to 12-hour format for html
 def convert_to_12hr_format(time_str):
      return time_str.strftime("%I:%M %p").replace(' ', '')
+
+# Delete existing time conflicts from database
+def delete_conflict(netid):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                DELETE FROM availability
+                WHERE netid = %s
+            """, (netid,))
+            conn.commit()
 
 # Get existing weekly conflicts from database
 def get_weekly_conflict(netid):
@@ -222,7 +243,7 @@ def get_weekly_conflict(netid):
             cursor.execute("""
                 SELECT day_of_week, start_time, end_time
                 FROM availability
-                WHERE netid = %s AND is_recurring = FALSE
+                WHERE netid = %s AND is_recurring = TRUE
                 ORDER BY day_of_week, start_time
             """, (netid,))
             
@@ -230,31 +251,67 @@ def get_weekly_conflict(netid):
                 start = convert_to_12hr_format(start)
                 end = convert_to_12hr_format(end)
                 weekly_conflicts[day].append(f"{start}-{end}")
+
     return weekly_conflicts
+
+# Get existing one time conflicts from database
+def get_one_time_conflict(netid):
+    one_time_conflicts = []
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT one_time_date, start_time, end_time
+                FROM availability
+                WHERE netid = %s AND is_recurring = FALSE
+                ORDER BY one_time_date, start_time
+            """, (netid,))
+            
+            for date, start, end in cursor.fetchall():
+                date = date.strftime('%m/%d')
+                start = convert_to_12hr_format(start)
+                end = convert_to_12hr_format(end)
+                one_time_conflicts.append(f"{date}.{start}-{end}")
+            
+            cursor.execute("""
+                SELECT notes
+                FROM availability
+                WHERE netid = %s AND is_recurring = FALSE
+                ORDER BY one_time_date, start_time
+            """, (netid,))
+            
+            row = cursor.fetchone()
+            if row:
+                conflict_notes = row[0]
+            else:
+                conflict_notes = ''
+    
+    if not one_time_conflicts:
+        return [], conflict_notes
+
+    else:
+        return one_time_conflicts, conflict_notes
 
 # Insert weekly conflict into the database
 def insert_weekly_conflict(netid, day, start_time, end_time):
-    conn = psycopg2.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO availability (netid, day_of_week, start_time, end_time, is_recurring, one_time_date, notes)
-        VALUES (%s, %s, %s, %s, FALSE, NULL, NULL)
-    """, (netid, day, start_time, end_time))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO availability (netid, day_of_week, start_time, 
+                           end_time, is_recurring, one_time_date, notes)
+                VALUES (%s, %s, %s, %s, TRUE, NULL, NULL)
+            """, (netid, day, start_time, end_time))
+            conn.commit()
 
 # Insert one-time conflict into the database
 def insert_one_time_conflict(netid, one_time_date, day, start_time, end_time, notes):
-    conn = psycopg2.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO availability (netid, day_of_week, start_time, end_time, is_recurring, one_time_date, notes)
-        VALUES (%s, %s, %s, %s, TRUE, %s, %s)
-    """, (netid, day, start_time, end_time, one_time_date, notes))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO availability (netid, day_of_week, start_time, 
+                           end_time, is_recurring, one_time_date, notes)
+                VALUES (%s, %s, %s, %s, FALSE, %s, %s)
+            """, (netid, day, start_time, end_time, one_time_date, notes))
+            conn.commit()
 
 @app.route("/view-schedule", methods=["GET"])
 def view():
