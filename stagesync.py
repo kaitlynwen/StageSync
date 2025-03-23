@@ -203,7 +203,7 @@ def convert_to_24hr_format(time_str):
 
 # Convert time to 12-hour format for html
 def convert_to_12hr_format(time_str):
-     return time_str.strftime("%I:%M %p")
+     return time_str.strftime("%I:%M %p").replace(' ', '')
 
 # Get existing weekly conflicts from database
 def get_weekly_conflict(netid):
