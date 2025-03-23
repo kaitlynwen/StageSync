@@ -152,7 +152,9 @@ def settings():
 def update():
     if request.method == "GET":
         user_info = get_user_info()
-        return render_template("update.html", user=user_info)
+        user_netid = user_info['user']
+        weekly_conflicts = get_weekly_conflict(user_netid)
+        return render_template("update.html", user=user_info, conflicts=weekly_conflicts)
 
     else:
         user_info = get_user_info()  # Fetch user info (netid) for the current user
@@ -198,6 +200,37 @@ def update():
 # Convert time to 24-hour format for PostgreSQL
 def convert_to_24hr_format(time_str):
     return datetime.strptime(time_str, '%I:%M%p').strftime('%H:%M:%S')
+
+# Convert time to 12-hour format for html
+def convert_to_12hr_format(time_str):
+     return time_str.strftime("%I:%M %p")
+
+# Get existing weekly conflicts from database
+def get_weekly_conflict(netid):
+    weekly_conflicts = {
+            "Monday": [],
+            "Tuesday": [],
+            "Wednesday": [],
+            "Thursday": [],
+            "Friday": [],
+            "Saturday": [],
+            "Sunday": [],
+        }
+    
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT day_of_week, start_time, end_time
+                FROM availability
+                WHERE netid = %s AND is_recurring = FALSE
+                ORDER BY day_of_week, start_time
+            """, (netid,))
+            
+            for day, start, end in cursor.fetchall():
+                start = convert_to_12hr_format(start)
+                end = convert_to_12hr_format(end)
+                weekly_conflicts[day].append(f"{start}-{end}")
+    return weekly_conflicts
 
 # Insert weekly conflict into the database
 def insert_weekly_conflict(netid, day, start_time, end_time):
