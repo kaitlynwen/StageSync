@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Boxicons -->
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Flowbite -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/custom.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/tailwind.css') }}"
+    />
+    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+
+    <!-- Set Title of Page -->
+    <title>View Member Availability - StageSync</title>
+  </head>
+
+  <body class="flex flex-col min-h-screen font-sans bg-white">
+    <div class="flex flex-grow">
+      <!-- Sidebar Section -->
+      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+        {% include 'sidebar-admin.html' %}
+      </div>
+
+      <!-- Main Content Section -->
+      <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
+        <div class="flex justify-between items-center mt-2">
+          <p class="text-3xl font-bold">View Member Availability</p>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <p id="subtitle" class="text-lg font-bold text-orange-500 py-4">
+            Select a member from the dropdown to view their availability.
+          </p>
+        </div>
+
+        <div class="flex justify-between items-center w-full mt-2">
+          <form
+            id="availabilityForm"
+            method="POST"
+            action="{{ url_for('availability') }}"
+            class="flex items-center w-full max-w-4xl"
+          >
+            <label for="memberDropdown" class="font-sm mr-2 text-neutral-700"
+              >Select a member:</label
+            >
+            <select
+              id="memberDropdown"
+              name="selected_netid"
+              class="w-60 px-4 py-2 font-sm border rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
+              required
+            >
+              <option value="" disabled selected>Select a member</option>
+              {% for member in members %}
+              <option
+                value="{{ member.netid }}"
+                data-firstname="{{ member.first_name }}"
+                data-lastname="{{ member.last_name }}"
+              >
+                {{ member.first_name }} {{ member.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+            <button
+              type="submit"
+              class="ml-2 px-4 py-2 bg-orange-500 text-white border-2 border-orange-500 hover:bg-orange-700 hover:border-orange-700 rounded-md"
+              id="viewAvailabilityBtn"
+            >
+              View Availability
+            </button>
+          </form>
+        </div>
+
+        {% if selected_member %}
+        <div class="mt-4 text-lg font-bold">
+          <p>
+            Weekly Conflicts for {{ selected_member.first_name }} {{
+            selected_member.last_name }}:
+          </p>
+        </div>
+        {% endif %}
+
+        <div class="flex justify-between items-center mt-6">
+          <table
+            class="w-screen text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
+          >
+            <tbody>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <th
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                >
+                  Monday
+                </th>
+                <td class="px-6 py-4">
+                  {% if weekly_conflicts %}
+                    {{ '; '.join(weekly_conflicts['Monday']) }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <th
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                >
+                  Tuesday
+                </th>
+                <td class="px-6 py-4">
+                  {% if weekly_conflicts %}
+                    {{ '; '.join(weekly_conflicts['Tuesday']) }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <th
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                >
+                  Wednesday
+                </th>
+                <td class="px-6 py-4">
+                  {% if weekly_conflicts %}
+                    {{ '; '.join(weekly_conflicts['Wednesday']) }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <th
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                >
+                  Thursday
+                </th>
+                <td class="px-6 py-4">
+                  {% if weekly_conflicts %}
+                    {{ '; '.join(weekly_conflicts['Thursday']) }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <th
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                >
+                  Friday
+                </th>
+                <td class="px-6 py-4">
+                  {% if weekly_conflicts %}
+                    {{ '; '.join(weekly_conflicts['Friday']) }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <th
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                >
+                  Saturday
+                </th>
+                <td class="px-6 py-4">
+                  {% if weekly_conflicts %}
+                    {{ '; '.join(weekly_conflicts['Saturday']) }}
+                  {% endif %}
+                </td>
+              </tr>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <th
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                >
+                  Sunday
+                </th>
+                <td class="px-6 py-4">
+                  {% if weekly_conflicts %}
+                    {{ '; '.join(weekly_conflicts['Sunday']) }}
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {% if selected_member %}
+        <div class="mt-8 text-lg font-bold">
+          <p>
+            One-Time Conflicts for {{ selected_member.first_name }} {{
+            selected_member.last_name }}:
+          </p>
+        </div>
+        {% endif %}
+
+        <div class="flex justify-between items-center mt-6">
+          <table
+            class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
+          >
+            <thead
+              class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
+            >
+              <tr>
+                <th scope="col" class="px-6 py-3">Conflict</th>
+                <th scope="col" class="px-6 py-3">
+                  Explanation and Notes (Optional)
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
+              >
+                <td class="px-6 py-4">
+                  {% if one_time_conflicts %}
+                    {{ '; '.join(one_time_conflicts) }}
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                  {% if conflict_notes %}
+                    {{ conflict_notes }}
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-neutral-900 py-4 mt-auto">
+      {% include 'footer.html' %}
+    </footer>
+  </body>
+</html>
