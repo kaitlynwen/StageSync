@@ -1,1 +1,1 @@
-# StageSync
+# StageSync.
