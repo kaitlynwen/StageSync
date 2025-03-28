@@ -13,10 +13,6 @@ var span = document.getElementsByClassName("close")[0];
 buttons.forEach(function(btn) {
   btn.addEventListener("click", function() {
     var groupName = this.dataset.groupName;
-    var groupId = this.dataset.groupId;
-
-    console.log("groupId:", groupId);
-    console.log("groupName:", groupName);
 
     // Update modal content dynamically
     modalContent.innerHTML = `
