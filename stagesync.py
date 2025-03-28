@@ -564,6 +564,40 @@ def manage_groups():
     else:
         return redirect(url_for("home"))
 
+@app.route("/update-group-name", methods=["POST"])
+def update_group_name():
+    data = request.get_json()
+    group_name = data.get("groupName")
+    new_group_name = data.get("newGroupName")
+
+    try: 
+        if not group_name or not new_group_name:
+            return (
+                jsonify({"success": False, "message": "Error"}), # CHANGE MESSAGE
+                400,
+            )  # Return error with status code 400
+    
+    # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Update the is_admin flag to False for the selected users
+                query = """
+                    UPDATE rehearsal_groups
+                    SET title = %s
+                    WHERE title = %s;
+                """
+                cur.execute(query, (new_group_name, group_name))
+                conn.commit()
+
+        return jsonify({"success": True}), 200  # Return success with status code 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
+
 
 @app.route("/view-availability", methods=["GET", "POST"])
 def availability():
