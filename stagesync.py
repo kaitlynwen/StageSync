@@ -436,7 +436,7 @@ def upload():
             filename = file.filename  
 
             # Use parsedata to extract events from the file
-            date_range, calendar_events = parsedata.extract_schedule(file, filename, group_name)
+            _, calendar_events = parsedata.extract_schedule(file, filename, group_name)
 
             # Now insert the extracted events into the PostgreSQL database
             try:
@@ -446,32 +446,32 @@ def upload():
                         for event in calendar_events:
                             # Prepare SQL insert query for each event
                             query = """
-                            INSERT INTO events (title, start, end, location, group, created_at)
+                            INSERT INTO events (title, start, "end", location, "group", created_at)
                             VALUES (%s, %s, %s, %s, %s, %s)
                             """
-                            start_time = event["Start Date"] + "T" + event["Start"]
-                            end_time = event["End Date"] + "T" + event["End"]
+                            start_time = datetime.strptime(event["start"], "%Y-%m-%dT%H:%M:%S")
+                            end_time = datetime.strptime(event["end"], "%Y-%m-%dT%H:%M:%S")
+
                             
                             # Convert the start_time and end_time to PostgreSQL friendly format if needed
                             # Assuming start_time and end_time are already in the proper format (ISO 8601)
 
                             cur.execute(query, (
-                                event["Group"], 
+                                event["title"], 
                                 start_time, 
                                 end_time, 
-                                event["Location"], 
-                                group_name,
+                                event["location"], 
+                                event["group"],
                                 datetime.utcnow()  # Set current time as the created_at
                             ))
 
                         # Commit changes to the database
                         conn.commit()
 
-                flash(f"File '{filename}' uploaded successfully!", "success")
-                return redirect(url_for("calendar"))
+                flash(f"File uploaded successfully!", "success")
+                return redirect(url_for("upload"))
 
             except Exception as e:
-                print(f"Error inserting events into PostgreSQL: {e}")
                 flash("An error occurred while saving events. Please try again.", "error")
                 return redirect(url_for("upload"))
 
@@ -479,8 +479,6 @@ def upload():
         return redirect(url_for("upload"))
 
     return render_template("upload.html")
-
-
 
 
 
@@ -720,9 +718,6 @@ def events():
             }
 
             event_list.append(event_dict)
-
-        # Log the event list to check if it is correct
-        print("Event List:", event_list)
 
         # Return the events as JSON
         return jsonify(event_list)

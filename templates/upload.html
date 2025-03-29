@@ -1,125 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- FullCalendar Styles and Scripts -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
-      integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+  <!-- Boxicons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-    <!-- Flowbite -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+  <!-- FullCalendar Styles and Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
+    integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <!-- Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/custom.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/tailwind.css') }}"
-    />
-    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+  <!-- Flowbite -->
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 
-    <!-- Set Title of Page -->
-    <title>Upload Rehearsal Data - StageSync</title>
-  </head>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
 
-  <body class="flex flex-col min-h-screen font-sans bg-white">
-    <div class="flex flex-grow">
-      <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
-        {% include 'sidebar-admin.html' %}
-      </div>
+  <!-- Set Title of Page -->
+  <title>Upload Rehearsal Data - StageSync</title>
+</head>
 
-      <!-- Main Content Section -->
-      <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
-        <div class="flex justify-between items-center mt-2">
+<body class="flex flex-col min-h-screen font-sans bg-white">
+  <div class="flex flex-grow">
+    <!-- Sidebar Section -->
+    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+      {% include 'sidebar-admin.html' %}
+    </div>
+
+    <!-- Main Content Section -->
+    <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
+      <div class="flex justify-between items-center mt-2">
+        <div>
           <p class="text-3xl font-bold">Upload Rehearsal Data</p>
-        </div>
-
-        <div class="flex justify-between items-center">
           <p id="subtitle" class="text-lg font-bold text-orange-500 py-4">
             Upload new PAC rehearsal space schedule information below
           </p>
         </div>
 
-        <!-- Uploading (Drag and Drop) -->
-        <div class="flex justify-center items-center mt-10">
-          <div class="flex items-center justify-center w-full">
-            <label
-              for="dropzone-file"
-              class="flex flex-col items-center justify-center w-1/2 border-2 border-neutral-200 border-dashed rounded-lg cursor-pointer bg-neutral-50 dark:hover:bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:hover:border-neutral-500 dark:hover:bg-neutral-600"
-            >
-              <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                <i
-                  class="bx bx-upload bx-sm mr-2 w-8 h-8 text-neutral-500 dark:text-neutral-400"
-                ></i>
-                <p class="mb-2 text-sm text-neutral-500 dark:text-neutral-400">
-                  <span class="font-semibold">Click to upload</span> or drag and
-                  drop
-                </p>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400">
-                  XSLX OR CSV (MAX. 5MB)
-                </p>
-              </div>
-              <input
-                id="dropzone-file"
-                type="file"
-                class="hidden"
-                accept=".xlsx, .csv"
-              />
-            </label>
-          </div>
-        </div>
-
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if
-        messages %}
-        <div class="absolute top-4 right-4 z-50">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div id="alert-container" class="flex flex-col">
           {% for category, message in messages %}
-          <div
-            class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative mb-2"
-            role="alert"
-          >
-            <strong class="font-bold">
-              {% if category == 'success' %}✔ Success!{% else %}⚠ Error!{% endif
-              %}
-            </strong>
+          <div class="alert w-full px-4 py-3 rounded-md relative transition-all duration-300 opacity-100
+            {% if category == 'success' %}
+              bg-green-100 border border-green-400 text-green-700
+            {% elif category == 'error' %}
+              bg-red-100 border border-red-400 text-red-700
+            {% elif category == 'warning' %}
+              bg-yellow-100 border border-yellow-400 text-yellow-700
+            {% elif category == 'info' %}
+              bg-blue-100 border border-blue-400 text-blue-700
+            {% endif %}
+            " role="alert">
+            <div class="flex justify-between items-center">
+              <strong class="font-bold flex items-center">
+                {% if category == 'success' %}
+                <i class="bx bxs-check-circle bx-sm mr-2"></i> Success!
+                {% elif category == 'error' %}
+                <i class="bx bxs-error bx-sm mr-2"></i> Error!
+                {% elif category == 'warning' %}
+                <i class="bx bxs-error-circle bx-sm mr-2"></i> Warning!
+                {% elif category == 'info' %}
+                <i class="bx bxs-info-circle bx-sm mr-2"></i> Info!
+                {% endif %}
+              </strong>
+
+              <button
+                class="flex {% if category == 'success' %}text-green-700 hover:text-green-900{% elif category == 'error' %}text-red-700 hover:text-red-900{% elif category == 'warning' %}text-yellow-700 hover:text-yellow-900{% elif category == 'info' %}text-blue-700 hover:text-blue-900{% endif %}"
+                onclick="this.parentElement.parentElement.style.display='none'">
+                <i class="bx bx-x bx-sm"></i>
+              </button>
+            </div>
             <span class="block sm:inline">{{ message }}</span>
-            <button
-              class="absolute top-0 bottom-0 right-0 px-4 py-2"
-              onclick="this.parentElement.style.display='none'"
-            >
-              x
-            </button>
           </div>
           {% endfor %}
         </div>
-        {% endif %} {% endwith %}
-      </main>
-    </div>
+        {% endif %}
+        {% endwith %}
+      </div>
 
-    <!-- Footer Section -->
-    <footer class="bg-neutral-900 py-4 mt-auto">
-      {% include 'footer.html' %}
-    </footer>
+      <!-- Uploading (Drag and Drop) -->
+      <div class="flex justify-center items-center mt-10">
+        <div class="flex items-center justify-center w-full">
+          <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data"
+            class="w-1/2">
+            <label for="dropzone-file" id="dropzone-label"
+              class="flex flex-col items-center justify-center w-full border-2 border-neutral-200 border-dashed rounded-lg cursor-pointer bg-neutral-50 hover:bg-neutral-100 transition duration-300">
+              <div id="dropzone-content" class="flex flex-col items-center justify-center pt-5 pb-6">
+                <i class="bx bx-upload bx-sm mr-2 w-8 h-8 text-neutral-500"></i>
+                <p class="mb-2 text-sm text-neutral-500">
+                  <span class="font-semibold">Click to upload</span> or drag
+                  and drop
+                </p>
+                <p class="text-xs text-neutral-500">XLSX OR CSV (MAX. 5MB)</p>
+              </div>
+              <input id="dropzone-file" name="file" type="file" class="hidden" accept=".xlsx, .csv" />
+            </label>
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/drag-drop.js') }}"></script>
-  </body>
+            <!-- Display Selected File Name -->
+            <p id="file-name" class="mt-2 text-center text-sm font-medium text-neutral-700 hidden"></p>
+
+            <!-- Submit Button -->
+            <button type="submit"
+              class="mt-4 w-full bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition duration-300">
+              Upload File
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer Section -->
+  <footer class="bg-neutral-900 py-4 mt-auto">
+    {% include 'footer.html' %}
+  </footer>
+
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/drag-drop.js') }}"></script>
+</body>
+
 </html>

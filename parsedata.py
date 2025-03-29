@@ -106,6 +106,8 @@ def convert_schedule_to_calendar_events(schedule):
                 "title": entry["Location"],  # Use Location as title
                 "start": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                 "end": end_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                "location": entry["Location"],
+                "group": None
             }
         )
 
