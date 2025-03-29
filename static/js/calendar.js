@@ -1,4 +1,3 @@
-// calendar.js
 document.addEventListener("DOMContentLoaded", function () {
   // Get CSS variables from :root
   function getCSSVariable(name) {
@@ -20,23 +19,35 @@ document.addEventListener("DOMContentLoaded", function () {
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "timeGridWeek",
     headerToolbar: { center: "dayGridMonth,timeGridWeek,timeGridDay" },
-    events: [
-      {
-        title: "Rehearsal 1",
-        start: "2025-03-16T10:00:00",
-        end: "2025-03-16T12:00:00",
-      },
-      {
-        title: "Rehearsal 2",
-        start: "2025-03-18T14:00:00",
-        end: "2025-03-18T16:00:00",
-      },
-      {
-        title: "Social Event",
-        start: "2025-03-20T14:00:00",
-        end: "2025-03-20T16:00:00",
-      },
-    ],
+    
+    // Fetch events from the backend dynamically
+    events: function (info, successCallback, failureCallback) {
+      fetch("/events")  // Adjust this URL based on your backend route
+        .then((response) => response.json())  // Assume response is in JSON format
+        .then((data) => {
+          // Log the data to ensure it's in the correct format
+          console.log("Data received:", data);
+    
+          // Check if data is an array before calling map
+          if (Array.isArray(data)) {
+            // Map the response data into the format FullCalendar expects
+            const events = data.map((event) => ({
+              title: event.title,
+              start: event.start,
+              end: event.end,
+              location: event.location, // Optional field
+            }));
+            successCallback(events);  // Call FullCalendar's success callback with events
+          } else {
+            failureCallback("Data format is not an array");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching events:", error);
+          failureCallback(error);  // Call FullCalendar's failure callback if there’s an error
+        });
+    },    
+
     eventColor: secondaryColor,
     editable: userRole === "admin",
     droppable: userRole === "admin",

@@ -115,28 +115,31 @@ def convert_schedule_to_calendar_events(schedule):
 ########################################################################
 
 
-def extract_schedule(file_path, group_name):
-    # Extract the date range from the filename (file_path is now a string)
-    date_range_match = re.search(r"\((\d{1,2}_\d{1,2}-\d{1,2}_\d{1,2})\)", file_path)
+import re
+import io
+import pandas as pd
+from datetime import datetime, timedelta
+
+def extract_schedule(file, filename, group_name):
+    # Extract the date range from the filename (filename is now a string)
+    date_range_match = re.search(r"\((\d{1,2}_\d{1,2}-\d{1,2}_\d{1,2})\)", filename)
     date_range = date_range_match.group(1) if date_range_match else "Unknown"
 
     # Parse the date range into a list of dates
-    start_date_str, end_date_str = date_range.split("-")
-    start_date = datetime.strptime(start_date_str, "%m_%d").replace(
-        year=datetime.now().year
-    )
-    end_date = datetime.strptime(end_date_str, "%m_%d").replace(
-        year=datetime.now().year
-    )
+    try:
+        start_date_str, end_date_str = date_range.split("-")
+        start_date = datetime.strptime(start_date_str, "%m_%d").replace(year=datetime.now().year)
+        end_date = datetime.strptime(end_date_str, "%m_%d").replace(year=datetime.now().year)
 
-    dates = [
-        start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)
-    ]
+        dates = [
+            start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)
+        ]
+    except ValueError:
+        print("Warning: Invalid date range format in filename.")
+        dates = []
 
-    # Open the file in binary mode and read it into memory
-    with open(file_path, "rb") as f:
-        xl = pd.ExcelFile(io.BytesIO(f.read()))  # Load file into memory
-
+    # Load file into memory
+    xl = pd.ExcelFile(io.BytesIO(file.read()))
     schedule = []
 
     for sheet_name in xl.sheet_names:
@@ -156,12 +159,9 @@ def extract_schedule(file_path, group_name):
                     start_time, end_time = parse_time_range(time_range)
 
                     # Find the correct event date dynamically
-                    event_dates = []
-                    for date in dates:
-                        if date.strftime("%A").lower() == sheet_name.lower():
-                            event_dates.append(date)
+                    event_dates = [date for date in dates if date.strftime("%A").lower() == sheet_name.lower()]
 
-                    if len(event_dates) == 0:
+                    if not event_dates:
                         print(f"Warning: Could not match sheet '{sheet_name}' to a valid date.")
                         continue
 

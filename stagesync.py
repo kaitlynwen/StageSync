@@ -5,7 +5,7 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # -----------------------------------------------------------------------
 
-from flask import render_template, redirect, url_for, request, jsonify
+from flask import render_template, redirect, url_for, request, jsonify, flash
 from datetime import datetime
 import flask
 import os
@@ -43,6 +43,7 @@ UPLOAD_FOLDER = tempfile.mkdtemp()
 
 # Allowable file extensions
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 # -----------------------------------------------------------------------s
 
@@ -417,26 +418,70 @@ def view():
 def upload():
     if request.method == "POST":
         if "file" not in request.files:
-            return "No file part", 400
+            flash("No file part", "error")
+            return redirect(url_for("upload"))
 
         file = request.files["file"]
 
         if file.filename == "":
-            return "No selected file", 400
+            flash("No selected file", "error")
+            return redirect(url_for("upload"))
 
         if file and allowed_file(file.filename):
+            if request.content_length > MAX_FILE_SIZE:
+                flash("File size exceeds 5MB", "error")
+                return redirect(url_for("upload"))
+
             group_name = "kokopops"
+            filename = file.filename  
 
-            date_range, calendar_events = parsedata.extract_schedule(file, group_name)
+            # Use parsedata to extract events from the file
+            date_range, calendar_events = parsedata.extract_schedule(file, filename, group_name)
 
-            return render_template(
-                "upload.html", calendar_events=calendar_events, date_range=date_range
-            )
+            # Now insert the extracted events into the PostgreSQL database
+            try:
+                # Connect to PostgreSQL
+                with psycopg2.connect(DATABASE_URL) as conn:
+                    with conn.cursor() as cur:
+                        for event in calendar_events:
+                            # Prepare SQL insert query for each event
+                            query = """
+                            INSERT INTO events (title, start, end, location, group, created_at)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                            """
+                            start_time = event["Start Date"] + "T" + event["Start"]
+                            end_time = event["End Date"] + "T" + event["End"]
+                            
+                            # Convert the start_time and end_time to PostgreSQL friendly format if needed
+                            # Assuming start_time and end_time are already in the proper format (ISO 8601)
 
-        else:
-            return "Invalid file type. Only CSV and XLSX are allowed", 400
+                            cur.execute(query, (
+                                event["Group"], 
+                                start_time, 
+                                end_time, 
+                                event["Location"], 
+                                group_name,
+                                datetime.utcnow()  # Set current time as the created_at
+                            ))
+
+                        # Commit changes to the database
+                        conn.commit()
+
+                flash(f"File '{filename}' uploaded successfully!", "success")
+                return redirect(url_for("calendar"))
+
+            except Exception as e:
+                print(f"Error inserting events into PostgreSQL: {e}")
+                flash("An error occurred while saving events. Please try again.", "error")
+                return redirect(url_for("upload"))
+
+        flash("Invalid file type. Only CSV and XLSX are allowed.", "error")
+        return redirect(url_for("upload"))
 
     return render_template("upload.html")
+
+
+
 
 
 @app.route("/generate-schedule", methods=["GET"])
@@ -636,6 +681,56 @@ def availability():
         )
 
     return redirect(url_for("home"))
+
+
+@app.route("/events")
+def events():
+    try:
+        # Connect to PostgreSQL
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Query to fetch all events
+                cur.execute("""
+                    SELECT title, start, "end", location
+                    FROM events
+                    ORDER BY start ASC
+                """)
+                events = cur.fetchall()
+
+        # Convert the events to a list of dictionaries
+        event_list = []
+        for event in events:
+            title = event[0]
+            start = event[1]
+            end = event[2]
+            location = event[3] if event[3] else ""
+
+            # Ensure start and end are datetime objects (if they are strings)
+            if isinstance(start, str):
+                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")  # Adjust the format if needed
+            if isinstance(end, str):
+                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")  # Adjust the format if needed
+
+            # Convert datetime objects to ISO format
+            event_dict = {
+                "title": title,
+                "start": start.isoformat(),
+                "end": end.isoformat(),
+                "location": location,
+            }
+
+            event_list.append(event_dict)
+
+        # Log the event list to check if it is correct
+        print("Event List:", event_list)
+
+        # Return the events as JSON
+        return jsonify(event_list)
+
+    except Exception as e:
+        print(f"Error fetching events from PostgreSQL: {e}")
+        # Return a more descriptive error message in the response
+        return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
 
 
 # -----------------------------------------------------------------------

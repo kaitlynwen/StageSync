@@ -19,7 +19,10 @@
     ></script>
 
     <!-- Flowbite -->
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 
     <!-- Custom CSS -->
@@ -58,47 +61,56 @@
 
         <!-- Uploading (Drag and Drop) -->
         <div class="flex justify-center items-center mt-10">
-          <form
-            action="{{ url_for('upload') }}"
-            method="POST"
-            enctype="multipart/form-data"
-            class="w-full max-w-md"
-          >
-            <div
-              id="drop-zone"
-              class="drop-zone p-8 border-2 border-dashed border-neutral-400 rounded-md hover:border-neutral-600 cursor-pointer"
+          <div class="flex items-center justify-center w-full">
+            <label
+              for="dropzone-file"
+              class="flex flex-col items-center justify-center w-1/2 border-2 border-neutral-200 border-dashed rounded-lg cursor-pointer bg-neutral-50 dark:hover:bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:hover:border-neutral-500 dark:hover:bg-neutral-600"
             >
-              <p
-                id="drop-text"
-                class="font-semibold text-neutral-900 text-center"
-              >
-                Drag & drop <br />
-                or <span class="text-orange-500">browse</span>
-              </p>
-              <input
-                type="file"
-                id="file-input"
-                name="file"
-                class="hidden"
-                onchange="updateFileInfo()"
-              />
-              <div class="file-info mt-4 text-center">
-                <p class="text-neutral-700">
-                  Selected File:
-                  <span id="file-name" class="font-semibold">None</span>
+              <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                <i
+                  class="bx bx-upload bx-sm mr-2 w-8 h-8 text-neutral-500 dark:text-neutral-400"
+                ></i>
+                <p class="mb-2 text-sm text-neutral-500 dark:text-neutral-400">
+                  <span class="font-semibold">Click to upload</span> or drag and
+                  drop
+                </p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                  XSLX OR CSV (MAX. 5MB)
                 </p>
               </div>
-            </div>
-            <div class="mt-4 text-center">
-              <button
-                type="submit"
-                class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                Upload File
-              </button>
-            </div>
-          </form>
+              <input
+                id="dropzone-file"
+                type="file"
+                class="hidden"
+                accept=".xlsx, .csv"
+              />
+            </label>
+          </div>
         </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <div class="absolute top-4 right-4 z-50">
+          {% for category, message in messages %}
+          <div
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative mb-2"
+            role="alert"
+          >
+            <strong class="font-bold">
+              {% if category == 'success' %}✔ Success!{% else %}⚠ Error!{% endif
+              %}
+            </strong>
+            <span class="block sm:inline">{{ message }}</span>
+            <button
+              class="absolute top-0 bottom-0 right-0 px-4 py-2"
+              onclick="this.parentElement.style.display='none'"
+            >
+              x
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
       </main>
     </div>
 
