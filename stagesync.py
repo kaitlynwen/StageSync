@@ -7,11 +7,11 @@
 
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from datetime import datetime
-import flask
 import os
 import dotenv
 import tempfile
 import parsedata
+import pytz
 
 # from flask_sqlalchemy import SQLAlchemy
 import auth
@@ -443,26 +443,44 @@ def upload():
                 # Connect to PostgreSQL
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
+                        print(f"Extracted events: {calendar_events}")
+
                         for event in calendar_events:
-                            # Prepare SQL insert query for each event
-                            query = """
+                            start_time = datetime.strptime(event["start"], "%Y-%m-%dT%H:%M:%S")
+                            end_time = datetime.strptime(event["end"], "%Y-%m-%dT%H:%M:%S")
+                            
+                            # Check if the event already exists in the database
+                            query_check = """
+                            SELECT id FROM events
+                            WHERE title = %s AND start = %s AND "end" = %s AND location = %s
+                            """
+                            cur.execute(query_check, (event["title"], start_time, end_time, event["location"]))
+                            existing_events = cur.fetchall()
+                            print(f"Checking for event: Title: {event['title']}, Start: {start_time}, End: {end_time}, Location: {event['location']}")
+                            print(f"Existing events: {existing_events}")
+                            
+                            for e in existing_events:
+                                # If event exists, delete the old one
+                                query_delete = """
+                                DELETE FROM events
+                                WHERE id = %s
+                                """
+                                cur.execute(query_delete, (e[0],))
+                                print(f"Deleted existing event with ID {e[0]}")
+
+                            # Prepare SQL insert query for the new event
+                            query_insert = """
                             INSERT INTO events (title, start, "end", location, "group", created_at)
                             VALUES (%s, %s, %s, %s, %s, %s)
                             """
-                            start_time = datetime.strptime(event["start"], "%Y-%m-%dT%H:%M:%S")
-                            end_time = datetime.strptime(event["end"], "%Y-%m-%dT%H:%M:%S")
-
                             
-                            # Convert the start_time and end_time to PostgreSQL friendly format if needed
-                            # Assuming start_time and end_time are already in the proper format (ISO 8601)
-
-                            cur.execute(query, (
+                            cur.execute(query_insert, (
                                 event["title"], 
                                 start_time, 
                                 end_time, 
                                 event["location"], 
                                 event["group"],
-                                datetime.utcnow()  # Set current time as the created_at
+                                datetime.now(pytz.utc)  # Set current time as the created_at
                             ))
 
                         # Commit changes to the database
@@ -472,6 +490,7 @@ def upload():
                 return redirect(url_for("upload"))
 
             except Exception as e:
+                print(f"Error inserting events into PostgreSQL: {e}")
                 flash("An error occurred while saving events. Please try again.", "error")
                 return redirect(url_for("upload"))
 
@@ -479,7 +498,6 @@ def upload():
         return redirect(url_for("upload"))
 
     return render_template("upload.html")
-
 
 
 @app.route("/generate-schedule", methods=["GET"])
