@@ -10,10 +10,20 @@ var buttons = document.querySelectorAll(".edit-group-btn");
 var span = document.getElementsByClassName("close")[0];
 
 // Add click event listeners to all "Edit" buttons
-buttons.forEach(function(btn) {
-  btn.addEventListener("click", function() {
-    var groupName = this.dataset.groupName;
-
+buttons.forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    // Name of group
+    const groupName = this.dataset.groupName;
+    // List of members
+    const members = JSON.parse(this.dataset.members);
+    // Get all checked checkboxes for remove members
+    const checkedCheckboxes = document.querySelectorAll(
+      ".group-members-checkbox:checked"
+    );
+    // Create an array of netid values of selected users
+    const netidsToRemove = Array.from(checkedCheckboxes).map(
+      (checkbox) => checkbox.value
+    );
     // Update modal content dynamically
     modalContent.innerHTML = `
       <span class="close">&times;</span>
@@ -22,15 +32,33 @@ buttons.forEach(function(btn) {
       <button id="save-group" class="bg-pink-500 hover:bg-pink-700 text-white px-2 py-1 rounded text-sm mb-2">
       Save
       </button>
+      <hr>
+      
+      <h2 class="text-lg font-bold text-orange-500 py-4">Check to Remove Existing Members:</h2>
+      <div id="group-members"></div>
     `;
 
+    let membersHtml = '';
+    for (let i = 0; i < members.length; i++) {
+      const member = members[i];
+      membersHtml += `
+          <input type="checkbox"
+          class="group-member-checkbox"
+          value="${member.netid}" /> 
+          ${member.first_name} ${member.last_name}
+        <br />
+      `;
+    }
+    // Insert the generated checkboxes into the modal
+    document.getElementById("group-members").innerHTML = membersHtml;
+
     // Add event listener to close button
-    modal.querySelector(".close").onclick = function() {
+    modal.querySelector(".close").onclick = function () {
       modal.style.display = "none";
     };
 
     document.getElementById("save-group").addEventListener("click", function () {
-    
+
       var newGroupName = document.getElementById("group-title").value;
 
       // Send update request to backend
@@ -60,7 +88,7 @@ buttons.forEach(function(btn) {
 });
 
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
+window.onclick = function (event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }

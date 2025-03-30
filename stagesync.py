@@ -169,25 +169,27 @@ def get_groups():
                     """SELECT 
                             rehearsal_groups.title AS group_name, 
                             users.first_name, 
-                            users.last_name
+                            users.last_name,
+                            users.netid,
+                            rehearsal_groups.groupid
                         FROM group_members
                         JOIN rehearsal_groups ON group_members.groupid = rehearsal_groups.groupid
                         JOIN users ON group_members.netid = users.netid
                         ORDER BY rehearsal_groups.title, users.last_name, users.first_name;
                     """
                 )
-                for group_name, first_name, last_name in cur.fetchall():
-                    if group_name not in groups:
-                        groups[group_name] = []
-                    groups[group_name].append(
-                        {"first_name": first_name, "last_name": last_name}
+                for group_name, first_name, last_name, netid, group_id in cur.fetchall():
+                    if group_id not in groups:
+                        groups[group_id] = {"title": group_name, "members":[]}
+                    groups[group_id]["members"].append(
+                        {"first_name": first_name, "last_name": last_name, "netid": netid}
                     )
 
     except Exception as ex:
         print("Database error:", ex)
 
     # Convert dictionary to list of dictionaries
-    return [{"title": group, "members": members} for group, members in groups.items()]
+    return list(groups.values())
 
 
 # -----------------------------------------------------------------------

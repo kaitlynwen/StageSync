@@ -51,8 +51,10 @@
           <div class="bg-gray-200 p-4 rounded-2xl w-64 relative">
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-semibold mb-2">{{ group.title }}</h2>
+              <!-- Filters: https://jinja.palletsprojects.com/ -->
               <button class="edit-group-btn bg-pink-500 hover:bg-pink-700 text-white px-2 py-1 rounded text-sm mb-2"
-                data-group-name="{{ group.title }}">
+                data-group-name="{{ group.title }}"
+                data-members='{{ group.members | tojson }}'>
                 Edit
               </button>
             </div>
