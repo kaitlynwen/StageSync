@@ -12,18 +12,12 @@ var span = document.getElementsByClassName("close")[0];
 // Add click event listeners to all "Edit" buttons
 buttons.forEach(function (btn) {
   btn.addEventListener("click", function () {
-    // Name of group
     const groupName = this.dataset.groupName;
+    const groupId = this.dataset.groupId;
+
     // List of members
     const members = JSON.parse(this.dataset.members);
-    // Get all checked checkboxes for remove members
-    const checkedCheckboxes = document.querySelectorAll(
-      ".group-members-checkbox:checked"
-    );
-    // Create an array of netid values of selected users
-    const netidsToRemove = Array.from(checkedCheckboxes).map(
-      (checkbox) => checkbox.value
-    );
+
     // Update modal content dynamically
     modalContent.innerHTML = `
       <span class="close">&times;</span>
@@ -61,11 +55,21 @@ buttons.forEach(function (btn) {
 
       var newGroupName = document.getElementById("group-title").value;
 
+      // Get all checked checkboxes for remove members
+      const checkedCheckboxes = document.querySelectorAll(
+        ".group-member-checkbox:checked"
+      );
+
+      // Create an array of netid values of selected users
+      const netidsToRemove = Array.from(checkedCheckboxes).map(
+        (checkbox) => checkbox.value
+      );
+
       // Send update request to backend
-      fetch("/update-group-name", {
+      fetch("/update-group-info", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupName, newGroupName }),
+        body: JSON.stringify({ groupId, groupName, newGroupName, netids: netidsToRemove }),
       })
         .then(response => response.json()) // Convert response to JSON
         .then(data => {

@@ -54,6 +54,7 @@
               <!-- Filters: https://jinja.palletsprojects.com/ -->
               <button class="edit-group-btn bg-pink-500 hover:bg-pink-700 text-white px-2 py-1 rounded text-sm mb-2"
                 data-group-name="{{ group.title }}"
+                data-group-id="{{ group.groupid}}"
                 data-members='{{ group.members | tojson }}'>
                 Edit
               </button>
