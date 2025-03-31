@@ -470,12 +470,11 @@ def upload():
                             # Check if the event already exists in the database
                             query_check = """
                             SELECT id FROM events
-                            WHERE title = %s AND start = %s AND "end" = %s AND location = %s
+                            WHERE start = %s AND "end" = %s AND location = %s
                             """
                             cur.execute(
                                 query_check,
                                 (
-                                    event["title"],
                                     start_time,
                                     end_time,
                                     event["location"],

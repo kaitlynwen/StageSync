@@ -3,23 +3,9 @@
 
 /* FullCalendar Styling */
 .fc-toolbar-title {
-    font-weight: 600;
-    color: var(--color-indigo-400) ;
+    font-weight: 700;
+    color: var(--color-slate-700) ;
 }
-
-/* Drag and Drop Styling */
-.drop-zone {
-    border: 2px dashed var(--);
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .drop-zone .file-info {
-    display: none;
-  }
-  .drop-zone .file-info span {
-    color:  var(--color-neutral-300);
-  }
 
   /* The Modal (background) */
 .modal {

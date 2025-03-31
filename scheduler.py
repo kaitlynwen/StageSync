@@ -177,14 +177,14 @@ def update_events_table(schedule):
                         result = cur.fetchone()
                         if result:
                             group_title = result[0]
-                        
+
                         # If a group title was found, proceed with updating the event
                         if group_title:
                             # Only update the event if its start time is after the current time
                             if event_start >= current_datetime:
                                 # Check if the event already exists based on the start and end times (ignoring groupid)
                                 event_query = """
-                                SELECT id FROM draft_schedule WHERE start = %s AND "end" = %s
+                                SELECT id, location FROM draft_schedule WHERE start = %s AND "end" = %s
                                 """
                                 cur.execute(event_query, (event_start, event_end))
                                 existing_event = cur.fetchone()
@@ -196,7 +196,7 @@ def update_events_table(schedule):
                                         SET title = %s, start = %s, "end" = %s
                                         WHERE start = %s AND "end" = %s
                                         """,
-                                        (group_title, event_start, event_end, event_start, event_end)
+                                        (group_title + " | " + existing_event[1], event_start, event_end, event_start, event_end)
                                     )
                                     conn.commit()
     except Exception as e:

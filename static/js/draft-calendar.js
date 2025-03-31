@@ -2,8 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
   var calendarEl = document.getElementById("calendar");
   if (!calendarEl) return;
 
-  let userRole = "admin"; // Change dynamically based on logged-in user
-
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "timeGridWeek",
     headerToolbar: { center: "dayGridMonth,timeGridWeek,timeGridDay" },
