@@ -721,16 +721,31 @@ def availability():
 @app.route("/events")
 def events():
     try:
-        # Connect to PostgreSQL
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Query to fetch all events
+                # Fetch events along with their rehearsal space names
                 cur.execute("""
-                    SELECT title, start, "end", location
-                    FROM events
-                    ORDER BY start ASC
+                    SELECT e.title, e.start, e."end", r.name
+                    FROM events e
+                    LEFT JOIN rehearsal_spaces r ON e.location = r.name
+                    ORDER BY e.start ASC
                 """)
                 events = cur.fetchall()
+
+                # Fetch rehearsal space names
+                cur.execute("SELECT name FROM rehearsal_spaces")
+                rehearsal_spaces = cur.fetchall()
+        
+        # Define a color map for rehearsal spaces
+        color_map = {
+            "Bloomberg": "#84cc16",
+            "Whitman": "#0ea5e9",
+            "Dillon MPR": "#a855f7",
+            "New South (Main)": "#f472b6",
+            "NS Warm Up": "#14b8a6",
+            "Murphy": "#f43f5e",
+            "Broadmead": "#f59e0b",
+        }
 
         # Convert the events to a list of dictionaries
         event_list = []
@@ -740,28 +755,27 @@ def events():
             end = event[2]
             location = event[3] if event[3] else ""
 
-            # Ensure start and end are datetime objects (if they are strings)
+            # Ensure start and end are datetime objects
             if isinstance(start, str):
-                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")  # Adjust the format if needed
+                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
             if isinstance(end, str):
-                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")  # Adjust the format if needed
+                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
-            # Convert datetime objects to ISO format
+            # Assign color dynamically
             event_dict = {
                 "title": title,
                 "start": start.isoformat(),
                 "end": end.isoformat(),
                 "location": location,
+                "color": color_map.get(location, "#CCCCCC")  # Default gray if unknown
             }
 
             event_list.append(event_dict)
 
-        # Return the events as JSON
         return jsonify(event_list)
 
     except Exception as e:
         print(f"Error fetching events from PostgreSQL: {e}")
-        # Return a more descriptive error message in the response
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
 
 # --------
