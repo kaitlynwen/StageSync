@@ -170,25 +170,27 @@ def get_groups():
                     """SELECT 
                             rehearsal_groups.title AS group_name, 
                             users.first_name, 
-                            users.last_name
+                            users.last_name,
+                            users.netid,
+                            rehearsal_groups.groupid
                         FROM group_members
                         JOIN rehearsal_groups ON group_members.groupid = rehearsal_groups.groupid
                         JOIN users ON group_members.netid = users.netid
                         ORDER BY rehearsal_groups.title, users.last_name, users.first_name;
                     """
                 )
-                for group_name, first_name, last_name in cur.fetchall():
-                    if group_name not in groups:
-                        groups[group_name] = []
-                    groups[group_name].append(
-                        {"first_name": first_name, "last_name": last_name}
+                for group_name, first_name, last_name, netid, group_id in cur.fetchall():
+                    if group_id not in groups:
+                        groups[group_id] = {"groupid": group_id, "title": group_name, "members":[]}
+                    groups[group_id]["members"].append(
+                        {"first_name": first_name, "last_name": last_name, "netid": netid}
                     )
 
     except Exception as ex:
         print("Database error:", ex)
 
     # Convert dictionary to list of dictionaries
-    return [{"title": group, "members": members} for group, members in groups.items()]
+    return list(groups.values())
 
 
 # -----------------------------------------------------------------------
@@ -628,11 +630,15 @@ def manage_groups():
     else:
         return redirect(url_for("home"))
 
-@app.route("/update-group-name", methods=["POST"])
+@app.route("/update-group-info", methods=["POST"])
 def update_group_name():
     data = request.get_json()
+    group_id = data.get("groupId")
+    print(group_id)
     group_name = data.get("groupName")
     new_group_name = data.get("newGroupName")
+    netids = data.get("netids", [])
+    print(netids)
 
     try: 
         if not group_name or not new_group_name:
@@ -644,13 +650,22 @@ def update_group_name():
     # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Update the is_admin flag to False for the selected users
+                # Update the title for given group
                 query = """
                     UPDATE rehearsal_groups
                     SET title = %s
                     WHERE title = %s;
                 """
                 cur.execute(query, (new_group_name, group_name))
+                conn.commit()
+
+                 # Remove selected members from group
+                query = """
+                    DELETE FROM group_members
+                    WHERE groupid = %s
+                    AND netid = ANY(%s);
+                """
+                cur.execute(query, (group_id, netids))
                 conn.commit()
 
         return jsonify({"success": True}), 200  # Return success with status code 200
