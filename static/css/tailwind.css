@@ -28,7 +28,7 @@
     --color-indigo-400: oklch(0.673 0.182 276.935);
     --color-indigo-500: oklch(0.585 0.233 277.117);
     --color-indigo-600: oklch(0.511 0.262 276.966);
-    --color-indigo-700: oklch(0.457 0.24 277.023);
+    --color-indigo-800: oklch(0.398 0.195 277.366);
     --color-pink-500: oklch(0.656 0.241 354.308);
     --color-pink-700: oklch(0.525 0.223 3.958);
     --color-gray-50: oklch(0.985 0.002 247.839);
@@ -359,6 +359,9 @@
   .items-center {
     align-items: center;
   }
+  .items-start {
+    align-items: flex-start;
+  }
   .justify-between {
     justify-content: space-between;
   }
@@ -451,8 +454,8 @@
   .border-indigo-400 {
     border-color: var(--color-indigo-400);
   }
-  .border-indigo-500 {
-    border-color: var(--color-indigo-500);
+  .border-indigo-600 {
+    border-color: var(--color-indigo-600);
   }
   .border-neutral-50 {
     border-color: var(--color-neutral-50);
@@ -484,8 +487,8 @@
   .bg-indigo-400 {
     background-color: var(--color-indigo-400);
   }
-  .bg-indigo-500 {
-    background-color: var(--color-indigo-500);
+  .bg-indigo-600 {
+    background-color: var(--color-indigo-600);
   }
   .bg-neutral-50 {
     background-color: var(--color-neutral-50);
@@ -629,8 +632,8 @@
   .text-green-700 {
     color: var(--color-green-700);
   }
-  .text-indigo-500 {
-    color: var(--color-indigo-500);
+  .text-indigo-600 {
+    color: var(--color-indigo-600);
   }
   .text-neutral-500 {
     color: var(--color-neutral-500);
@@ -691,10 +694,10 @@
       }
     }
   }
-  .hover\:border-indigo-700 {
+  .hover\:border-indigo-800 {
     &:hover {
       @media (hover: hover) {
-        border-color: var(--color-indigo-700);
+        border-color: var(--color-indigo-800);
       }
     }
   }
@@ -719,10 +722,10 @@
       }
     }
   }
-  .hover\:bg-indigo-700 {
+  .hover\:bg-indigo-800 {
     &:hover {
       @media (hover: hover) {
-        background-color: var(--color-indigo-700);
+        background-color: var(--color-indigo-800);
       }
     }
   }
