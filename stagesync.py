@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # stagesync.py
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from datetime import datetime
@@ -20,7 +20,7 @@ from top import app
 from scheduler import assign_rehearsals, update_events_table
 
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -46,14 +46,14 @@ UPLOAD_FOLDER = tempfile.mkdtemp()
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
-# -----------------------------------------------------------------------s
+# ----------------------------------------------------------------------
 
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 
 # Define user info function (currently hardcoded for bypassing authentication)
@@ -81,7 +81,7 @@ def get_user_info():
     return {"user": netid, "is_admin": is_admin}
 
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 
 def get_all_users():
@@ -105,7 +105,7 @@ def get_all_users():
         return []  # Return empty list in case of failure
 
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 
 def get_user_by_netid(netid):
@@ -130,7 +130,7 @@ def get_user_by_netid(netid):
         return []  # Return empty list in case of failure
 
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 def get_admin_users():
     """Fetch all admin users from the database."""
@@ -156,7 +156,7 @@ def get_admin_users():
     return admin_users
 
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 
 def get_groups():
@@ -193,7 +193,7 @@ def get_groups():
     return list(groups.values())
 
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 
 # Routes
@@ -777,8 +777,120 @@ def events():
     except Exception as e:
         print(f"Error fetching events from PostgreSQL: {e}")
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
+    
+    
+@app.route("/draft-schedule")
+def draft():
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Fetch events along with their rehearsal space names
+                cur.execute("""
+                    SELECT d.title, d.start, d."end", r.name
+                    FROM draft_schedule d
+                    LEFT JOIN rehearsal_spaces r ON d.location = r.name
+                    ORDER BY d.start ASC
+                """)
+                events = cur.fetchall()
 
-# --------
+                # Fetch rehearsal space names
+                cur.execute("SELECT name FROM rehearsal_spaces")
+                rehearsal_spaces = cur.fetchall()
+        
+        # Define a color map for rehearsal spaces
+        color_map = {
+            "Bloomberg": "#84cc16",
+            "Whitman": "#0ea5e9",
+            "Dillon MPR": "#a855f7",
+            "New South (Main)": "#f472b6",
+            "NS Warm Up": "#14b8a6",
+            "Murphy": "#f43f5e",
+            "Broadmead": "#f59e0b",
+        }
+
+        # Convert the events to a list of dictionaries
+        event_list = []
+        for event in events:
+            title = event[0]
+            start = event[1]
+            end = event[2]
+            location = event[3] if event[3] else ""
+
+            # Ensure start and end are datetime objects
+            if isinstance(start, str):
+                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+            if isinstance(end, str):
+                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+
+            # Assign color dynamically
+            event_dict = {
+                "title": title,
+                "start": start.isoformat(),
+                "end": end.isoformat(),
+                "location": location,
+                "color": color_map.get(location, "#CCCCCC")  # Default gray if unknown
+            }
+
+            event_list.append(event_dict)
+
+        return jsonify(event_list)
+
+    except Exception as e:
+        print(f"Error fetching events from PostgreSQL: {e}")
+        return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
+
+
+@app.route("/restore-draft-schedule", methods=["POST"])
+def restore_draft_schedule():
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Delete all rows in draft_schedule table
+                cur.execute("DELETE FROM draft_schedule")
+
+                # Copy all events from events table into draft_schedule
+                cur.execute("""
+                    INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at)
+                    SELECT title, start, "end", location, groupid, created_at
+                    FROM events
+                """)
+                
+                # Commit the transaction
+                conn.commit()
+                
+        return jsonify({"message": "Draft schedule restored successfully!"})
+
+    except Exception as e:
+        print(f"Error restoring draft schedule from events table: {e}")
+        return jsonify({"error": f"Error restoring draft schedule: {str(e)}"}), 500
+
+
+@app.route("/publish-draft", methods=["POST"])
+def publish_draft():
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Delete all existing events from the events table
+                cur.execute("DELETE FROM events")
+
+                # Insert events from draft_schedule into events table
+                cur.execute("""
+                    INSERT INTO events (title, start, "end", location, groupid, created_at)
+                    SELECT title, start, "end", location, groupid, created_at
+                    FROM draft_schedule
+                """)
+                
+                # Commit the transaction
+                conn.commit()
+        
+        return jsonify({"message": "Schedule published successfully!"})
+
+    except Exception as e:
+        print(f"Error publishing schedule: {e}")
+        return jsonify({"error": f"Error publishing schedule: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------------------
 
 # If the file is being executed directly, run the app
 if __name__ == "__main__":

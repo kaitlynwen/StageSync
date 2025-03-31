@@ -49,6 +49,7 @@
           <form action="{{ url_for('generate') }}" method="POST">
               <div class="flex justify-between items-center">
                 <button type="button"
+                  id="discard-button"
                   class="text-indigo-600 font-semibold border-2 border-indigo-600 hover:bg-indigo-100 rounded-md text-sm py-2 px-4 text-center me-2 mb-2">
                   Discard
                 </button>
@@ -59,6 +60,7 @@
                   Generate
                 </button>
                 <button type="button"
+                  id = "publish-button"
                   class="text-white font-semibold border-2 border-indigo-600 bg-indigo-600 hover:bg-indigo-800 hover:border-indigo-800 rounded-md text-sm py-2 px-4 text-center me-2 mb-2">
                   Publish
                 </button>
@@ -82,7 +84,7 @@
     {% include 'footer.html' %}
   </footer>
 
-  <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/draft-calendar.js') }}"></script>
 </body>
 
 </html>

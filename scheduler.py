@@ -25,8 +25,8 @@ def fetch_availability():
 def fetch_group_members():
     return fetch_data("SELECT groupid, netid FROM group_members")
 
-def fetch_events():
-    return fetch_data("SELECT id, title, start, \"end\", location, groupid FROM events")
+def fetch_draft_schedule():
+    return fetch_data("SELECT id, title, start, \"end\", location, groupid FROM draft_schedule")
 
 # Preprocess Data
 def preprocess_availability():
@@ -47,14 +47,14 @@ def sort_groups_by_priority():
     return sorted(groups, key=lambda g: member_count[g[0]], reverse=True)
 from datetime import datetime, timedelta
 
-# Function to fetch events from the database, with start and end times in datetime format
-def fetch_existing_events():
-    query = "SELECT start, \"end\" FROM events"
-    events = fetch_data(query)
+# Function to fetch draft_schedule from the database, with start and end times in datetime format
+def fetch_existing_draft_schedule():
+    query = "SELECT start, \"end\" FROM draft_schedule"
+    draft_schedule = fetch_data(query)
     existing_event_times = []
     
     # Convert the fetched data into datetime objects for comparison
-    for event in events:
+    for event in draft_schedule:
         start_time, end_time = event
         existing_event_times.append({'start':start_time, 'end':end_time})
     
@@ -62,8 +62,8 @@ def fetch_existing_events():
 
 def generate_available_slots(members, availability_dict):
     possible_slots = []
-    # Fetch existing events' start and end times from the database
-    existing_event_times = fetch_existing_events()
+    # Fetch existing draft_schedule' start and end times from the database
+    existing_event_times = fetch_existing_draft_schedule()
     current_date = datetime.today().date()
 
     for member in members:
@@ -127,7 +127,7 @@ def assign_rehearsals():
     for groupid, _ in sorted_groups:
         members = [netid for gid, netid in group_members if gid == groupid]
         
-        # Generate available slots based on availability and existing events
+        # Generate available slots based on availability and existing draft_schedule
         available_slots = generate_available_slots(members, availability_dict)
 
         if available_slots:
@@ -184,7 +184,7 @@ def update_events_table(schedule):
                             if event_start >= current_datetime:
                                 # Check if the event already exists based on the start and end times (ignoring groupid)
                                 event_query = """
-                                SELECT id FROM events WHERE start = %s AND "end" = %s
+                                SELECT id FROM draft_schedule WHERE start = %s AND "end" = %s
                                 """
                                 cur.execute(event_query, (event_start, event_end))
                                 existing_event = cur.fetchone()
@@ -192,7 +192,7 @@ def update_events_table(schedule):
                                     # Event exists, so update it
                                     cur.execute(
                                         """
-                                        UPDATE events
+                                        UPDATE draft_schedule
                                         SET title = %s, start = %s, "end" = %s
                                         WHERE start = %s AND "end" = %s
                                         """,
@@ -200,4 +200,4 @@ def update_events_table(schedule):
                                     )
                                     conn.commit()
     except Exception as e:
-        print(f"Database error while updating events: {e}")
+        print(f"Database error while updating draft_schedule: {e}")
