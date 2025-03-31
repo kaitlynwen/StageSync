@@ -21,22 +21,22 @@ buttons.forEach(function (btn) {
     // Update modal content dynamically
     modalContent.innerHTML = `
       <span class="close">&times;</span>
-      <h2 class="text-lg font-bold text-orange-500 py-4">Change Group Name:</h2>
+      <h2 class="text-lg font-bold text-indigo-500 py-4">Change Group Name:</h2>
       <input type="text" id="group-title" value="${groupName}" />
       <div class="flex justify-between items-start">
         <div class="w-1/2">
-          <h2 class="text-lg font-bold text-orange-500 py-4">Check to Remove Existing Members:</h2>
+          <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Remove Existing Members:</h2>
           <div id="remove-members"></div>
       </div>
 
         <div class="w-1/2">
-          <h2 class="text-lg font-bold text-orange-500 py-4">Search to Add New Members:</h2>
+          <h2 class="text-lg font-bold text-indigo-500 py-4">Search to Add New Members:</h2>
           <div id="add-members"></div>
         </div>
       </div>
       <br>
       <div style="display: flex; justify-content: flex-end;">
-        <button id="save-group" class="bg-pink-500 hover:bg-pink-700 text-white px-2 py-1 rounded text-sm mb-2">
+        <button id="save-group" class="bg-indigo-500 hover:bg-indigo-700 text-white px-2 py-1 rounded text-sm mb-2">
           Save
         </button>
       </div>
