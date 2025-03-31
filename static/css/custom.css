@@ -1,12 +1,10 @@
 /* Custom Theme Variables */
-:root {
-    --primary: var(--color-orange-500); /* orange 500 */
-    --secondary: var(--color-pink-600); /* pink 600 */
-}
+@import "tailwindcss";
+
 /* FullCalendar Styling */
 .fc-toolbar-title {
     font-weight: 600;
-    color: var(--secondary) ;
+    color: var(--color-indigo-500) ;
 }
 
 /* Drag and Drop Styling */

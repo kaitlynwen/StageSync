@@ -40,7 +40,7 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <p id="subtitle" class="text-lg font-bold text-orange-500 py-4">
+        <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
           Upload, input, or modify rehearsal group information below
         </p>
       </div>
@@ -52,7 +52,7 @@
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-semibold mb-2">{{ group.title }}</h2>
               <!-- Filters: https://jinja.palletsprojects.com/ -->
-              <button class="edit-group-btn bg-pink-500 hover:bg-pink-700 text-white px-2 py-1 rounded text-sm mb-2"
+              <button class="edit-group-btn bg-indigo-500 hover:bg-indigo-700 text-white px-2 py-1 rounded text-sm mb-2"
                 data-group-name="{{ group.title }}"
                 data-group-id="{{ group.groupid}}"
                 data-members='{{ group.members | tojson }}'>
