@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
               start: event.start,
               end: event.end,
               extendedProps: { location: event.location },
-              color: event.color  // Assigning color dynamically
+              color: event.color, // Assigning color dynamically
             }));
             successCallback(events);
           } else {
@@ -45,16 +45,20 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     eventDidMount: function (info) {
-      info.el.setAttribute("title", `${info.event.title} - ${info.event.extendedProps.location}`);
+      info.el.setAttribute(
+        "title",
+        `${info.event.title} - ${info.event.extendedProps.location}`
+      );
     },
   });
 
   calendar.render();
 
   // Add the "Discard" button functionality
-  document.getElementById("discard-button").addEventListener("click", function () {
-    // Confirm the discard action
-    if (confirm("Are you sure you want to discard all changes?")) {
+  document
+    .getElementById("discard-button")
+    .addEventListener("click", function () {
+      // Confirm the discard action
       // Make a POST request to restore the draft schedule
       fetch("/restore-draft-schedule", {
         method: "POST",
@@ -68,13 +72,13 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch((error) => {
           console.error("Error restoring draft schedule:", error);
         });
-    }
-  });
+    });
 
   // Add the "Publish" button functionality
-  document.getElementById("publish-button").addEventListener("click", function () {
-    // Confirm the publish action
-    if (confirm("Are you sure you want to publish this schedule?")) {
+  document
+    .getElementById("publish-button")
+    .addEventListener("click", function () {
+      // Confirm the publish action
       // Make a POST request to publish the draft schedule
       fetch("/publish-draft", {
         method: "POST",
@@ -88,6 +92,5 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch((error) => {
           console.error("Error publishing schedule:", error);
         });
-    }
-  });
+    });
 });

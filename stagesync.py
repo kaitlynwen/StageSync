@@ -33,9 +33,7 @@ dotenv.load_dotenv()
 # )
 
 # Secret key setup (set up in .env)
-app.secret_key = os.environ.get(
-    "APP_SECRET_KEY", "your_default_secret_key"
-)
+app.secret_key = os.environ.get("APP_SECRET_KEY", "your_default_secret_key")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -121,7 +119,7 @@ def get_user_by_netid(netid):
                     (netid,),
                 )
                 member = cursor.fetchone()
-                
+
         return {"first_name": member[0], "last_name": member[1]}
 
     except Exception as e:
@@ -131,6 +129,7 @@ def get_user_by_netid(netid):
 
 
 # ----------------------------------------------------------------------
+
 
 def get_admin_users():
     """Fetch all admin users from the database."""
@@ -179,11 +178,25 @@ def get_groups():
                         ORDER BY rehearsal_groups.title, users.last_name, users.first_name;
                     """
                 )
-                for group_name, first_name, last_name, netid, group_id in cur.fetchall():
+                for (
+                    group_name,
+                    first_name,
+                    last_name,
+                    netid,
+                    group_id,
+                ) in cur.fetchall():
                     if group_id not in groups:
-                        groups[group_id] = {"groupid": group_id, "title": group_name, "members":[]}
+                        groups[group_id] = {
+                            "groupid": group_id,
+                            "title": group_name,
+                            "members": [],
+                        }
                     groups[group_id]["members"].append(
-                        {"first_name": first_name, "last_name": last_name, "netid": netid}
+                        {
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "netid": netid,
+                        }
                     )
 
     except Exception as ex:
@@ -436,7 +449,7 @@ def upload():
                 return redirect(url_for("upload"))
 
             group_name = "kokopops"
-            filename = file.filename  
+            filename = file.filename
 
             # Use parsedata to extract events from the file
             _, calendar_events = parsedata.extract_schedule(file, filename, group_name)
@@ -447,17 +460,29 @@ def upload():
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
                         for event in calendar_events:
-                            start_time = datetime.strptime(event["start"], "%Y-%m-%dT%H:%M:%S")
-                            end_time = datetime.strptime(event["end"], "%Y-%m-%dT%H:%M:%S")
-                            
+                            start_time = datetime.strptime(
+                                event["start"], "%Y-%m-%dT%H:%M:%S"
+                            )
+                            end_time = datetime.strptime(
+                                event["end"], "%Y-%m-%dT%H:%M:%S"
+                            )
+
                             # Check if the event already exists in the database
                             query_check = """
                             SELECT id FROM events
                             WHERE title = %s AND start = %s AND "end" = %s AND location = %s
                             """
-                            cur.execute(query_check, (event["title"], start_time, end_time, event["location"]))
+                            cur.execute(
+                                query_check,
+                                (
+                                    event["title"],
+                                    start_time,
+                                    end_time,
+                                    event["location"],
+                                ),
+                            )
                             existing_events = cur.fetchall()
-                            
+
                             for e in existing_events:
                                 # If event exists, delete the old one
                                 query_delete = """
@@ -471,15 +496,20 @@ def upload():
                             INSERT INTO events (title, start, "end", location, "groupid", created_at)
                             VALUES (%s, %s, %s, %s, %s, %s)
                             """
-                            
-                            cur.execute(query_insert, (
-                                event["title"], 
-                                start_time, 
-                                end_time, 
-                                event["location"], 
-                                event["groupid"],
-                                datetime.now(pytz.timezone('US/Eastern'))  # Set current time as the created_at
-                            ))
+
+                            cur.execute(
+                                query_insert,
+                                (
+                                    event["title"],
+                                    start_time,
+                                    end_time,
+                                    event["location"],
+                                    event["groupid"],
+                                    datetime.now(
+                                        pytz.timezone("US/Eastern")
+                                    ),  # Set current time as the created_at
+                                ),
+                            )
 
                         # Commit changes to the database
                         conn.commit()
@@ -489,7 +519,9 @@ def upload():
 
             except Exception as e:
                 print(f"Error inserting events into PostgreSQL: {e}")
-                flash("An error occurred while saving events. Please try again.", "error")
+                flash(
+                    "An error occurred while saving events. Please try again.", "error"
+                )
                 return redirect(url_for("upload"))
 
         flash("Invalid file type. Only CSV and XLSX are allowed.", "error")
@@ -508,7 +540,7 @@ def generate():
         # Generate the schedule
         schedule = assign_rehearsals()
         update_events_table(schedule)
-        
+
         # Redirect to avoid re-executing POST request on refresh
         return redirect(url_for("generate"))
 
@@ -631,6 +663,7 @@ def manage_groups():
     else:
         return redirect(url_for("home"))
 
+
 @app.route("/update-group-info", methods=["POST"])
 def update_group_name():
     data = request.get_json()
@@ -641,14 +674,14 @@ def update_group_name():
     netids = data.get("netids", [])
     print(netids)
 
-    try: 
+    try:
         if not group_name or not new_group_name:
             return (
-                jsonify({"success": False, "message": "Error"}), # CHANGE MESSAGE
+                jsonify({"success": False, "message": "Error"}),  # CHANGE MESSAGE
                 400,
             )  # Return error with status code 400
-    
-    # Connect to the database
+
+        # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 # Update the title for given group
@@ -660,7 +693,7 @@ def update_group_name():
                 cur.execute(query, (new_group_name, group_name))
                 conn.commit()
 
-                 # Remove selected members from group
+                # Remove selected members from group
                 query = """
                     DELETE FROM group_members
                     WHERE groupid = %s
@@ -724,18 +757,20 @@ def events():
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 # Fetch events along with their rehearsal space names
-                cur.execute("""
+                cur.execute(
+                    """
                     SELECT e.title, e.start, e."end", r.name
                     FROM events e
                     LEFT JOIN rehearsal_spaces r ON e.location = r.name
                     ORDER BY e.start ASC
-                """)
+                """
+                )
                 events = cur.fetchall()
 
                 # Fetch rehearsal space names
                 cur.execute("SELECT name FROM rehearsal_spaces")
                 rehearsal_spaces = cur.fetchall()
-        
+
         # Define a color map for rehearsal spaces
         color_map = {
             "Bloomberg": "#84cc16",
@@ -767,7 +802,7 @@ def events():
                 "start": start.isoformat(),
                 "end": end.isoformat(),
                 "location": location,
-                "color": color_map.get(location, "#CCCCCC")  # Default gray if unknown
+                "color": color_map.get(location, "#CCCCCC"),  # Default gray if unknown
             }
 
             event_list.append(event_dict)
@@ -777,26 +812,28 @@ def events():
     except Exception as e:
         print(f"Error fetching events from PostgreSQL: {e}")
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
-    
-    
+
+
 @app.route("/draft-schedule")
 def draft():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 # Fetch events along with their rehearsal space names
-                cur.execute("""
+                cur.execute(
+                    """
                     SELECT d.title, d.start, d."end", r.name
                     FROM draft_schedule d
                     LEFT JOIN rehearsal_spaces r ON d.location = r.name
                     ORDER BY d.start ASC
-                """)
+                """
+                )
                 events = cur.fetchall()
 
                 # Fetch rehearsal space names
                 cur.execute("SELECT name FROM rehearsal_spaces")
                 rehearsal_spaces = cur.fetchall()
-        
+
         # Define a color map for rehearsal spaces
         color_map = {
             "Bloomberg": "#84cc16",
@@ -828,7 +865,7 @@ def draft():
                 "start": start.isoformat(),
                 "end": end.isoformat(),
                 "location": location,
-                "color": color_map.get(location, "#CCCCCC")  # Default gray if unknown
+                "color": color_map.get(location, "#CCCCCC"),  # Default gray if unknown
             }
 
             event_list.append(event_dict)
@@ -849,15 +886,17 @@ def restore_draft_schedule():
                 cur.execute("DELETE FROM draft_schedule")
 
                 # Copy all events from events table into draft_schedule
-                cur.execute("""
+                cur.execute(
+                    """
                     INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at)
                     SELECT title, start, "end", location, groupid, created_at
                     FROM events
-                """)
-                
+                """
+                )
+
                 # Commit the transaction
                 conn.commit()
-                
+
         return jsonify({"message": "Draft schedule restored successfully!"})
 
     except Exception as e:
@@ -870,19 +909,25 @@ def publish_draft():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Delete all existing events from the events table
-                cur.execute("DELETE FROM events")
-
-                # Insert events from draft_schedule into events table
-                cur.execute("""
-                    INSERT INTO events (title, start, "end", location, groupid, created_at)
-                    SELECT title, start, "end", location, groupid, created_at
+                # Updates events table with info from draft_schedule
+                cur.execute(
+                    """
+                    UPDATE events
+                    SET 
+                        title = draft_schedule.title,
+                        groupid = draft_schedule.groupid,
+                        created_at = draft_schedule.created_at
                     FROM draft_schedule
-                """)
-                
+                    WHERE 
+                        events.start = draft_schedule.start 
+                        AND events."end" = draft_schedule."end"
+                        AND events.location = draft_schedule.location;
+                """
+                )
+
                 # Commit the transaction
                 conn.commit()
-        
+
         return jsonify({"message": "Schedule published successfully!"})
 
     except Exception as e:
