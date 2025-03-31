@@ -17,6 +17,7 @@ import pytz
 import auth
 import psycopg2
 from top import app
+from scheduler import assign_rehearsals, update_events_table
 
 
 # -----------------------------------------------------------------------
@@ -34,7 +35,7 @@ dotenv.load_dotenv()
 # Secret key setup (set up in .env)
 app.secret_key = os.environ.get(
     "APP_SECRET_KEY", "your_default_secret_key"
-)  # Make sure .env has the APP_SECRET_KEY
+)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -443,8 +444,6 @@ def upload():
                 # Connect to PostgreSQL
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
-                        print(f"Extracted events: {calendar_events}")
-
                         for event in calendar_events:
                             start_time = datetime.strptime(event["start"], "%Y-%m-%dT%H:%M:%S")
                             end_time = datetime.strptime(event["end"], "%Y-%m-%dT%H:%M:%S")
@@ -456,8 +455,6 @@ def upload():
                             """
                             cur.execute(query_check, (event["title"], start_time, end_time, event["location"]))
                             existing_events = cur.fetchall()
-                            print(f"Checking for event: Title: {event['title']}, Start: {start_time}, End: {end_time}, Location: {event['location']}")
-                            print(f"Existing events: {existing_events}")
                             
                             for e in existing_events:
                                 # If event exists, delete the old one
@@ -466,11 +463,10 @@ def upload():
                                 WHERE id = %s
                                 """
                                 cur.execute(query_delete, (e[0],))
-                                print(f"Deleted existing event with ID {e[0]}")
 
                             # Prepare SQL insert query for the new event
                             query_insert = """
-                            INSERT INTO events (title, start, "end", location, "group", created_at)
+                            INSERT INTO events (title, start, "end", location, "groupid", created_at)
                             VALUES (%s, %s, %s, %s, %s, %s)
                             """
                             
@@ -479,8 +475,8 @@ def upload():
                                 start_time, 
                                 end_time, 
                                 event["location"], 
-                                event["group"],
-                                datetime.now(pytz.utc)  # Set current time as the created_at
+                                event["groupid"],
+                                datetime.now(pytz.timezone('US/Eastern'))  # Set current time as the created_at
                             ))
 
                         # Commit changes to the database
@@ -500,11 +496,18 @@ def upload():
     return render_template("upload.html")
 
 
-@app.route("/generate-schedule", methods=["GET"])
+@app.route("/generate-schedule", methods=["GET", "POST"])
 def generate():
     user_info = get_user_info()
     if user_info.get("is_admin", True):
-        return render_template("generate.html", user=user_info)
+        if request.method == "POST":
+            # Generate the schedule using the scheduler module
+            schedule = assign_rehearsals()
+            # Update the events table with the generated schedule
+            update_events_table(schedule)
+            return render_template("generate.html")
+        else:
+            return render_template("generate.html")
     else:
         return redirect(url_for("home"))
 
@@ -745,8 +748,7 @@ def events():
         # Return a more descriptive error message in the response
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
 
-
-# -----------------------------------------------------------------------
+# --------
 
 # If the file is being executed directly, run the app
 if __name__ == "__main__":

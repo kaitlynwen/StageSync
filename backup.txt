@@ -1,0 +1,55 @@
+def generate_available_slots(members, availability_dict):
+    possible_slots = []
+    # Fetch existing events' start and end times from the database
+    existing_event_times = fetch_existing_events()
+
+    for member in members:
+        if member in availability_dict:
+            for day, start, end, is_recurring, one_time_date in availability_dict[member]:
+                print(availability_dict[member])
+                # If the slot is recurring, add subsequent weeks
+                if is_recurring:
+                    status, event_start, event_end = is_slot_available(existing_event_times, availability_dict, member)
+                    if status:
+                        possible_slots.append((event_start, event_end))
+
+    return possible_slots
+
+def is_slot_available(existing_event_times, availability_dict, member):
+    """
+    Check if a slot (start_datetime to end_datetime) is available for the given member, considering:
+    - The member's personal availability.
+    - Existing events' start and end times.
+    """
+    # Check if the member has any personal conflicts during this slot
+    for day, start, end, is_recurring, one_time_date in availability_dict.get(member, []):
+        # Convert member availability to datetime objects
+        member_event_date = convert_day_to_date(day)
+        member_start_datetime = datetime.combine(member_event_date, start)
+        member_end_datetime = datetime.combine(member_event_date, end)
+        
+        current_date = datetime.today().date()
+
+        while member_event_date < current_date:
+            member_event_date += timedelta(weeks=1)
+    
+        for event in existing_event_times:
+            if event['start'].date() >= current_date:
+                new_member_date = member_event_date
+                for i in range(0,3): # arbitrary number of weeks
+                    new_member_date += timedelta(weeks=1)
+                    member_start_datetime = datetime.combine(new_member_date, start)
+                    member_end_datetime = datetime.combine(new_member_date, end)
+
+                    start_datetime = datetime.combine(event["start"].date(), event["start"].time())
+                    end_datetime = datetime.combine(event["end"].date(), event["end"].time())
+                    
+                    # If this slot overlaps with the member's personal unavailable time, return False
+                    cond1 = (member_start_datetime <= event['end']) and (event['end'] <= member_end_datetime)
+                    cond2 = (member_start_datetime <= event['start']) and (event['start'] <= member_end_datetime)
+                    
+                    if (not cond1 and not cond2) or (member_start_datetime >= event['end']): 
+                        return True, start_datetime, end_datetime
+
+    # No overlap found, return True
+    return False, None, None

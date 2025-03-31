@@ -107,7 +107,7 @@ def convert_schedule_to_calendar_events(schedule):
                 "start": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                 "end": end_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                 "location": entry["Location"],
-                "group": None
+                "groupid": None
             }
         )
 
@@ -176,7 +176,7 @@ def extract_schedule(file, filename, group_name):
                             "Start": f"{start_time.strftime('%I:%M%p')}",
                             "End": f"{end_time.strftime('%I:%M%p')}",
                             "Location": col,
-                            "Group": group_name,
+                            "GroupId": None,
                         })
 
     # Combine consecutive time slots
