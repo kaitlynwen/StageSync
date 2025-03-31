@@ -12,8 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch("/draft-schedule")
         .then((response) => response.json())
         .then((data) => {
-          console.log("Data received:", data);
-
           if (Array.isArray(data)) {
             const events = data.map((event) => ({
               title: event.title,
@@ -33,8 +31,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     },
 
+    scrollTime: "16:00:00",
     editable: userRole === "admin",
     droppable: userRole === "admin",
+    eventResizableFromStart: userRole === "admin",
+    eventDurationEditable: userRole === "admin",
+    eventStartEditable: userRole === "admin",
 
     eventClick: function (info) {
       alert(
@@ -44,12 +46,11 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     },
 
-    eventDidMount: function (info) {
-      info.el.setAttribute(
-        "title",
-        `${info.event.title} - ${info.event.extendedProps.location}`
-      );
-    },
+    eventResize: function(info) {
+      // update the database with this
+      // oldEvent -> query the database with this
+      // event -> update the database with this
+    }
   });
 
   calendar.render();

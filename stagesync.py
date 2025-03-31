@@ -44,6 +44,16 @@ UPLOAD_FOLDER = tempfile.mkdtemp()
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
+COLOR_MAP = {
+    "Bloomberg": "#84cc16",
+    "Whitman": "#0ea5e9",
+    "Dillon MPR": "#a855f7",
+    "New South (Main)": "#f472b6",
+    "NS Warm Up": "#14b8a6",
+    "Murphy": "#f43f5e",
+    "Broadmead": "#f59e0b",
+}
+
 # ----------------------------------------------------------------------
 
 
@@ -770,17 +780,6 @@ def events():
                 cur.execute("SELECT name FROM rehearsal_spaces")
                 rehearsal_spaces = cur.fetchall()
 
-        # Define a color map for rehearsal spaces
-        color_map = {
-            "Bloomberg": "#84cc16",
-            "Whitman": "#0ea5e9",
-            "Dillon MPR": "#a855f7",
-            "New South (Main)": "#f472b6",
-            "NS Warm Up": "#14b8a6",
-            "Murphy": "#f43f5e",
-            "Broadmead": "#f59e0b",
-        }
-
         # Convert the events to a list of dictionaries
         event_list = []
         for event in events:
@@ -801,7 +800,7 @@ def events():
                 "start": start.isoformat(),
                 "end": end.isoformat(),
                 "location": location,
-                "color": color_map.get(location, "#CCCCCC"),  # Default gray if unknown
+                "color": COLOR_MAP.get(location, "#CCCCCC"),  # Default gray if unknown
             }
 
             event_list.append(event_dict)
@@ -833,17 +832,6 @@ def draft():
                 cur.execute("SELECT name FROM rehearsal_spaces")
                 rehearsal_spaces = cur.fetchall()
 
-        # Define a color map for rehearsal spaces
-        color_map = {
-            "Bloomberg": "#84cc16",
-            "Whitman": "#0ea5e9",
-            "Dillon MPR": "#a855f7",
-            "New South (Main)": "#f472b6",
-            "NS Warm Up": "#14b8a6",
-            "Murphy": "#f43f5e",
-            "Broadmead": "#f59e0b",
-        }
-
         # Convert the events to a list of dictionaries
         event_list = []
         for event in events:
@@ -864,7 +852,7 @@ def draft():
                 "start": start.isoformat(),
                 "end": end.isoformat(),
                 "location": location,
-                "color": color_map.get(location, "#CCCCCC"),  # Default gray if unknown
+                "color": COLOR_MAP.get(location, "#CCCCCC"),  # Default gray if unknown
             }
 
             event_list.append(event_dict)

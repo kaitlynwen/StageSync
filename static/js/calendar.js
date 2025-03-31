@@ -31,12 +31,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     },
 
+    scrollTime: "16:00:00",
     editable: false,
     droppable: false,
-
-    eventDidMount: function (info) {
-      info.el.setAttribute("title", `${info.event.title} - ${info.event.extendedProps.location}`);
-    },
   });
 
   calendar.render();
