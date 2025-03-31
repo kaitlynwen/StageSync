@@ -501,17 +501,18 @@ def upload():
 @app.route("/generate-schedule", methods=["GET", "POST"])
 def generate():
     user_info = get_user_info()
-    if user_info.get("is_admin", True):
-        if request.method == "POST":
-            # Generate the schedule using the scheduler module
-            schedule = assign_rehearsals()
-            # Update the events table with the generated schedule
-            update_events_table(schedule)
-            return render_template("generate.html")
-        else:
-            return render_template("generate.html")
-    else:
+    if not user_info.get("is_admin", False):
         return redirect(url_for("home"))
+
+    if request.method == "POST":
+        # Generate the schedule
+        schedule = assign_rehearsals()
+        update_events_table(schedule)
+        
+        # Redirect to avoid re-executing POST request on refresh
+        return redirect(url_for("generate"))
+
+    return render_template("generate.html")
 
 
 @app.route("/published-schedule", methods=["GET"])

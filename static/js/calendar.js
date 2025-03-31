@@ -35,7 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
               title: event.title,
               start: event.start,
               end: event.end,
-              location: event.location, // Optional field
+              extendedProps: {
+                location: event.location
+              },
             }));
             successCallback(events);  // Call FullCalendar's success callback with events
           } else {
