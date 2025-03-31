@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import io
+import os
 import pandas as pd
 import re
 
@@ -191,14 +192,19 @@ def extract_schedule(file, filename, group_name):
 ########################################################################
 
 if __name__ == "__main__":
-    file_path = (
-        "sample pac data/Spring Rehearsal Schedule (2_28-3_14).xlsx"  # Update if needed
-    )
-    group_name = "kokopops"
-    date_range, calendar_events = extract_schedule(file_path, group_name)
+    # Ensure the file path is correct and exists
+    file_path = "sample pac data/Spring Rehearsal Schedule (3_17-4_05).xlsx"  # Update if needed
+    # file_path = "sample pac data/Spring Rehearsal Schedule (3_17-3_23).xlsx"  # Update if needed
+    if not os.path.exists(file_path):
+        print(f"Error: The file '{file_path}' does not exist.")
+    else:
+        group_name = "kokopops"
+        
+        # Open the Excel file in binary mode ('rb') and pass it to extract_schedule
+        with open(file_path, 'rb') as file:
+            date_range, calendar_events = extract_schedule(file, file_path, group_name)
 
-    print(f"Schedule for {group_name} (Valid for {date_range}):\n")
-    for event in calendar_events:
-        print(
-            f"Title: {event['title']} | Start: {event['start']} | End: {event['end']}"
-        )
+            # Output the results
+            print(f"Schedule for {group_name} (Valid for {date_range}):\n")
+            for event in calendar_events:
+                print(f"Title: {event['title']} | Start: {event['start']} | End: {event['end']}")
