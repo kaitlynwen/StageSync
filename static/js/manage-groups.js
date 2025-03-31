@@ -23,19 +23,29 @@ buttons.forEach(function (btn) {
       <span class="close">&times;</span>
       <h2 class="text-lg font-bold text-orange-500 py-4">Change Group Name:</h2>
       <input type="text" id="group-title" value="${groupName}" />
-      <button id="save-group" class="bg-pink-500 hover:bg-pink-700 text-white px-2 py-1 rounded text-sm mb-2">
-      Save
-      </button>
-      <hr>
-      
-      <h2 class="text-lg font-bold text-orange-500 py-4">Check to Remove Existing Members:</h2>
-      <div id="group-members"></div>
+      <div class="flex justify-between items-start">
+        <div class="w-1/2">
+          <h2 class="text-lg font-bold text-orange-500 py-4">Check to Remove Existing Members:</h2>
+          <div id="remove-members"></div>
+      </div>
+
+        <div class="w-1/2">
+          <h2 class="text-lg font-bold text-orange-500 py-4">Search to Add New Members:</h2>
+          <div id="add-members"></div>
+        </div>
+      </div>
+      <br>
+      <div style="display: flex; justify-content: flex-end;">
+        <button id="save-group" class="bg-pink-500 hover:bg-pink-700 text-white px-2 py-1 rounded text-sm mb-2">
+          Save
+        </button>
+      </div>
     `;
 
-    let membersHtml = '';
+    let removeMembersHtml = '';
     for (let i = 0; i < members.length; i++) {
       const member = members[i];
-      membersHtml += `
+      removeMembersHtml += `
           <input type="checkbox"
           class="group-member-checkbox"
           value="${member.netid}" /> 
@@ -43,8 +53,36 @@ buttons.forEach(function (btn) {
         <br />
       `;
     }
+
+    // Hard-coded
+    let addMembersHtml = ` <div class="flex justify-between items-center w-full mt-2">
+          <form
+            id="availabilityForm"
+            method="POST"
+            action="{{ url_for('availability') }}"
+            class="flex items-center w-full max-w-4xl"
+          >
+            <select
+              id="memberDropdown"
+              name="selected_netid"
+              class="w-60 px-4 py-2 font-sm border rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
+            >
+              <option value="" disabled selected>Select a member</option>
+              <option
+                value="ts2188"
+                data-firstname="Timothy"
+                data-lastname="Sim"
+              >
+                Timothy Sim
+              </option>
+            </select>
+          </form>
+        </div>
+        `
+
     // Insert the generated checkboxes into the modal
-    document.getElementById("group-members").innerHTML = membersHtml;
+    document.getElementById("remove-members").innerHTML = removeMembersHtml;
+    document.getElementById("add-members").innerHTML = addMembersHtml;
 
     // Add event listener to close button
     modal.querySelector(".close").onclick = function () {
@@ -74,7 +112,7 @@ buttons.forEach(function (btn) {
         .then(response => response.json()) // Convert response to JSON
         .then(data => {
           if (data.success) {
-            alert("Group name updated successfully");
+            alert("Changes saved!");
             modal.style.display = "none";
             location.reload();
           } else {
