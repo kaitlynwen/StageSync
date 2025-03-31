@@ -58,7 +58,7 @@ def combine_consecutive_slots(schedule):
     """Combine consecutive time slots into a single event."""
     combined_schedule = []
 
-    schedule.sort(key=lambda x: (x["Start Date"], parse_time(x["Start"])))
+    schedule.sort(key=lambda x: (x["Location"], x["Start Date"], parse_time(x["Start"])))
 
     previous_event = None
     for event in schedule:
@@ -193,7 +193,7 @@ def extract_schedule(file, filename, group_name):
 
 if __name__ == "__main__":
     # Ensure the file path is correct and exists
-    file_path = "sample pac data/Spring Rehearsal Schedule (3_17-4_05).xlsx"  # Update if needed
+    file_path = "sample pac data/Spring Rehearsal Schedule (3_30-4_05).xlsx"  # Update if needed
     # file_path = "sample pac data/Spring Rehearsal Schedule (3_17-3_23).xlsx"  # Update if needed
     if not os.path.exists(file_path):
         print(f"Error: The file '{file_path}' does not exist.")
