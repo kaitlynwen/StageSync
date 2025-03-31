@@ -33,16 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     },
 
-    editable: userRole === "admin",
-    droppable: userRole === "admin",
-
-    eventClick: function (info) {
-      alert(
-        userRole !== "admin"
-          ? "You do not have permission to edit this event"
-          : "You can edit this event"
-      );
-    },
+    editable: false,
+    droppable: false,
 
     eventDidMount: function (info) {
       info.el.setAttribute("title", `${info.event.title} - ${info.event.extendedProps.location}`);
