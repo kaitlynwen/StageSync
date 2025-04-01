@@ -760,6 +760,69 @@ def availability():
     return redirect(url_for("home"))
 
 
+@app.route("/authorize-members", methods=["GET"])
+def authorize_members():
+    user_info = get_user_info()
+    all_members = get_all_users()
+    if user_info.get("is_admin", True):
+        return render_template("authorize.html", user=user_info, old_members=all_members)
+    else:
+        return redirect(url_for("home"))
+
+@app.route("/authorize", methods=["POST"])
+def authorize():
+    try:
+        # Get the netid of the user to add as admin from the request body
+        data = request.get_json()
+        netid = data.get("netid")
+
+        if not netid:
+            return (
+                jsonify({"success": False, "message": "NetID is required"}),
+                400,
+            )  # Return error with status code 400
+
+        return jsonify({"success": True}), 200  # Return success with status code 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
+    
+@app.route("/unauthorize", methods=["POST"])
+def unauthorize():
+    try:
+        # Get the netids of users to remove from admin from the request body
+        data = request.get_json()
+        netids = data.get("netids", [])
+
+        if not netids:
+            return (
+                jsonify({"success": False, "message": "NetID(s) required"}),
+                400,
+            )  # Return error with status code 400
+
+        # NOTE: Should remove associated data from users, group_members, and availability
+        # # Connect to the database
+        # with psycopg2.connect(DATABASE_URL) as conn:
+        #     with conn.cursor() as cur:
+        #         # Update the is_admin flag to False for the selected users
+        #         query = """
+        #         """
+        #         cur.execute(query, (netids,))
+        #         conn.commit()
+
+        return jsonify({"success": True}), 200  # Return success with status code 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
+
 @app.route("/events")
 def events():
     try:
