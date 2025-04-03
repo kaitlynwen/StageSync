@@ -37,9 +37,6 @@ app.secret_key = os.environ.get("APP_SECRET_KEY", "your_default_secret_key")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Set temporary storage location for testing
-UPLOAD_FOLDER = tempfile.mkdtemp()
-
 # Allowable file extensions
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
@@ -447,93 +444,75 @@ def view():
 def upload():
     if request.method == "POST":
         if "file" not in request.files:
-            flash("No file part", "error")
+            flash("No file part in the request.", "error")
             return redirect(url_for("upload"))
 
         file = request.files["file"]
 
         if file.filename == "":
-            flash("No selected file", "error")
+            flash("No file selected. Please choose a file.", "warning")
             return redirect(url_for("upload"))
 
         if file and allowed_file(file.filename):
             if request.content_length > MAX_FILE_SIZE:
-                flash("File size exceeds 5MB", "error")
+                flash("File size exceeds 5MB. Please upload a smaller file.", "error")
                 return redirect(url_for("upload"))
 
             group_name = "kokopops"
             filename = file.filename
 
-            # Use parsedata to extract events from the file
-            _, calendar_events = parsedata.extract_schedule(file, filename, group_name)
-
-            # Now insert the extracted events into the PostgreSQL database
+            # Extract events and capture warnings
             try:
-                # Connect to PostgreSQL
+                _, calendar_events, warnings = parsedata.extract_schedule(file, filename, group_name)
+
+                # Flash any warnings captured from parsing
+                for warning in warnings:
+                    flash(f"{warning}", "warning")
+
+            except Exception as e:
+                flash(f"Error processing file: {str(e)}", "error")
+                return redirect(url_for("upload"))
+
+            # Insert events into PostgreSQL
+            try:
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
                         for event in calendar_events:
-                            start_time = datetime.strptime(
-                                event["start"], "%Y-%m-%dT%H:%M:%S"
-                            )
-                            end_time = datetime.strptime(
-                                event["end"], "%Y-%m-%dT%H:%M:%S"
-                            )
+                            start_time = datetime.strptime(event["start"], "%Y-%m-%dT%H:%M:%S")
+                            end_time = datetime.strptime(event["end"], "%Y-%m-%dT%H:%M:%S")
 
-                            # Check if the event already exists in the database
-                            query_check = """
-                            SELECT id FROM events
-                            WHERE start = %s AND "end" = %s AND location = %s
-                            """
+                            # Check if event already exists
                             cur.execute(
-                                query_check,
-                                (
-                                    start_time,
-                                    end_time,
-                                    event["location"],
-                                ),
+                                """SELECT id FROM events WHERE start = %s AND "end" = %s AND location = %s""",
+                                (start_time, end_time, event["location"]),
                             )
                             existing_events = cur.fetchall()
 
+                            # Delete existing events
                             for e in existing_events:
-                                # If event exists, delete the old one
-                                query_delete = """
-                                DELETE FROM events
-                                WHERE id = %s
-                                """
-                                cur.execute(query_delete, (e[0],))
+                                cur.execute("DELETE FROM events WHERE id = %s", (e[0],))
 
-                            # Prepare SQL insert query for the new event
-                            query_insert = """
-                            INSERT INTO events (title, start, "end", location, "groupid", created_at)
-                            VALUES (%s, %s, %s, %s, %s, %s)
-                            """
-
+                            # Insert new event
                             cur.execute(
-                                query_insert,
+                                """INSERT INTO events (title, start, "end", location, "groupid", created_at) 
+                                   VALUES (%s, %s, %s, %s, %s, %s)""",
                                 (
                                     event["title"],
                                     start_time,
                                     end_time,
                                     event["location"],
                                     event["groupid"],
-                                    datetime.now(
-                                        pytz.timezone("US/Eastern")
-                                    ),  # Set current time as the created_at
+                                    datetime.now(pytz.timezone("US/Eastern")),
                                 ),
                             )
 
-                        # Commit changes to the database
                         conn.commit()
 
-                flash(f"File uploaded successfully!", "success")
+                flash("File uploaded and events saved successfully!", "success")
                 return redirect(url_for("upload"))
 
             except Exception as e:
-                print(f"Error inserting events into PostgreSQL: {e}")
-                flash(
-                    "An error occurred while saving events. Please try again.", "error"
-                )
+                flash(f"Database error: {str(e)}", "error")
                 return redirect(url_for("upload"))
 
         flash("Invalid file type. Only CSV and XLSX are allowed.", "error")

@@ -48,16 +48,16 @@
         <div id="alert-container" class="flex flex-col">
           {% for category, message in messages %}
           <div class="alert w-full px-4 py-3 rounded-md relative transition-all duration-300 opacity-100
-            {% if category == 'success' %}
-              bg-green-100 border border-green-400 text-green-700
-            {% elif category == 'error' %}
-              bg-red-100 border border-red-400 text-red-700
-            {% elif category == 'warning' %}
-              bg-yellow-100 border border-yellow-400 text-yellow-700
-            {% elif category == 'info' %}
-              bg-blue-100 border border-blue-400 text-blue-700
-            {% endif %}
-            " role="alert">
+          {% if category == 'success' %}
+            bg-green-100 border border-green-400 text-green-700
+          {% elif category == 'error' %}
+            bg-red-100 border border-red-400 text-red-700
+          {% elif category == 'warning' %}
+            bg-yellow-100 border border-yellow-400 text-yellow-700
+          {% elif category == 'info' %}
+            bg-blue-100 border border-blue-400 text-blue-700
+          {% endif %}
+        " role="alert">
             <div class="flex justify-between items-center">
               <strong class="font-bold flex items-center">
                 {% if category == 'success' %}
@@ -71,9 +71,8 @@
                 {% endif %}
               </strong>
 
-              <button
-                class="flex {% if category == 'success' %}text-green-700 hover:text-green-900{% elif category == 'error' %}text-red-700 hover:text-red-900{% elif category == 'warning' %}text-yellow-700 hover:text-yellow-900{% elif category == 'info' %}text-blue-700 hover:text-blue-900{% endif %}"
-                onclick="this.parentElement.parentElement.style.display='none'">
+              <button onclick="this.parentElement.parentElement.remove()"
+                class="flex {% if category == 'success' %}text-green-700 hover:text-green-900{% elif category == 'error' %}text-red-700 hover:text-red-900{% elif category == 'warning' %}text-yellow-700 hover:text-yellow-900{% elif category == 'info' %}text-blue-700 hover:text-blue-900{% endif %}">
                 <i class="bx bx-x bx-sm"></i>
               </button>
             </div>
@@ -83,6 +82,7 @@
         </div>
         {% endif %}
         {% endwith %}
+
       </div>
 
       <!-- Uploading (Drag and Drop) -->
