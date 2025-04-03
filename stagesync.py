@@ -832,15 +832,30 @@ def unauthorize():
                 400,
             )  # Return error with status code 400
 
-        # NOTE: Should remove associated data from users, group_members, and availability
-        # # Connect to the database
-        # with psycopg2.connect(DATABASE_URL) as conn:
-        #     with conn.cursor() as cur:
-        #         # Update the is_admin flag to False for the selected users
-        #         query = """
-        #         """
-        #         cur.execute(query, (netids,))
-        #         conn.commit()
+        # Remove associated data from users, group_members, and availability
+        # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Remove specified members from group_members datatable
+                query = """DELETE FROM group_members
+                WHERE netid = ANY(%s)
+                """
+                cur.execute(query, (netids,))
+                conn.commit()
+
+                # Remove specified member from availability datatable
+                query = """DELETE FROM availability
+                WHERE netid = ANY(%s)
+                """
+                cur.execute(query, (netids,))
+                conn.commit()
+
+                # Remove specified members from users datatable
+                query = """DELETE FROM users
+                WHERE netid = ANY(%s)
+                """
+                cur.execute(query, (netids,))
+                conn.commit()
 
         return jsonify({"success": True}), 200  # Return success with status code 200
 
