@@ -46,9 +46,9 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <div class="flex gap-6 overflow-x-auto mt-2">
+        <div class="flex gap-6 flex-wrap mt-2">
           {% for group in groups %}
-          <div class="bg-gray-200 p-4 rounded-2xl w-64 relative">
+          <div class="bg-gray-200 p-4 rounded-lg w-64 relative">
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-semibold mb-2">{{ group.title }}</h2>
               <!-- Filters: https://jinja.palletsprojects.com/ -->
@@ -59,7 +59,6 @@
                 Edit
               </button>
             </div>
-            <hr class="pb-2">
             <div class="space-y-2">
               {% for member in group.members %}
               <div class="text-gray-900">{{ member.first_name }} {{ member.last_name }}</div>

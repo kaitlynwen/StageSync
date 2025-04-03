@@ -1,74 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Flowbite -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+  <!-- Boxicons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-    <!-- FullCalendar Styles and Scripts -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
-      integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+  <!-- Flowbite -->
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 
-    <!-- Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/custom.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/tailwind.css') }}"
-    />
-    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+  <!-- FullCalendar Styles and Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
+    integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <!-- Set Title of Page -->
-    <title>Update Availability - StageSync</title>
-  </head>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
 
-  <body class="flex flex-col min-h-screen font-sans bg-white">
-    <div class="flex flex-grow">
-      <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
-        {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
-        include 'sidebar.html' %} {% endif %}
+  <!-- Set Title of Page -->
+  <title>Update Availability - StageSync</title>
+</head>
+
+<body class="flex flex-col min-h-screen font-sans bg-white">
+  <div class="flex flex-grow">
+    <!-- Sidebar Section -->
+    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+      {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
+      include 'sidebar.html' %} {% endif %}
+    </div>
+
+    <!-- Main Content Section -->
+    <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
+
+      <div class="flex justify-between items-center mt-2">
+        <p class="text-3xl font-bold">Update Availability</p>
       </div>
 
-      <!-- Main Content Section -->
-      <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
-        <div class="flex justify-between items-center mt-2">
-          <p class="text-3xl font-bold">Update Availability</p>
+      <div class="flex justify-between items-center mt-2">
+        <p id="subtitle" class="text-lg font-bold text-indigo-500 py-2">
+          Please list all conflicts AFTER 5PM on weekdays and ANYTIME on
+          weekends
+        </p>
+      </div>
+
+      <form action="{{ url_for('update') }}" method="POST">
+        <!-- Tabs Navigation -->
+        <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+          <ul class="flex flex-wrap -mb-px">
+            <li class="me-2">
+              <button type="button" id="weekly-tab" class="inline-block p-4 border-b-2 border-indigo-500 text-indigo-500 hover:text-gray-600 hover:border-gray-300"
+                onclick="showTab('weekly')">
+                Weekly Conflicts
+              </button>
+            </li>
+            <li class="me-2">
+              <button type="button" id="one-time-tab"
+                class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300"
+                onclick="showTab('one-time')">
+                One-Time Conflicts
+              </button>
+            </li>
+          </ul>
         </div>
 
-        <div class="flex justify-between items-center mt-2">
-          <p id="subtitle" class="text-lg font-bold text-indigo-500 py-2">
-            Please list all conflicts AFTER 5PM on weekdays and ANYTIME on
-            weekends
-          </p>
-        </div>
-
-        <!-- Form Start Here -->
-        <form action="{{ url_for('update') }}" method="POST">
-          <!-- Weekly Conflicts Section -->
+        <!-- Weekly Conflicts Section -->
+        <div id="weekly-content" class="tab-content">
           <div class="flex justify-between items-center mt-6">
-            <p class="text-xl font-bold">Weekly Conflicts</p>
-          </div>
-
-          <div class="flex justify-between items-center mt-4">
             <p class="text-m font-normal">
               <strong>Weekly Conflict Format:</strong><br />
               Please list your weekly conflicts in the following format:
@@ -97,140 +99,26 @@
             means two separate conflicts on the same day.)
           </div>
 
+          <table class="w-screen text-sm text-left mt-6 rtl:text-right text-neutral-500 dark:text-neutral-400">
+            <tbody>
+              {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
+              <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
+                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">
+                  {{ day }}
+                </th>
+                <td class="px-6 py-4">
+                  <input class="w-full border-b-2 border-gray-200 border-t-0 border-x-0" type="text"
+                    name="{{ day.lower() }}_conflicts" value="{{ '; '.join(weekly_conflicts[day]) }}" />
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- One-Time Conflicts Section -->
+        <div id="one-time-content" class="tab-content hidden">
           <div class="flex justify-between items-center mt-6">
-            <table
-              class="w-screen text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
-            >
-              <tbody>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <th
-                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
-                  >
-                    Monday
-                  </th>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="monday_conflicts"
-                      value="{{ '; '.join(weekly_conflicts['Monday']) }}"
-                    />
-                  </td>
-                </tr>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <th
-                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
-                  >
-                    Tuesday
-                  </th>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="tuesday_conflicts"
-                      value="{{ '; '.join(weekly_conflicts['Tuesday']) }}"
-                    />
-                  </td>
-                </tr>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <th
-                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
-                  >
-                    Wednesday
-                  </th>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="wednesday_conflicts"
-                      value="{{ '; '.join(weekly_conflicts['Wednesday']) }}"
-                    />
-                  </td>
-                </tr>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <th
-                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
-                  >
-                    Thursday
-                  </th>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="thursday_conflicts"
-                      value="{{ '; '.join(weekly_conflicts['Thursday']) }}"
-                    />
-                  </td>
-                </tr>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <th
-                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
-                  >
-                    Friday
-                  </th>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="friday_conflicts"
-                      value="{{ '; '.join(weekly_conflicts['Friday']) }}"
-                    />
-                  </td>
-                </tr>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <th
-                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
-                  >
-                    Saturday
-                  </th>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="saturday_conflicts"
-                      value="{{ '; '.join(weekly_conflicts['Saturday']) }}"
-                    />
-                  </td>
-                </tr>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <th
-                    class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
-                  >
-                    Sunday
-                  </th>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="sunday_conflicts"
-                      value="{{ '; '.join(weekly_conflicts['Sunday']) }}"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- One-Time Conflicts Section -->
-          <div class="flex justify-between items-center mt-8">
-            <p class="text-xl font-bold">One-Time Conflicts</p>
-          </div>
-
-          <div class="flex justify-between items-center mt-4">
             <p class="text-m font-normal">
               <strong>One-Time Conflict Format:</strong><br />
               Please list your one-time conflicts in the following format:
@@ -260,68 +148,70 @@
             different dates.)
           </div>
 
-          <div class="flex justify-between items-center mt-6">
-            <table
-              class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
-            >
-              <thead
-                class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
-              >
-                <tr>
-                  <th scope="col" class="px-6 py-3">Conflict</th>
-                  <th scope="col" class="px-6 py-3">
-                    Explanation and Notes (Optional)
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-                >
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="one_time_conflict"
-                      value="{{ '; '.join(one_time_conflicts) }}"
-                    />
-                  </td>
-                  <td class="px-6 py-4">
-                    <input
-                      class="w-full border-b-2 border-gray-200 border-t-0 border-x-0"
-                      type="text"
-                      name="conflict_notes"
-                      value="{{ conflict_notes }}"
+          <table class="w-full text-sm text-left mt-6 rtl:text-right text-neutral-500 dark:text-neutral-400">
+            <thead class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400">
+              <tr>
+                <th scope="col" class="px-6 py-3">Conflict</th>
+                <th scope="col" class="px-6 py-3">Notes (Optional)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
+                <td class="px-6 py-4">
+                  <input class="w-full border-b-2 border-gray-200 border-t-0 border-x-0" type="text"
+                    name="one_time_conflict" value="{{ '; '.join(one_time_conflicts) }}" />
+                </td>
+                <td class="px-6 py-4">
+                  <input class="w-full border-b-2 border-gray-200 border-t-0 border-x-0" type="text"
+                    name="conflict_notes" value="{{ conflict_notes }}" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <!-- Buttons -->
+        <div class="flex justify-center items-center mt-5">
+          <button type="reset"
+            class="text-indigo-500 font-semibold font-lg border-2 border-indigo-500 hover:bg-indigo-100 rounded-md text-sm py-2 px-4 text-center me-2 mb-2">
+            Discard Changes
+          </button>
+          <button type="submit"
+            class="text-white font-semibold font-lg bg-2 border-2 border-indigo-500 bg-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 rounded-md text-sm py-2 px-4 text-center me-2 mb-2">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
 
-          <!-- Buttons -->
-          <div class="flex justify-center items-center mt-5">
-            <button
-              type="reset"
-              class="text-indigo-500 font-semibold font-lg border-2 border-indigo-500 hover:bg-indigo-100 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
-            >
-              Discard Changes
-            </button>
-            <button
-              type="submit"
-              class="text-white font-semibold font-lg bg-2 border-2 border-indigo-500 bg-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </main>
-    </div>
+  <!-- Footer Section -->
+  <footer class="bg-neutral-900 py-4 mt-auto">
+    {% include 'footer.html' %}
+  </footer>
 
-    <!-- Footer Section -->
-    <footer class="bg-neutral-900 py-4 mt-auto">
-      {% include 'footer.html' %}
-    </footer>
-  </body>
+  <!-- JavaScript for Tabs -->
+  <script>
+    function showTab(tab) {
+      // Hide all tab contents
+      document.getElementById("weekly-content").classList.add("hidden");
+      document.getElementById("one-time-content").classList.add("hidden");
+
+      // Remove active styles from both tabs
+      document.getElementById("weekly-tab").classList.remove("border-indigo-500", "text-indigo-500");
+      document.getElementById("weekly-tab").classList.add("border-transparent", "text-gray-500");
+
+      document.getElementById("one-time-tab").classList.remove("border-indigo-500", "text-indigo-500");
+      document.getElementById("one-time-tab").classList.add("border-transparent", "text-gray-500");
+
+      // Show the selected tab content
+      document.getElementById(`${tab}-content`).classList.remove("hidden");
+
+      // Apply active styles to the selected tab
+      document.getElementById(`${tab}-tab`).classList.add("border-indigo-500", "text-indigo-500");
+      document.getElementById(`${tab}-tab`).classList.remove("border-transparent", "text-gray-500");
+    }
+  </script>
+</body>
+
 </html>
