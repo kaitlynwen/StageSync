@@ -68,7 +68,7 @@ def allowed_file(filename):
 def get_user_info():
     user_info = auth.authenticate()
     netid = user_info["user"]
-    is_admin = False  # Default false
+    is_admin = None  # Default None
 
     # Based on PostgreSQL/authorsearch.py
     try:
@@ -224,6 +224,9 @@ def get_groups():
 @app.route("/home", methods=["GET"])
 def home():
     user_info = get_user_info()
+    is_admin = user_info["is_admin"]
+    if is_admin is None:
+        return render_template("unauthorized-user.html", user=user_info)
     return render_template("home.html", user=user_info)
 
 
