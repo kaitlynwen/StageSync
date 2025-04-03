@@ -26,10 +26,10 @@
   <title>Update Availability - StageSync</title>
 </head>
 
-<body class="flex flex-col min-h-screen font-sans bg-white">
+<body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
   <div class="flex flex-grow">
     <!-- Sidebar Section -->
-    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
       {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
       include 'sidebar.html' %} {% endif %}
     </div>
@@ -38,7 +38,7 @@
     <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
 
       <div class="flex justify-between items-center mt-2">
-        <p class="text-3xl font-bold">Update Availability</p>
+        <p class="text-3xl font-bold dark:text-neutral-200">Update Availability</p>
       </div>
 
       <div class="flex justify-between items-center mt-2">
@@ -50,17 +50,17 @@
 
       <form action="{{ url_for('update') }}" method="POST">
         <!-- Tabs Navigation -->
-        <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+        <div class="text-sm font-medium text-center text-neutral-500 border-b border-neutral-200 dark:text-neutral-200">
           <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-              <button type="button" id="weekly-tab" class="inline-block p-4 border-b-2 border-indigo-500 text-indigo-500 hover:text-gray-600 hover:border-gray-300"
+              <button type="button" id="weekly-tab" class="inline-block p-4 border-b-2 border-indigo-500 text-indigo-500 hover:text-neutral-600 hover:border-neutral-300"
                 onclick="showTab('weekly')">
                 Weekly Conflicts
               </button>
             </li>
             <li class="me-2">
               <button type="button" id="one-time-tab"
-                class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300"
+                class="inline-block p-4 border-b-2 border-transparent hover:text-neutral-600 hover:border-neutral-300 dark:text-neutral-200"
                 onclick="showTab('one-time')">
                 One-Time Conflicts
               </button>
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Weekly Conflicts Section -->
-        <div id="weekly-content" class="tab-content">
+        <div id="weekly-content" class="tab-content dark:text-neutral-200">
           <div class="flex justify-between items-center mt-6">
             <p class="text-m font-normal">
               <strong>Weekly Conflict Format:</strong><br />
@@ -103,11 +103,11 @@
             <tbody>
               {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
               <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
-                <th class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20">
+                <th class="px-6 py-4 bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400 uppercase text-sm text-neutral-700 w-20">
                   {{ day }}
                 </th>
                 <td class="px-6 py-4">
-                  <input class="w-full border-b-2 border-gray-200 border-t-0 border-x-0" type="text"
+                  <input class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-600" type="text"
                     name="{{ day.lower() }}_conflicts" value="{{ '; '.join(weekly_conflicts[day]) }}" />
                 </td>
               </tr>
@@ -117,8 +117,8 @@
         </div>
 
         <!-- One-Time Conflicts Section -->
-        <div id="one-time-content" class="tab-content hidden">
-          <div class="flex justify-between items-center mt-6">
+        <div id="one-time-content" class="tab-content hidden dark:text-neutral-200">
+          <div class="flex justify-between items-center mt-6 ">
             <p class="text-m font-normal">
               <strong>One-Time Conflict Format:</strong><br />
               Please list your one-time conflicts in the following format:
@@ -158,11 +158,11 @@
             <tbody>
               <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
                 <td class="px-6 py-4">
-                  <input class="w-full border-b-2 border-gray-200 border-t-0 border-x-0" type="text"
+                  <input class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-700" type="text"
                     name="one_time_conflict" value="{{ '; '.join(one_time_conflicts) }}" />
                 </td>
                 <td class="px-6 py-4">
-                  <input class="w-full border-b-2 border-gray-200 border-t-0 border-x-0" type="text"
+                  <input class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-700" type="text"
                     name="conflict_notes" value="{{ conflict_notes }}" />
                 </td>
               </tr>
@@ -199,17 +199,17 @@
 
       // Remove active styles from both tabs
       document.getElementById("weekly-tab").classList.remove("border-indigo-500", "text-indigo-500");
-      document.getElementById("weekly-tab").classList.add("border-transparent", "text-gray-500");
+      document.getElementById("weekly-tab").classList.add("border-transparent", "text-neutral-500", "dark:text-neutral-200");
 
       document.getElementById("one-time-tab").classList.remove("border-indigo-500", "text-indigo-500");
-      document.getElementById("one-time-tab").classList.add("border-transparent", "text-gray-500");
+      document.getElementById("one-time-tab").classList.add("border-transparent", "text-neutral-500", "dark:text-neutral-200");
 
       // Show the selected tab content
       document.getElementById(`${tab}-content`).classList.remove("hidden");
 
       // Apply active styles to the selected tab
       document.getElementById(`${tab}-tab`).classList.add("border-indigo-500", "text-indigo-500");
-      document.getElementById(`${tab}-tab`).classList.remove("border-transparent", "text-gray-500");
+      document.getElementById(`${tab}-tab`).classList.remove("border-transparent", "text-neutral-500", "dark:text-neutral-200");
     }
   </script>
 </body>

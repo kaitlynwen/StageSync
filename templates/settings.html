@@ -37,10 +37,10 @@
     <title>Settings - StageSync</title>
   </head>
 
-  <body class="flex flex-col min-h-screen font-sans bg-white">
+  <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
     <div class="flex flex-grow">
       <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
         {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
         include 'sidebar.html' %} {% endif %}
       </div>
@@ -48,7 +48,7 @@
       <!-- Main Content Section -->
       <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
         <div class="flex justify-between items-center mt-2">
-          <p class="text-3xl font-bold">Settings</p>
+          <p class="text-3xl font-bold dark:text-neutral-200">Settings</p>
         </div>
 
         <div class="flex justify-between items-center">

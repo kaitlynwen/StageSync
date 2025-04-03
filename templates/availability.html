@@ -32,17 +32,17 @@
     <title>View Member Availability - StageSync</title>
   </head>
 
-  <body class="flex flex-col min-h-screen font-sans bg-white">
+  <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
     <div class="flex flex-grow">
       <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+      <div id="sidebar-container" class="w-1/5 bg-neutral-50 dark:bg-neutral-800 min-h-screen p-3">
         {% include 'sidebar-admin.html' %}
       </div>
 
       <!-- Main Content Section -->
       <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
         <div class="flex justify-between items-center mt-2">
-          <p class="text-3xl font-bold">View Member Availability</p>
+          <p class="text-3xl font-bold dark:text-neutral-200">View Member Availability</p>
         </div>
 
         <div class="flex justify-between items-center">
@@ -58,7 +58,7 @@
             action="{{ url_for('availability') }}"
             class="flex items-center w-full max-w-4xl"
           >
-            <label for="memberDropdown" class="font-sm mr-2 text-neutral-700"
+            <label for="memberDropdown" class="font-sm mr-2 text-neutral-700 dark:text-neutral-200"
               >Select a member:</label
             >
             <select
@@ -89,7 +89,7 @@
         </div>
 
         {% if selected_member %}
-        <div class="mt-4 text-lg font-bold">
+        <div class="mt-4 text-lg font-bold dark:text-neutral-200">
           <p>
             Weekly Conflicts for {{ selected_member.first_name }} {{
             selected_member.last_name }}:
@@ -106,7 +106,7 @@
                 class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
               >
                 <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
                 >
                   Monday
                 </th>
@@ -120,7 +120,7 @@
                 class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
               >
                 <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
                 >
                   Tuesday
                 </th>
@@ -134,7 +134,7 @@
                 class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
               >
                 <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
                 >
                   Wednesday
                 </th>
@@ -148,7 +148,7 @@
                 class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
               >
                 <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
                 >
                   Thursday
                 </th>
@@ -162,7 +162,7 @@
                 class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
               >
                 <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
                 >
                   Friday
                 </th>
@@ -176,7 +176,7 @@
                 class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
               >
                 <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
                 >
                   Saturday
                 </th>
@@ -190,7 +190,7 @@
                 class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
               >
                 <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20"
+                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
                 >
                   Sunday
                 </th>
@@ -205,7 +205,7 @@
         </div>
 
         {% if selected_member %}
-        <div class="mt-8 text-lg font-bold">
+        <div class="mt-8 text-lg font-bold dark:text-neutral-200">
           <p>
             One-Time Conflicts for {{ selected_member.first_name }} {{
             selected_member.last_name }}:

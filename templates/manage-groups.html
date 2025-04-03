@@ -26,17 +26,17 @@
   <title>Manage Groups - StageSync</title>
 </head>
 
-<body class="flex flex-col min-h-screen font-sans bg-white">
+<body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
   <div class="flex flex-grow">
     <!-- Sidebar Section -->
-    <div id="sidebar-container" class="w-1/5 bg-gray-50 min-h-screen p-3">
+    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
       {% include 'sidebar-admin.html' %}
     </div>
 
     <!-- Main Content Section -->
     <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
       <div class="flex justify-between items-center mt-2">
-        <p class="text-3xl font-bold">Manage Groups</p>
+        <p class="text-3xl font-bold dark:text-neutral-200">Manage Groups</p>
       </div>
 
       <div class="flex justify-between items-center">
@@ -48,7 +48,7 @@
       <div class="flex justify-between items-center">
         <div class="flex gap-6 flex-wrap mt-2">
           {% for group in groups %}
-          <div class="bg-gray-200 p-4 rounded-lg w-64 relative">
+          <div class="bg-neutral-200 p-4 rounded-lg w-64 relative dark:bg-neutral-800 dark:text-neutral-200">
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-semibold mb-2">{{ group.title }}</h2>
               <!-- Filters: https://jinja.palletsprojects.com/ -->
@@ -61,7 +61,7 @@
             </div>
             <div class="space-y-2">
               {% for member in group.members %}
-              <div class="text-gray-900">{{ member.first_name }} {{ member.last_name }}</div>
+              <div class="text-neutral-900 dark:text-neutral-300">{{ member.first_name }} {{ member.last_name }}</div>
               {% endfor %}
             </div>
           </div>
@@ -82,7 +82,7 @@
   </div>
 
   <!-- Footer Section -->
-  <footer class="bg-gray-900 py-4 mt-auto">
+  <footer class="bg-neutral-900 py-4 mt-auto">
     {% include 'footer.html' %}
   </footer>
 

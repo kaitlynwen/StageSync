@@ -42,19 +42,19 @@
   <body class="flex flex-col min-h-screen font-sans bg-white">
     <div class="flex flex-grow">
       <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
         {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
         include 'sidebar.html' %} {% endif %}
       </div>
 
       <!-- Main Content Section -->
-      <main class="w-4/5 py-8 px-10 bg-white flex flex-col flex-grow">
+      <main class="w-4/5 py-8 px-10 bg-white flex flex-col flex-grow dark:bg-neutral-900">
         <div class="flex justify-between items-center">
           <p id="subtitle" class="text-lg font-bold text-indigo-500">HOME</p>
         </div>
 
         <div class="flex justify-between items-center mt-2">
-          <p class="text-3xl font-bold">Upcoming Rehearsals</p>
+          <p class="text-3xl font-bold dark:text-neutral-200">Upcoming Rehearsals</p>
         </div>
 
         <!-- Calendar -->

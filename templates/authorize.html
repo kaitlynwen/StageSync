@@ -40,17 +40,17 @@
     <title>Authorize Members - StageSync</title>
   </head>
 
-  <body class="flex flex-col min-h-screen font-sans bg-white">
+  <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
     <div class="flex flex-grow">
       <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+      <div id="sidebar-container" class="w-1/5 bg-neutral-50 dark:bg-neutral-800 min-h-screen p-3">
         {% include 'sidebar-admin.html' %}
       </div>
 
       <!-- Main Content Section -->
       <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
         <div class="flex justify-between items-center mt-2">
-          <p class="text-3xl font-bold">Authorize Members</p>
+          <p class="text-3xl font-bold dark:text-neutral-200">Authorize Members</p>
         </div>
 
         <div class="flex justify-between items-center">
@@ -104,7 +104,7 @@
           </button>
 
           <form id="authorize-form">
-            <label for="netid" class="font-sm mr-2"
+            <label for="netid" class="font-sm mr-2 dark:text-neutral-200"
               >NetID to Authorize:</label
             >
             <input

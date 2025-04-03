@@ -26,10 +26,10 @@
   <title>Upload Rehearsal Data - StageSync</title>
 </head>
 
-<body class="flex flex-col min-h-screen font-sans bg-white">
+<body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
   <div class="flex flex-grow">
     <!-- Sidebar Section -->
-    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3">
+    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
       {% include 'sidebar-admin.html' %}
     </div>
 
@@ -37,7 +37,7 @@
     <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
       <div class="flex justify-between items-center mt-2">
         <div>
-          <p class="text-3xl font-bold">Upload Rehearsal Data</p>
+          <p class="text-3xl font-bold dark:text-neutral-200">Upload Rehearsal Data</p>
           <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
             Upload new PAC rehearsal space schedule information below
           </p>
@@ -91,14 +91,14 @@
           <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data"
             class="w-1/2">
             <label for="dropzone-file" id="dropzone-label"
-              class="flex flex-col items-center justify-center w-full border-2 border-neutral-200 border-dashed rounded-lg cursor-pointer bg-neutral-50 hover:bg-neutral-100 transition duration-300">
+              class="flex flex-col items-center justify-center w-full border-2 border-neutral-200 border-dashed rounded-lg cursor-pointer bg-neutral-50 hover:bg-neutral-100 transition duration-300 dark:bg-neutral-800 dark:border-neutral-700 dark:hover:bg-neutral-600">
               <div id="dropzone-content" class="flex flex-col items-center justify-center pt-5 pb-6">
-                <i class="bx bx-upload bx-sm mr-2 w-8 h-8 text-neutral-500"></i>
-                <p class="mb-2 text-sm text-neutral-500">
+                <i class="bx bx-upload bx-sm mr-2 w-8 h-8 text-neutral-500 dark:text-neutral-200"></i>
+                <p class="mb-2 text-sm text-neutral-500 dark:text-neutral-200">
                   <span class="font-semibold">Click to upload</span> or drag
                   and drop
                 </p>
-                <p class="text-xs text-neutral-500">XLSX OR CSV (MAX. 5MB)</p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-200">XLSX OR CSV (MAX. 5MB)</p>
               </div>
               <input id="dropzone-file" name="file" type="file" class="hidden" accept=".xlsx, .csv" />
             </label>
