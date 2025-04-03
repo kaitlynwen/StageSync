@@ -37,9 +37,6 @@ app.secret_key = os.environ.get("APP_SECRET_KEY", "your_default_secret_key")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Set temporary storage location for testing
-UPLOAD_FOLDER = tempfile.mkdtemp()
-
 # Allowable file extensions
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
