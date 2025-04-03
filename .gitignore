@@ -5,3 +5,4 @@ diff-event-colors*
 __pycache__
 node_modules
 *.sql
+debug_log.txt

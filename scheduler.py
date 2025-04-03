@@ -38,8 +38,17 @@ def fetch_draft_schedule():
 def preprocess_availability():
     raw_availability = fetch_availability()
     availability_dict = defaultdict(list)
+    
     for netid, day, start, end, is_recurring, one_time_date in raw_availability:
         availability_dict[netid].append((day, start, end, is_recurring, one_time_date))
+    
+    # add empty list for users with no entries (assumed to be available all the time)
+    all_users = fetch_data("SELECT netid FROM users")
+    for user in all_users:
+        netid = user[0]
+        if netid not in availability_dict:
+            availability_dict[netid] = []
+    
     return availability_dict
 
 def sort_groups_by_priority():
@@ -57,14 +66,14 @@ from datetime import datetime, timedelta
 
 # Function to fetch draft_schedule from the database, with start and end times in datetime format
 def fetch_existing_draft_schedule():
-    query = "SELECT start, \"end\" FROM draft_schedule"
+    query = "SELECT start, \"end\", location FROM draft_schedule"
     draft_schedule = fetch_data(query)
     existing_event_times = []
     
     # Convert the fetched data into datetime objects for comparison
     for event in draft_schedule:
-        start_time, end_time = event
-        existing_event_times.append({'start':start_time, 'end':end_time})
+        start_time, end_time, location = event
+        existing_event_times.append({'start':start_time, 'end':end_time, 'location':location})
     
     return existing_event_times
 
@@ -110,7 +119,7 @@ def generate_available_slots(members, availability_dict):
                                 end_datetime = datetime.combine(event["end"].date(), event["end"].time())
                                 
                                 if not is_conflicting(member_start_datetime, member_end_datetime, event):
-                                    possible_slots.append((start_datetime, end_datetime))
+                                    possible_slots.append((start_datetime, end_datetime, event['location']))
                                     
                         else:
                             if one_time_date:
@@ -126,7 +135,7 @@ def generate_available_slots(members, availability_dict):
                                 end_datetime = datetime.combine(event["end"].date(), event["end"].time())
                                 
                                 if not conflict_found:
-                                    possible_slots.append((start_datetime, end_datetime))
+                                    possible_slots.append((start_datetime, end_datetime, event['location']))
 
     return possible_slots
 
@@ -151,9 +160,6 @@ def convert_day_to_date(day_of_week):
 
 # ----------------------------------------------------------------------
 
-from collections import defaultdict
-from datetime import datetime, timedelta
-
 def assign_rehearsals():
     sorted_groups = sort_groups_by_priority()  # Prioritize groups by size
     availability_dict = preprocess_availability()
@@ -174,6 +180,9 @@ def assign_rehearsals():
     for gid, netid in group_members:
         group_members_dict[gid].append(netid)
 
+    # Track the days each group has already been scheduled
+    group_scheduled_days = defaultdict(set)
+
     # Assign available slots for each group
     for groupid, _ in sorted_groups:
         members = group_members_dict[groupid]
@@ -192,36 +201,49 @@ def assign_rehearsals():
             available_slots = group_available_slots[groupid]
 
             if len(available_slots) > 0:
-                start, end = available_slots[0]
-                best_slot = available_slots[0]
-                if groupid not in schedule.keys():
-                    schedule[groupid] = []
-                schedule[groupid].append((start, end))
+                # Check for a valid slot, making sure it's not already assigned on the same day
+                selected_slot = None
+                for slot in available_slots:
+                    start, end, location = slot
+                    slot_day = start.date()  # Get the date of the rehearsal slot
 
-                log(f"Group {groupid} assigned slot: {best_slot}")
+                    # Check if the group already has a rehearsal scheduled on this day
+                    if slot_day not in group_scheduled_days[groupid]:
+                        selected_slot = slot
+                        break
+                
+                if selected_slot:
+                    # Assign this slot to the group
+                    start, end, location = selected_slot
+                    if groupid not in schedule.keys():
+                        schedule[groupid] = []
+                    schedule[groupid].append((start, end, location))
 
-                # Remove assigned slot from all groups
-                for other_group in sorted_groups:
-                    if best_slot in group_available_slots[other_group[0]]:
-                        log(f"Removing slot {best_slot} from group {other_group[0]} (before: {len(group_available_slots[other_group[0]])} slots)")
-                        group_available_slots[other_group[0]].remove(best_slot)
-                        log(f"Group {other_group[0]} now has {len(group_available_slots[other_group[0]])} slots remaining")
+                    # Log the assigned slot
+                    log(f"Group {groupid} assigned slot: {selected_slot}")
 
-                newly_scheduled.add(groupid)
+                    # Mark this day as scheduled for the group
+                    group_scheduled_days[groupid].add(start.date())
 
-            if len(available_slots) > 0:
-                slots_remaining = True  
+                    # Remove assigned slot from all groups
+                    for other_group in sorted_groups:
+                        if selected_slot in group_available_slots[other_group[0]]:
+                            log(f"Removing slot {selected_slot} from group {other_group[0]} (before: {len(group_available_slots[other_group[0]])} slots)")
+                            group_available_slots[other_group[0]].remove(selected_slot)
+                            log(f"Group {other_group[0]} now has {len(group_available_slots[other_group[0]])} slots remaining")
 
-            # Remove this slot from the availability of all members
-            for member in group_members_dict[groupid]:
-                if member in availability_dict:
-                    before_removal = len(availability_dict[member])
-                    availability_dict[member] = [
-                        slot for slot in availability_dict[member]
-                        if slot != best_slot
-                    ]
-                    after_removal = len(availability_dict[member])
-                    log(f"Updated availability for member {member}, before: {before_removal}, after: {after_removal}")
+                    newly_scheduled.add(groupid)
+
+                if len(available_slots) > 0:
+                    slots_remaining = True  
+
+                # Add this slot to the conflicts of all members
+                for member in group_members_dict[groupid]:
+                    if member in availability_dict:
+                        before_removal = len(availability_dict[member])
+                        availability_dict[member].append(selected_slot)
+                        after_removal = len(availability_dict[member])
+                        log(f"Updated availability for member {member}, before: {before_removal}, after: {after_removal}")
 
         if not newly_scheduled:
             log("\nNo new groups scheduled in this iteration, stopping loop.")
@@ -247,7 +269,7 @@ def update_events_table(schedule):
                 for groupid, slots in schedule.items():
                     for slot in slots:
                         if slot != "Manual Adjustment Required":
-                            event_start, event_end = slot
+                            event_start, event_end, location = slot
                             
                             # Fetch the group title
                             group_title = None
@@ -273,9 +295,9 @@ def update_events_table(schedule):
                                             """
                                             UPDATE draft_schedule
                                             SET title = %s, start = %s, "end" = %s
-                                            WHERE start = %s AND "end" = %s
+                                            WHERE start = %s AND "end" = %s AND "location" = %s
                                             """,
-                                            (group_title + " | " + existing_event[1], event_start, event_end, event_start, event_end)
+                                            (group_title + " | " + existing_event[1], event_start, event_end, event_start, event_end, location)
                                         )
                                         conn.commit()
     except Exception as e:
