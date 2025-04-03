@@ -18,6 +18,7 @@ import auth
 import psycopg2
 from top import app
 from scheduler import assign_rehearsals, update_events_table
+from req_lib import ReqLib
 
 
 # ----------------------------------------------------------------------
@@ -215,6 +216,26 @@ def get_groups():
 
 # ----------------------------------------------------------------------
 
+# Use OIT's Active Directory API to obtain basic user information
+def active_directory_user(netid):
+    req_lib = ReqLib()
+
+    # req is a list of one dict
+    req = req_lib.getJSON(
+        req_lib.configs.USERS_BASIC,
+        uid=netid,
+    )
+    if len(req) == 0:
+        print("NetID does not exist")
+        return None, None, None
+    else:
+        name=req[0]['displayname'].split()
+        email=req[0]['mail']
+        first_name=name[0]
+        last_name=name[-1]
+        return first_name, last_name, email
+
+# ----------------------------------------------------------------------
 
 # Routes
 @app.route("/", methods=["GET"])
@@ -763,6 +784,31 @@ def authorize():
                 jsonify({"success": False, "message": "NetID is required"}),
                 400,
             )  # Return error with status code 400
+        
+        first_name, last_name, email=active_directory_user(netid)
+        print("First name: ", first_name)
+        print("Last name: ", last_name)
+        print("email: ", email)
+
+        if first_name is None:
+            return (
+                jsonify({"success": False, "message": "NetID does not exist"}),
+                400,
+            )  # Return error with status code 400
+
+        # Add new user into database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO users (netid, email, is_admin, 
+                            first_name, last_name)
+                    VALUES (%s, %s, False, %s, %s)
+                    ON CONFLICT (netid) DO NOTHING
+                """,
+                    (netid, email, first_name, last_name),
+                )
+            conn.commit()
 
         return jsonify({"success": True}), 200  # Return success with status code 200
 
