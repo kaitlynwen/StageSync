@@ -56,6 +56,44 @@
             Make changes to email notifications and preferences here
           </p>
         </div>
+
+        <form action="/update-settings" method="POST" class="space-y-4">
+
+          <div class="flex items-start space-x-3">
+            <input
+              type="checkbox"
+              id="activity-updates"
+              name="notifications"
+              value="activity"
+              {% if settings.activity %}checked{% endif %}
+              class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            />
+            <label for="activity-updates" class="text-neutral-800 dark:text-neutral-200">
+              Receive activity updates
+            </label>
+          </div>
+        
+          <div class="flex items-start space-x-3">
+            <input
+              type="checkbox"
+              id="reminders"
+              name="notifications"
+              value="reminders"
+              {% if settings.reminders %}checked{% endif %}
+              class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            />
+            <label for="reminders" class="text-neutral-800 dark:text-neutral-200">
+              Receive reminders and deadlines
+            </label>
+          </div>
+        
+          <button
+            type="submit"
+            class="mt-4 px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            Save Preferences
+          </button>
+        </form>        
       </main>
     </div>
 
