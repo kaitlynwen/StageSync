@@ -236,6 +236,43 @@ def active_directory_user(netid):
         return first_name, last_name, email
 
 # ----------------------------------------------------------------------
+# Setting Updates
+
+def get_user_settings(netid):
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT receive_activity_updates, receive_reminders FROM user_settings WHERE user_netid = %s",
+                    (netid,),
+                )
+                row = cur.fetchone()
+                if row:
+                    return {"activity": bool(row[0]), "reminders": bool(row[1])}
+    except Exception as e:
+        print(f"Error fetching settings: {e}")
+    return {"activity": False, "reminders": False}
+
+
+def save_user_settings(netid, activity, reminders):
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO user_settings (user_netid, receive_activity_updates, receive_reminders)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (user_netid)
+                    DO UPDATE SET receive_activity_updates = EXCLUDED.receive_activity_updates,
+                                  receive_reminders = EXCLUDED.receive_reminders
+                    """,
+                    (netid, activity, reminders),
+                )
+                conn.commit()
+    except Exception as e:
+        print(f"Error saving settings: {e}")
+
+# --------------------------------------------------------------------
 
 # Routes
 @app.route("/", methods=["GET"])
@@ -251,7 +288,19 @@ def home():
 @app.route("/settings", methods=["GET"])
 def settings():
     user_info = get_user_info()
-    return render_template("settings.html", user=user_info)
+    user_netid = user_info["user"]
+    settings = get_user_settings(user_netid)
+    return render_template("settings.html", user=user_info, settings=settings)
+
+@app.route('/update-settings', methods=['POST'])
+def update_settings():
+    user_info = get_user_info()
+    user_netid = user_info["user"]
+    selected = request.form.getlist('notifications')
+    activity = 'activity' in selected
+    reminders = 'reminders' in selected
+    save_user_settings(user_netid, activity, reminders)
+    return redirect(url_for("settings"))
 
 
 @app.route("/update-availability", methods=["GET", "POST"])
