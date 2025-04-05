@@ -206,14 +206,14 @@ def generate_available_slots(members, unavailable_dict):
 
 
                     for event in possible_slots:
-                        conflict_found = is_conflicting(member_start_datetime_utc, member_end_datetime_utc, 
-                                                        {'start':event[0],
-                                                         'end':event[1],
-                                                         'location':event[2]})
+                        if event[0].date() == one_time_date:
+                            conflict_found = is_conflicting(member_start_datetime_utc, member_end_datetime_utc, 
+                                                            {'start':event[0],
+                                                            'end':event[1],
+                                                            'location':event[2]})
 
-                        if conflict_found:
-                            print(event)
-                            possible_slots.remove(event)
+                            if conflict_found:
+                                possible_slots.remove(event)
 
     return possible_slots
 
@@ -296,9 +296,26 @@ def assign_rehearsals():
                 for slot in available_slots:
                     start, end, location = slot
                     slot_day = start.date()  # Get the date of the rehearsal slot
-
+                    
                     # Check if the group already has a rehearsal scheduled on this day
-                    if slot_day not in group_scheduled_days[groupid]:
+                    conflict_found = False
+
+                    for member in group_members_dict[groupid]:
+                        conflicts = unavailable_dict.get(member, [])
+                        for _, conflict_start, conflict_end, is_recurring, one_time_date in conflicts:
+                            conflict_start = add_utc_zone(conflict_start)
+                            conflict_end = add_utc_zone(conflict_end)
+
+                            if not is_recurring and (slot_day == conflict_start.date()):
+                                # One-time conflict
+                                if is_conflicting(conflict_start, conflict_end, {"start": start, "end": end}):
+                                    conflict_found = True
+                                    log(f"Conflict for {member} on one-time {one_time_date} with slot {slot}")
+                                    break
+                        if conflict_found:
+                            break
+
+                    if not conflict_found and slot_day not in group_scheduled_days[groupid]:
                         selected_slot = slot
                         break
 
@@ -329,18 +346,19 @@ def assign_rehearsals():
 
                     newly_scheduled.add(groupid)
 
-                if len(available_slots) > 0:
-                    slots_remaining = True
+                    if len(available_slots) > 0:
+                        slots_remaining = True
 
-                # Add this slot to the conflicts of all members
-                for member in group_members_dict[groupid]:
-                    if member in unavailable_dict:
-                        before_removal = len(unavailable_dict[member])
-                        unavailable_dict[member].append(selected_slot)
-                        after_removal = len(unavailable_dict[member])
-                        log(
-                            f"Updated availability for member {member}, before: {before_removal}, after: {after_removal}"
-                        )
+                    # Add this slot to the conflicts of all members
+                    for member in group_members_dict[groupid]:
+                        if member in unavailable_dict:
+                            before_removal = len(unavailable_dict[member])
+                            start, end, location = selected_slot
+                            unavailable_dict[member].append((None, start, end, False, start.date()))
+                            after_removal = len(unavailable_dict[member])
+                            log(
+                                f"Updated availability for member {member}, before: {before_removal}, after: {after_removal}"
+                            )
 
         if not newly_scheduled:
             log("\nNo new groups scheduled in this iteration, stopping loop.")
