@@ -486,16 +486,8 @@ def update():
                     print(f"Error parsing time: {e}")
                     continue
 
-                # Convert from UTC to EST for display
-                try:
-                    start_time_est = convert_from_utc(start_time_dt)
-                    end_time_est = convert_from_utc(end_time_dt)
-                except ValueError as e:
-                    print(f"Error in conversion: {e}")
-                    continue
-
                 # Update the conflict with the converted time (in EST)
-                conflicts[idx] = f"{start_time_est.strftime('%I:%M%p')}-{end_time_est.strftime('%I:%M%p')}"
+                conflicts[idx] = f"{start_time_dt.strftime('%I:%M%p')}-{end_time_dt.strftime('%I:%M%p')}"
 
         return render_template(
             "update.html",
