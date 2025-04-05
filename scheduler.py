@@ -1,15 +1,14 @@
 from datetime import datetime, timedelta
 from collections import defaultdict
 import psycopg2
-import pytz
 import os
+from zoneinfo import ZoneInfo
 
 # ----------------------------------------------------------------------
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # ----------------------------------------------------------------------
-
 
 # Fetch Data from Database
 def fetch_data(query, params=()):
@@ -46,14 +45,29 @@ def fetch_draft_schedule():
 # ----------------------------------------------------------------------
 
 def convert_est_to_utc(est_time):
-    # Get the EST timezone object
-    est_tz = pytz.timezone('US/Eastern')
+    # Define the EST and UTC timezones using ZoneInfo
+    est_tz = ZoneInfo("US/Eastern")
+    utc_tz = ZoneInfo("UTC")
     
-    # Localize the time to EST, assuming it's a naive datetime object (no timezone info)
-    localized_est_time = est_tz.localize(est_time)
+    # Localize the time to EST if it's naive (i.e., no timezone info)
+    if est_time.tzinfo is None:
+        est_time = est_time.replace(tzinfo=est_tz)
     
     # Convert to UTC
-    utc_time = localized_est_time.astimezone(pytz.utc)
+    utc_time = est_time.astimezone(utc_tz)
+    
+    return utc_time
+
+# ----------------------------------------------------------------------
+
+def add_utc_zone(utc_time):
+    utc_tz = ZoneInfo("UTC")
+
+    if utc_time.tzinfo is None:
+        utc_time = utc_time.replace(tzinfo=utc_tz)
+    
+    # Convert to UTC
+    utc_time = utc_time.astimezone(utc_tz)
     
     return utc_time
 
@@ -90,7 +104,6 @@ def sort_groups_by_priority():
 
 # ----------------------------------------------------------------------
 
-
 # Function to fetch draft_schedule from the database, with start and end times in datetime format
 def fetch_existing_draft_schedule():
     query = 'SELECT start, "end", location FROM draft_schedule'
@@ -109,7 +122,6 @@ def fetch_existing_draft_schedule():
 
 # ----------------------------------------------------------------------
 
-
 def is_conflicting(start_dt, end_dt, event):
     """
     Check if the given start and end time conflicts with an existing event.
@@ -121,7 +133,6 @@ def is_conflicting(start_dt, end_dt, event):
 
 
 # ----------------------------------------------------------------------
-
 
 def generate_available_slots(members, unavailable_dict):
     possible_slots = []
@@ -137,9 +148,9 @@ def generate_available_slots(members, unavailable_dict):
                     start_datetime = datetime.combine(event["start"].date(), event["start"].time())
                     end_datetime = datetime.combine(event["end"].date(), event["end"].time())
 
-                    # Convert start and end times to UTC
-                    start_datetime_utc = convert_est_to_utc(start_datetime)
-                    end_datetime_utc = convert_est_to_utc(end_datetime)
+                    # Convert start and end times to UTC and ensure they're aware
+                    start_datetime_utc = add_utc_zone(start_datetime)
+                    end_datetime_utc = add_utc_zone(end_datetime)
 
                     possible_slots.append((start_datetime_utc, end_datetime_utc, event["location"]))
             continue
@@ -159,14 +170,12 @@ def generate_available_slots(members, unavailable_dict):
                         new_member_date = member_event_date
                         for _ in range(3):  # arbitrary number of weeks
                             new_member_date += timedelta(weeks=1)
-                            member_start_datetime = datetime.combine(
-                                new_member_date, start
-                            )
-                            member_end_datetime = datetime.combine(new_member_date, end)
+                            member_start_datetime = datetime.combine(new_member_date, start.time())
+                            member_end_datetime = datetime.combine(new_member_date, end.time())
 
-                            # Convert member start/end times to UTC
-                            member_start_datetime_utc = convert_est_to_utc(member_start_datetime)
-                            member_end_datetime_utc = convert_est_to_utc(member_end_datetime)
+                            # Convert member start/end times to UTC and ensure they're aware
+                            member_start_datetime_utc = add_utc_zone(member_start_datetime)
+                            member_end_datetime_utc = add_utc_zone(member_end_datetime)
 
                             start_datetime = datetime.combine(
                                 event["start"].date(), event["start"].time()
@@ -175,9 +184,9 @@ def generate_available_slots(members, unavailable_dict):
                                 event["end"].date(), event["end"].time()
                             )
 
-                            # Convert event start/end times to UTC
-                            event_start_utc = convert_est_to_utc(start_datetime)
-                            event_end_utc = convert_est_to_utc(end_datetime)
+                            # Convert event start/end times to UTC and ensure they're aware
+                            event_start_utc = add_utc_zone(start_datetime)
+                            event_end_utc = add_utc_zone(end_datetime)
 
                             if not is_conflicting(
                                 member_start_datetime_utc, member_end_datetime_utc, event
@@ -188,13 +197,12 @@ def generate_available_slots(members, unavailable_dict):
 
                     else:
                         if one_time_date:
-                            member_start_datetime = datetime.combine(
-                                one_time_date, start
-                            )
-                            member_end_datetime = datetime.combine(one_time_date, end)
+                            member_start_datetime = datetime.combine(one_time_date, start.time())
+                            member_end_datetime = datetime.combine(one_time_date, end.time())
 
-                            member_start_datetime_utc = convert_est_to_utc(member_start_datetime)
-                            member_end_datetime_utc = convert_est_to_utc(member_end_datetime)
+                            # Convert member start/end times to UTC and ensure they're aware
+                            member_start_datetime_utc = add_utc_zone(member_start_datetime)
+                            member_end_datetime_utc = add_utc_zone(member_end_datetime)
 
                             conflict_found = any(
                                 is_conflicting(
@@ -210,8 +218,8 @@ def generate_available_slots(members, unavailable_dict):
                                 event["end"].date(), event["end"].time()
                             )
 
-                            event_start_utc = convert_est_to_utc(start_datetime)
-                            event_end_utc = convert_est_to_utc(end_datetime)
+                            event_start_utc = add_utc_zone(start_datetime)
+                            event_end_utc = add_utc_zone(end_datetime)
 
                             if not conflict_found:
                                 possible_slots.append(
@@ -221,8 +229,8 @@ def generate_available_slots(members, unavailable_dict):
     return possible_slots
 
 
-# ----------------------------------------------------------------------
 
+# ----------------------------------------------------------------------
 
 # Function to convert the day of the week to the specific date
 def convert_day_to_date(day_of_week):
@@ -250,7 +258,6 @@ def convert_day_to_date(day_of_week):
 
 
 # ----------------------------------------------------------------------
-
 
 def assign_rehearsals():
     sorted_groups = sort_groups_by_priority()  # Prioritize groups by size
@@ -361,10 +368,10 @@ def assign_rehearsals():
 
 # ----------------------------------------------------------------------
 
-
 def update_events_table(schedule):
     try:
         current_datetime = datetime.now()
+        current_datetime = convert_est_to_utc(current_datetime)
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 for groupid, slots in schedule.items():
