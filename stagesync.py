@@ -1111,8 +1111,8 @@ def restore_draft_schedule():
                 # Copy all events from events table into draft_schedule
                 cur.execute(
                     """
-                    INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at)
-                    SELECT title, start, "end", location, groupid, created_at
+                    INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at, publish_id)
+                    SELECT title, start, "end", location, groupid, created_at, id
                     FROM events
                 """
                 )
@@ -1141,7 +1141,7 @@ def publish_draft():
                         start = draft_schedule.start,
                         "end" = draft_schedule.end,
                         groupid = draft_schedule.groupid,
-                        created_at = draft_schedule.created_at
+                        created_at = draft_schedule.created_at,
                         location = draft_schedule.location
                     FROM draft_schedule
                     WHERE 
