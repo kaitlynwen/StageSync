@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const events = data.map((event) => {
               // FullCalendar will automatically handle the conversion from UTC to local time
               return {
+                id: event.id,
                 title: event.title,
                 start: event.start,  // Already in ISO format with time zone info
                 end: event.end,  // Already in ISO format with time zone info

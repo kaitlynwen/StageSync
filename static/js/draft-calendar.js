@@ -79,17 +79,16 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then((data) => {
         console.log("Event updated successfully:", data);
-        calendar.refetchEvents(); // Refetch events from the backend
+        // Refetch events from the backend only if the update was successful
+        calendar.refetchEvents();
       })
       .catch((error) => {
         console.error("Error updating event:", error);
-        info.revert();
-        calendar.refetchEvents();
+        info.revert();  // Revert event back to original position
       });
     },
 
     eventDrop: function(info) {
-      // Extract updated event info
       const updatedEvent = {
         id: info.event.id,
         title: info.event.title,
@@ -98,7 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
         location: info.event.extendedProps.location
       };
 
-      // Send update to the server
       fetch("/update-event", {
         method: "POST",
         headers: {
@@ -114,12 +112,12 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then((data) => {
         console.log("Event moved successfully:", data);
+        // Only refetch events if the event move was successful
+        calendar.refetchEvents();
       })
       .catch((error) => {
         console.error("Error moving event:", error);
-        // Revert the move visually
-        info.revert();
-        calendar.refetchEvents();
+        info.revert();  // Revert the move visually
       });
     },
   });
@@ -130,7 +128,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("discard-button")
     .addEventListener("click", function () {
-      // Confirm the discard action
       fetch("/restore-draft-schedule", {
         method: "POST",
       })

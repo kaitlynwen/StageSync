@@ -255,6 +255,137 @@ def active_directory_user(netid):
         return first_name, last_name, email
 
 # ----------------------------------------------------------------------
+
+# Convert time to 24-hour format for PostgreSQL
+def convert_to_24hr_format(time_str):
+    return datetime.strptime(time_str, "%I:%M%p").strftime("%H:%M:%S")
+
+
+# Convert time to 12-hour format for html
+def convert_to_12hr_format(time_str):
+    return time_str.strftime("%I:%M %p").replace(" ", "")
+
+
+# Delete existing time conflicts from database
+def delete_conflict(netid):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM availability
+                WHERE netid = %s
+            """,
+                (netid,),
+            )
+            conn.commit()
+
+
+# Get existing weekly conflicts from database
+def get_weekly_conflict(netid):
+    weekly_conflicts = {
+        "Monday": [],
+        "Tuesday": [],
+        "Wednesday": [],
+        "Thursday": [],
+        "Friday": [],
+        "Saturday": [],
+        "Sunday": [],
+    }
+
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT day_of_week, start_time, end_time
+                FROM availability
+                WHERE netid = %s AND is_recurring = TRUE
+                ORDER BY day_of_week, start_time
+            """,
+                (netid,),
+            )
+
+            for day, start, end in cursor.fetchall():
+                start = convert_to_12hr_format(start)
+                end = convert_to_12hr_format(end)
+                weekly_conflicts[day].append(f"{start}-{end}")
+
+    return weekly_conflicts
+
+
+# Get existing one time conflicts from database
+def get_one_time_conflict(netid):
+    one_time_conflicts = []
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT one_time_date, start_time, end_time
+                FROM availability
+                WHERE netid = %s AND is_recurring = FALSE
+                ORDER BY one_time_date, start_time
+            """,
+                (netid,),
+            )
+
+            for date, start, end in cursor.fetchall():
+                date = date.strftime("%m/%d")
+                start = convert_to_12hr_format(start)
+                end = convert_to_12hr_format(end)
+                one_time_conflicts.append(f"{date}.{start}-{end}")
+
+            cursor.execute(
+                """
+                SELECT notes
+                FROM availability
+                WHERE netid = %s AND is_recurring = FALSE
+                ORDER BY one_time_date, start_time
+            """,
+                (netid,),
+            )
+
+            row = cursor.fetchone()
+            if row:
+                conflict_notes = row[0]
+            else:
+                conflict_notes = ""
+
+    if not one_time_conflicts:
+        return [], conflict_notes
+
+    else:
+        return one_time_conflicts, conflict_notes
+
+
+# Insert weekly conflict into the database
+def insert_weekly_conflict(netid, day, start_time, end_time):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO availability (netid, day_of_week, start_time, 
+                           end_time, is_recurring, one_time_date, notes)
+                VALUES (%s, %s, %s, %s, TRUE, NULL, NULL)
+            """,
+                (netid, day, start_time, end_time),
+            )
+            conn.commit()
+
+
+# Insert one-time conflict into the database
+def insert_one_time_conflict(netid, one_time_date, day, start_time, end_time, notes):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO availability (netid, day_of_week, start_time, 
+                           end_time, is_recurring, one_time_date, notes)
+                VALUES (%s, %s, %s, %s, FALSE, %s, %s)
+            """,
+                (netid, day, start_time, end_time, one_time_date, notes),
+            )
+            conn.commit()
+            
+# ----------------------------------------------------------------------     
 # Setting Updates
 
 def get_user_settings(netid):
@@ -393,136 +524,6 @@ def update():
         )
 
 
-# Convert time to 24-hour format for PostgreSQL
-def convert_to_24hr_format(time_str):
-    return datetime.strptime(time_str, "%I:%M%p").strftime("%H:%M:%S")
-
-
-# Convert time to 12-hour format for html
-def convert_to_12hr_format(time_str):
-    return time_str.strftime("%I:%M %p").replace(" ", "")
-
-
-# Delete existing time conflicts from database
-def delete_conflict(netid):
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                DELETE FROM availability
-                WHERE netid = %s
-            """,
-                (netid,),
-            )
-            conn.commit()
-
-
-# Get existing weekly conflicts from database
-def get_weekly_conflict(netid):
-    weekly_conflicts = {
-        "Monday": [],
-        "Tuesday": [],
-        "Wednesday": [],
-        "Thursday": [],
-        "Friday": [],
-        "Saturday": [],
-        "Sunday": [],
-    }
-
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT day_of_week, start_time, end_time
-                FROM availability
-                WHERE netid = %s AND is_recurring = TRUE
-                ORDER BY day_of_week, start_time
-            """,
-                (netid,),
-            )
-
-            for day, start, end in cursor.fetchall():
-                start = convert_to_12hr_format(start)
-                end = convert_to_12hr_format(end)
-                weekly_conflicts[day].append(f"{start}-{end}")
-
-    return weekly_conflicts
-
-
-# Get existing one time conflicts from database
-def get_one_time_conflict(netid):
-    one_time_conflicts = []
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT one_time_date, start_time, end_time
-                FROM availability
-                WHERE netid = %s AND is_recurring = FALSE
-                ORDER BY one_time_date, start_time
-            """,
-                (netid,),
-            )
-
-            for date, start, end in cursor.fetchall():
-                date = date.strftime("%m/%d")
-                start = convert_to_12hr_format(start)
-                end = convert_to_12hr_format(end)
-                one_time_conflicts.append(f"{date}.{start}-{end}")
-
-            cursor.execute(
-                """
-                SELECT notes
-                FROM availability
-                WHERE netid = %s AND is_recurring = FALSE
-                ORDER BY one_time_date, start_time
-            """,
-                (netid,),
-            )
-
-            row = cursor.fetchone()
-            if row:
-                conflict_notes = row[0]
-            else:
-                conflict_notes = ""
-
-    if not one_time_conflicts:
-        return [], conflict_notes
-
-    else:
-        return one_time_conflicts, conflict_notes
-
-
-# Insert weekly conflict into the database
-def insert_weekly_conflict(netid, day, start_time, end_time):
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO availability (netid, day_of_week, start_time, 
-                           end_time, is_recurring, one_time_date, notes)
-                VALUES (%s, %s, %s, %s, TRUE, NULL, NULL)
-            """,
-                (netid, day, start_time, end_time),
-            )
-            conn.commit()
-
-
-# Insert one-time conflict into the database
-def insert_one_time_conflict(netid, one_time_date, day, start_time, end_time, notes):
-    with psycopg2.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO availability (netid, day_of_week, start_time, 
-                           end_time, is_recurring, one_time_date, notes)
-                VALUES (%s, %s, %s, %s, FALSE, %s, %s)
-            """,
-                (netid, day, start_time, end_time, one_time_date, notes),
-            )
-            conn.commit()
-
-
 @app.route("/view-schedule", methods=["GET"])
 def view():
     user_info = get_user_info()
@@ -658,12 +659,12 @@ def update_event():
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 update_query = """
-                    UPDATE events
+                    UPDATE draft_schedule
                     SET title = %s,
                         start = %s,
                         "end" = %s,
                         location = %s
-                    WHERE id = %s;
+                    WHERE publish_id = %s;
                 """
                 cur.execute(update_query, (title, start, end, location, event_id))
                 conn.commit()
@@ -991,7 +992,7 @@ def events():
                 # Fetch events along with their rehearsal space names
                 cur.execute(
                     """
-                    SELECT e.title, e.start, e."end", r.name
+                    SELECT e.id, e.title, e.start, e."end", r.name
                     FROM events e
                     LEFT JOIN rehearsal_spaces r ON e.location = r.name
                     ORDER BY e.start ASC
@@ -1006,10 +1007,11 @@ def events():
         # Convert the events to a list of dictionaries
         event_list = []
         for event in events:
-            title = event[0]
-            start = event[1]
-            end = event[2]
-            location = event[3] if event[3] else ""
+            event_id = event[0]
+            title = event[1]
+            start = event[2]
+            end = event[3]
+            location = event[4] if event[4] else ""
 
             # Ensure start and end are timezone-aware datetime objects
             if isinstance(start, str):
@@ -1026,6 +1028,7 @@ def events():
             # Convert to the local time zone (let FullCalendar handle this)
             # Return the times in UTC format (ISO 8601) with time zone info
             event_dict = {
+                "id": event_id,
                 "title": title,
                 "start": start.isoformat(),  # ISO format with time zone info
                 "end": end.isoformat(),  # ISO format with time zone info
@@ -1048,7 +1051,7 @@ def draft():
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT d.title, d.start, d."end", r.name
+                    SELECT d.publish_id, d.title, d.start, d."end", r.name
                     FROM draft_schedule d
                     LEFT JOIN rehearsal_spaces r ON d.location = r.name
                     ORDER BY d.start ASC
@@ -1058,10 +1061,11 @@ def draft():
         # Convert the events to a list of dictionaries
         event_list = []
         for event in events:
-            title = event[0]
-            start = event[1]
-            end = event[2]
-            location = event[3] if event[3] else ""
+            event_id = event[0]
+            title = event[1]
+            start = event[2]
+            end = event[3]
+            location = event[4] if event[4] else ""
 
             # Ensure start and end are datetime objects
             if isinstance(start, str):
@@ -1078,6 +1082,7 @@ def draft():
             # Convert start and end times from UTC to local time zone (let FullCalendar handle this)
             # You can pass these times as UTC and FullCalendar will handle conversion to local time automatically
             event_dict = {
+                "id": event_id,
                 "title": title,
                 "start": start.isoformat(),  # ISO format with time zone info
                 "end": end.isoformat(),  # ISO format with time zone info
@@ -1133,13 +1138,14 @@ def publish_draft():
                     UPDATE events
                     SET 
                         title = draft_schedule.title,
+                        start = draft_schedule.start,
+                        "end" = draft_schedule.end,
                         groupid = draft_schedule.groupid,
                         created_at = draft_schedule.created_at
+                        location = draft_schedule.location
                     FROM draft_schedule
                     WHERE 
-                        events.start = draft_schedule.start 
-                        AND events."end" = draft_schedule."end"
-                        AND events.location = draft_schedule.location;
+                        events.id = draft_schedule.publish_id;
                 """
                 )
 
