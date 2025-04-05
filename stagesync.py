@@ -39,7 +39,7 @@ app.secret_key = os.environ.get("APP_SECRET_KEY", "your_default_secret_key")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Allowable file extensions
-ALLOWED_EXTENSIONS = {"csv", "xlsx"}
+ALLOWED_EXTENSIONS = {"xlsx"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 COLOR_MAP = {
@@ -585,7 +585,7 @@ def upload():
                 flash(f"Database error: {str(e)}", "error")
                 return redirect(url_for("upload"))
 
-        flash("Invalid file type. Only CSV and XLSX are allowed.", "error")
+        flash("Invalid file type. Only XLSX files are allowed.", "error")
         return redirect(url_for("upload"))
 
     return render_template("upload.html")
