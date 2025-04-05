@@ -2,10 +2,24 @@ from datetime import datetime, timedelta
 import io
 import os
 import pandas as pd
+import pytz
 import re
 
 ########################################################################
 
+# Time zone conversion function: Convert from EST to UTC
+def convert_est_to_utc(dt):
+    """Convert a datetime object from EST to UTC."""
+    est = pytz.timezone('US/Eastern')
+    utc = pytz.utc
+
+    # Localize the datetime to EST
+    localized_dt = est.localize(dt)  # Localize the datetime object to EST
+    # Convert it to UTC
+    utc_dt = localized_dt.astimezone(utc)  # Convert to UTC
+    return utc_dt
+
+########################################################################
 
 def parse_time(time_str):
     """Convert a time string like '07:00PM' to a datetime object."""
@@ -17,9 +31,7 @@ def parse_time(time_str):
         print(f"Time string that failed: {time_str}")
         return None  # Return None if there's a parsing error
 
-
 ########################################################################
-
 
 def parse_time_range(time_range_str):
     """Parse a time range string like '07:00PM-07:30PM'."""
@@ -30,9 +42,7 @@ def parse_time_range(time_range_str):
 
     return start_time, end_time
 
-
 ########################################################################
-
 
 def adjust_event_date(event_date, start_time, end_time):
     """Adjust the event date if the end time crosses midnight."""
@@ -50,9 +60,7 @@ def adjust_event_date(event_date, start_time, end_time):
 
     return start_date, end_date
 
-
 ########################################################################
-
 
 def combine_consecutive_slots(schedule):
     """Combine consecutive time slots into a single event."""
@@ -85,9 +93,7 @@ def combine_consecutive_slots(schedule):
 
     return combined_schedule
 
-
 ########################################################################
-
 
 def convert_schedule_to_calendar_events(schedule):
     """Convert schedule into FullCalendar event format using the Date and Time fields."""
@@ -99,21 +105,26 @@ def convert_schedule_to_calendar_events(schedule):
         start_time = parse_time(entry["Start"])
         end_time = parse_time(entry["End"])
 
-        start_datetime = datetime.combine(start_date.date(), start_time.time())
-        end_datetime = datetime.combine(end_date.date(), end_time.time())
+        # Combine start date and time to get the start datetime in EST
+        start_datetime_est = datetime.combine(start_date.date(), start_time.time())
+        end_datetime_est = datetime.combine(end_date.date(), end_time.time())
 
+        # Convert the datetime to UTC (from EST)
+        start_datetime_utc = convert_est_to_utc(start_datetime_est)
+        end_datetime_utc = convert_est_to_utc(end_datetime_est)
+
+        # Add events with UTC times as datetime objects (no formatting needed)
         calendar_events.append(
             {
                 "title": entry["Location"],  # Use Location as title
-                "start": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-                "end": end_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                "start": start_datetime_utc,  # Use datetime object in UTC
+                "end": end_datetime_utc,  # Use datetime object in UTC
                 "location": entry["Location"],
                 "groupid": None
             }
         )
 
     return calendar_events
-
 
 ########################################################################
 
@@ -180,13 +191,11 @@ def extract_schedule(file, filename, group_name):
 
     return date_range, calendar_events, warnings
 
-
 ########################################################################
 
 if __name__ == "__main__":
     # Ensure the file path is correct and exists
     file_path = "sample pac data/Spring Rehearsal Schedule (3_30-4_05).xlsx"  # Update if needed
-    # file_path = "sample pac data/Spring Rehearsal Schedule (3_17-3_23).xlsx"  # Update if needed
     if not os.path.exists(file_path):
         print(f"Error: The file '{file_path}' does not exist.")
     else:

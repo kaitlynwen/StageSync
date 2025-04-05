@@ -9,11 +9,9 @@ from flask import render_template, redirect, url_for, request, jsonify, flash
 from datetime import datetime
 import os
 import dotenv
-import tempfile
 import parsedata
 import pytz
 
-# from flask_sqlalchemy import SQLAlchemy
 import auth
 import psycopg2
 from top import app
@@ -25,13 +23,6 @@ from req_lib import ReqLib
 
 # Load environment variables
 dotenv.load_dotenv()
-
-# # Initialize Flask app
-# app = flask.Flask(
-#     "stagesync",
-#     template_folder="templates",  # Folder for HTML files
-#     static_folder="static",  # Folder for CSS, JS, and images
-# )
 
 # Secret key setup (set up in .env)
 app.secret_key = os.environ.get("APP_SECRET_KEY", "your_default_secret_key")
@@ -57,6 +48,34 @@ COLOR_MAP = {
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# ----------------------------------------------------------------------
+
+
+def convert_to_utc(dt):
+    """Converts a naive datetime to UTC."""
+    # First, localize it to the Eastern Time zone
+    est = pytz.timezone('US/Eastern')
+    utc = pytz.utc
+    
+    # Check if datetime is naive (i.e., doesn't have timezone information)
+    if dt.tzinfo is None:
+        dt = est.localize(dt)  # Localize to EST if naive
+    return dt.astimezone(utc)  # Convert to UTC
+
+
+def convert_from_utc(dt):
+    """Converts a UTC datetime to local time zone."""
+    # Define your local time zone (for example, Eastern Time Zone)
+    local_tz = pytz.timezone("US/Eastern")
+    
+    # Make sure the datetime is timezone-aware (convert if it's naive)
+    if dt.tzinfo is None:
+        dt = pytz.utc.localize(dt)  # Localize to UTC if naive
+
+    # Convert the UTC datetime to the local time zone
+    return dt.astimezone(local_tz)
 
 
 # ----------------------------------------------------------------------
@@ -548,13 +567,18 @@ def upload():
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
                         for event in calendar_events:
-                            start_time = datetime.strptime(event["start"], "%Y-%m-%dT%H:%M:%S")
-                            end_time = datetime.strptime(event["end"], "%Y-%m-%dT%H:%M:%S")
+                            # Ensure that event["start"] and event["end"] are datetime objects before using them
+                            start_time = event["start"]
+                            end_time = event["end"]
+
+                            # Check if they are naive datetime objects, and convert them to UTC if so
+                            start_time_utc = convert_to_utc(start_time)
+                            end_time_utc = convert_to_utc(end_time)
 
                             # Check if event already exists
                             cur.execute(
                                 """SELECT id FROM events WHERE start = %s AND "end" = %s AND location = %s""",
-                                (start_time, end_time, event["location"]),
+                                (start_time_utc, end_time_utc, event["location"]),
                             )
                             existing_events = cur.fetchall()
 
@@ -568,11 +592,11 @@ def upload():
                                    VALUES (%s, %s, %s, %s, %s, %s)""",
                                 (
                                     event["title"],
-                                    start_time,
-                                    end_time,
+                                    start_time_utc,  # Store UTC start time
+                                    end_time_utc,  # Store UTC end time
                                     event["location"],
                                     event["groupid"],
-                                    datetime.now(pytz.timezone("US/Eastern")),
+                                    datetime.now(pytz.utc),  # Store UTC time for created_at
                                 ),
                             )
 
@@ -607,6 +631,49 @@ def generate():
 
     return render_template("generate.html")
 
+
+@app.route("/update-event", methods=["POST"])
+def update_event():
+    user_info = get_user_info()
+    if not user_info.get("is_admin", False):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.get_json()
+
+    event_id = data.get("id")
+    start = data.get("start")
+    end = data.get("end")
+    title = data.get("title")
+    location = data.get("location")
+
+    if not all([event_id, start, end]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Convert start and end times to UTC (assuming the times from the frontend are in local time)
+    local_timezone = pytz.timezone("America/New_York")  # Change this to the user's timezone
+    start = datetime.fromisoformat(start).astimezone(local_timezone).astimezone(pytz.utc)
+    end = datetime.fromisoformat(end).astimezone(local_timezone).astimezone(pytz.utc)
+
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                update_query = """
+                    UPDATE events
+                    SET title = %s,
+                        start = %s,
+                        "end" = %s,
+                        location = %s
+                    WHERE id = %s;
+                """
+                cur.execute(update_query, (title, start, end, location, event_id))
+                conn.commit()
+
+        return jsonify({"message": "Event updated successfully"})
+
+    except Exception as e:
+        print("Error updating event:", str(e))
+        return jsonify({"error": "Failed to update event"}), 500
+    
 
 @app.route("/published-schedule", methods=["GET"])
 def publish():
@@ -915,6 +982,7 @@ def unauthorize():
             500,
         )  # Return error with status code 500
 
+
 @app.route("/events")
 def events():
     try:
@@ -927,11 +995,11 @@ def events():
                     FROM events e
                     LEFT JOIN rehearsal_spaces r ON e.location = r.name
                     ORDER BY e.start ASC
-                """
+                    """
                 )
                 events = cur.fetchall()
 
-                # Fetch rehearsal space names
+                # Fetch rehearsal space names (optional)
                 cur.execute("SELECT name FROM rehearsal_spaces")
                 rehearsal_spaces = cur.fetchall()
 
@@ -943,17 +1011,24 @@ def events():
             end = event[2]
             location = event[3] if event[3] else ""
 
-            # Ensure start and end are datetime objects
+            # Ensure start and end are timezone-aware datetime objects
             if isinstance(start, str):
                 start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
             if isinstance(end, str):
                 end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
-            # Assign color dynamically
+            # Ensure that the times are in UTC if they're naive
+            if start.tzinfo is None:
+                start = pytz.utc.localize(start)  # Localize to UTC if naive
+            if end.tzinfo is None:
+                end = pytz.utc.localize(end)  # Localize to UTC if naive
+
+            # Convert to the local time zone (let FullCalendar handle this)
+            # Return the times in UTC format (ISO 8601) with time zone info
             event_dict = {
                 "title": title,
-                "start": start.isoformat(),
-                "end": end.isoformat(),
+                "start": start.isoformat(),  # ISO format with time zone info
+                "end": end.isoformat(),  # ISO format with time zone info
                 "location": location,
                 "color": COLOR_MAP.get(location, "#CCCCCC"),  # Default gray if unknown
             }
@@ -972,20 +1047,13 @@ def draft():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Fetch events along with their rehearsal space names
-                cur.execute(
-                    """
+                cur.execute("""
                     SELECT d.title, d.start, d."end", r.name
                     FROM draft_schedule d
                     LEFT JOIN rehearsal_spaces r ON d.location = r.name
                     ORDER BY d.start ASC
-                """
-                )
+                """)
                 events = cur.fetchall()
-
-                # Fetch rehearsal space names
-                cur.execute("SELECT name FROM rehearsal_spaces")
-                rehearsal_spaces = cur.fetchall()
 
         # Convert the events to a list of dictionaries
         event_list = []
@@ -1001,11 +1069,18 @@ def draft():
             if isinstance(end, str):
                 end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
-            # Assign color dynamically
+            # Ensure that the times are in UTC if they're naive
+            if start.tzinfo is None:
+                start = pytz.utc.localize(start)  # Localize to UTC if naive
+            if end.tzinfo is None:
+                end = pytz.utc.localize(end)  # Localize to UTC if naive
+
+            # Convert start and end times from UTC to local time zone (let FullCalendar handle this)
+            # You can pass these times as UTC and FullCalendar will handle conversion to local time automatically
             event_dict = {
                 "title": title,
-                "start": start.isoformat(),
-                "end": end.isoformat(),
+                "start": start.isoformat(),  # ISO format with time zone info
+                "end": end.isoformat(),  # ISO format with time zone info
                 "location": location,
                 "color": COLOR_MAP.get(location, "#CCCCCC"),  # Default gray if unknown
             }
@@ -1017,6 +1092,7 @@ def draft():
     except Exception as e:
         print(f"Error fetching events from PostgreSQL: {e}")
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
+
 
 
 @app.route("/restore-draft-schedule", methods=["POST"])

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "timeGridWeek",
     headerToolbar: { center: "dayGridMonth,timeGridWeek,timeGridDay" },
+    timeZone: "local",  // Make sure FullCalendar uses the local time zone
 
     events: function (info, successCallback, failureCallback) {
       fetch("/events")
@@ -13,13 +14,16 @@ document.addEventListener("DOMContentLoaded", function () {
           console.log("Data received:", data);
 
           if (Array.isArray(data)) {
-            const events = data.map((event) => ({
-              title: event.title,
-              start: event.start,
-              end: event.end,
-              extendedProps: { location: event.location },
-              color: event.color  // Assigning color dynamically
-            }));
+            const events = data.map((event) => {
+              // FullCalendar will automatically handle the conversion from UTC to local time
+              return {
+                title: event.title,
+                start: event.start,  // Already in ISO format with time zone info
+                end: event.end,  // Already in ISO format with time zone info
+                extendedProps: { location: event.location },
+                color: event.color  // Assign color dynamically
+              };
+            });
             successCallback(events);
           } else {
             failureCallback("Data format is not an array");
