@@ -6,11 +6,11 @@
 # ----------------------------------------------------------------------
 
 from flask import render_template, redirect, url_for, request, jsonify, flash
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import dotenv
 import parsedata
-import pytz
+from zoneinfo import ZoneInfo  # Import ZoneInfo for time zone handling
 
 import auth
 import psycopg2
@@ -54,29 +54,29 @@ def allowed_file(filename):
 
 
 def convert_to_utc(dt):
-    """Converts a naive datetime to UTC."""
-    # First, localize it to the Eastern Time zone
-    est = pytz.timezone('US/Eastern')
-    utc = pytz.utc
+    """Converts a naive datetime to UTC using zoneinfo."""
+    # Use ZoneInfo instead of pytz for time zone conversion
+    est = ZoneInfo("US/Eastern")  # Eastern Time Zone
+    utc = ZoneInfo("UTC")  # UTC time zone
     
     # Check if datetime is naive (i.e., doesn't have timezone information)
     if dt.tzinfo is None:
-        dt = est.localize(dt)  # Localize to EST if naive
+        dt = dt.replace(tzinfo=est)  # Replace with the EST timezone info if naive
+        
     return dt.astimezone(utc)  # Convert to UTC
 
 
 def convert_from_utc(dt):
-    """Converts a UTC datetime to local time zone."""
-    # Define your local time zone (for example, Eastern Time Zone)
-    local_tz = pytz.timezone("US/Eastern")
+    """Converts a UTC datetime to local time zone using zoneinfo."""
+    # Define your local time zone (Eastern Time Zone)
+    local_tz = ZoneInfo("US/Eastern")
     
     # Make sure the datetime is timezone-aware (convert if it's naive)
     if dt.tzinfo is None:
-        dt = pytz.utc.localize(dt)  # Localize to UTC if naive
+        dt = dt.replace(tzinfo=ZoneInfo("UTC"))  # Localize to UTC if naive
 
     # Convert the UTC datetime to the local time zone
     return dt.astimezone(local_tz)
-
 
 # ----------------------------------------------------------------------
 
@@ -305,8 +305,15 @@ def get_weekly_conflict(netid):
             )
 
             for day, start, end in cursor.fetchall():
-                start = convert_to_12hr_format(start)
-                end = convert_to_12hr_format(end)
+                # Convert start and end times from UTC to EST
+                start_est = convert_from_utc(start)
+                end_est = convert_from_utc(end)
+
+                # Convert to 12-hour format for display
+                start = convert_to_12hr_format(start_est)
+                end = convert_to_12hr_format(end_est)
+
+                # Append formatted times to the appropriate day
                 weekly_conflicts[day].append(f"{start}-{end}")
 
     return weekly_conflicts
@@ -458,20 +465,52 @@ def update():
     if request.method == "GET":
         user_info = get_user_info()
         user_netid = user_info["user"]
+
+        # Get the current conflicts (weekdays and one-time conflicts)
         weekly_conflicts = get_weekly_conflict(user_netid)
         one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
+
+        # Convert the weekly conflicts times from UTC to EST for display
+        for day, conflicts in weekly_conflicts.items():
+            for idx, conflict in enumerate(conflicts):
+                
+                start_time, end_time = conflict.split("-")
+                start_time = start_time.strip()
+                end_time = end_time.strip()
+
+                # Convert to datetime objects (assuming these are stored in UTC in the DB)
+                try:
+                    start_time_dt = datetime.strptime(start_time, "%I:%M%p")
+                    end_time_dt = datetime.strptime(end_time, "%I:%M%p")
+                except ValueError as e:
+                    print(f"Error parsing time: {e}")
+                    continue
+
+                # Convert from UTC to EST for display
+                try:
+                    start_time_est = convert_from_utc(start_time_dt)
+                    end_time_est = convert_from_utc(end_time_dt)
+                except ValueError as e:
+                    print(f"Error in conversion: {e}")
+                    continue
+
+                # Update the conflict with the converted time (in EST)
+                conflicts[idx] = f"{start_time_est.strftime('%I:%M%p')}-{end_time_est.strftime('%I:%M%p')}"
+
         return render_template(
             "update.html",
             user=user_info,
             weekly_conflicts=weekly_conflicts,
             one_time_conflicts=one_time_conflicts,
-            conflict_notes=conflict_notes,
+            conflict_notes=conflict_notes
         )
 
     else:
-        user_info = get_user_info()  # Fetch user info (netid) for the current user
-        user_netid = user_info["user"]  # Get the user netid
+        user_info = get_user_info()
+        user_netid = user_info["user"]
+        
         delete_conflict(user_netid)
+
         weekly_conflicts = {
             "Monday": request.form["monday_conflicts"],
             "Tuesday": request.form["tuesday_conflicts"],
@@ -481,39 +520,84 @@ def update():
             "Saturday": request.form["saturday_conflicts"],
             "Sunday": request.form["sunday_conflicts"],
         }
+        
         one_time_conflicts = request.form["one_time_conflict"]
         conflict_notes = request.form["conflict_notes"]
 
-        # Parse and insert weekly conflicts
+        # Parse and insert weekly conflicts, convert times to UTC before saving
         for day, conflicts in weekly_conflicts.items():
             if conflicts:
                 for conflict in conflicts.split(";"):
                     start_time, end_time = conflict.split("-")
-                    start_time = convert_to_24hr_format(start_time.strip())
-                    end_time = convert_to_24hr_format(end_time.strip())
-                    insert_weekly_conflict(user_netid, day, start_time, end_time)
+                    start_time = start_time.strip()
+                    end_time = end_time.strip()
 
-        # Parse and insert one-time conflicts
+                    try:
+                        # Convert to naive datetime objects first
+                        start_time_est = datetime.strptime(start_time, "%I:%M%p")
+                        end_time_est = datetime.strptime(end_time, "%I:%M%p")
+                        
+                        # Localize to EST (Eastern Standard Time)
+                        est = ZoneInfo("US/Eastern")
+                        start_time_est = start_time_est.replace(tzinfo=est)
+                        end_time_est = end_time_est.replace(tzinfo=est)
+                        
+                    except ValueError as e:
+                        print(f"Error parsing time: {e}")
+                        continue
+                    
+                    # Convert to UTC before saving
+                    start_time_utc = convert_to_utc(start_time_est)
+                    end_time_utc = convert_to_utc(end_time_est)
+
+                    # Store the conflicts in UTC
+                    insert_weekly_conflict(user_netid, day, start_time_utc, end_time_utc)
+
+        # Handle one-time conflicts (same logic as above)
         if one_time_conflicts:
             one_time_list = one_time_conflicts.split(";")
             for conflict in one_time_list:
                 date_str, time_range = conflict.split(".")
                 date_str = date_str.strip()
                 time_range = time_range.strip()
-                date = datetime.strptime(date_str, "%m/%d").replace(
-                    year=datetime.now().year
-                )
-                day = date.strftime("%A")
-                start_time, end_time = time_range.split("-")
-                start_time = convert_to_24hr_format(start_time.strip())
-                end_time = convert_to_24hr_format(end_time.strip())
-                insert_one_time_conflict(
-                    user_netid, date, day, start_time, end_time, conflict_notes
-                )
 
+                # Parse the date and convert to datetime
+                try:
+                    date = datetime.strptime(date_str, "%m/%d").replace(year=datetime.now().year)
+                    day = date.strftime("%A")
+                except ValueError as e:
+                    print(f"Error parsing date: {e}")
+                    continue
+
+                # Split the start and end times
+                start_time, end_time = time_range.split("-")
+                start_time = start_time.strip()
+                end_time = end_time.strip()
+
+                try:
+                    start_time_est = datetime.strptime(start_time, "%I:%M%p")
+                    end_time_est = datetime.strptime(end_time, "%I:%M%p")
+                except ValueError as e:
+                    print(f"Error parsing time: {e}")
+                    continue
+                
+                # Localize to EST
+                est = ZoneInfo("US/Eastern")
+                start_time_est = start_time_est.replace(tzinfo=est)
+                end_time_est = end_time_est.replace(tzinfo=est)
+
+                # Convert to UTC before saving
+                start_time_utc = convert_to_utc(start_time_est)
+                end_time_utc = convert_to_utc(end_time_est)
+                
+                insert_one_time_conflict(user_netid, date, day, start_time_utc, end_time_utc, conflict_notes)
+
+        # Get updated conflicts (converted to UTC for saving)
         weekly_conflicts = get_weekly_conflict(user_netid)
         one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
+
         success_message = "Availability successfully updated!"
+        
         return render_template(
             "update.html",
             user=user_info,
@@ -568,7 +652,6 @@ def upload():
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
                         for event in calendar_events:
-                            # Ensure that event["start"] and event["end"] are datetime objects before using them
                             start_time = event["start"]
                             end_time = event["end"]
 
@@ -597,7 +680,7 @@ def upload():
                                     end_time_utc,  # Store UTC end time
                                     event["location"],
                                     event["groupid"],
-                                    datetime.now(pytz.utc),  # Store UTC time for created_at
+                                    datetime.now(ZoneInfo("UTC")),  # Store UTC time for created_at
                                 ),
                             )
 
@@ -651,9 +734,11 @@ def update_event():
         return jsonify({"error": "Missing required fields"}), 400
 
     # Convert start and end times to UTC (assuming the times from the frontend are in local time)
-    local_timezone = pytz.timezone("America/New_York")  # Change this to the user's timezone
-    start = datetime.fromisoformat(start).astimezone(local_timezone).astimezone(pytz.utc)
-    end = datetime.fromisoformat(end).astimezone(local_timezone).astimezone(pytz.utc)
+    local_timezone = ZoneInfo("America/New_York")  # Using zoneinfo to define the local timezone (Eastern Time)
+    
+    # Parse the datetime and localize to the local time zone
+    start = datetime.fromisoformat(start).replace(tzinfo=local_timezone).astimezone(ZoneInfo("UTC"))
+    end = datetime.fromisoformat(end).replace(tzinfo=local_timezone).astimezone(ZoneInfo("UTC"))
 
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -1019,14 +1104,14 @@ def events():
             if isinstance(end, str):
                 end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
-            # Ensure that the times are in UTC if they're naive
+            # Localize to UTC if naive
             if start.tzinfo is None:
-                start = pytz.utc.localize(start)  # Localize to UTC if naive
+                start = start.replace(tzinfo=ZoneInfo("UTC"))
             if end.tzinfo is None:
-                end = pytz.utc.localize(end)  # Localize to UTC if naive
+                end = end.replace(tzinfo=ZoneInfo("UTC"))
 
-            # Convert to the local time zone (let FullCalendar handle this)
-            # Return the times in UTC format (ISO 8601) with time zone info
+            # Convert to local timezone (let FullCalendar handle this)
+            # Pass these times as UTC and FullCalendar will handle the conversion
             event_dict = {
                 "id": event_id,
                 "title": title,
@@ -1044,6 +1129,7 @@ def events():
         print(f"Error fetching events from PostgreSQL: {e}")
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
 
+# ----------------------------------------------------------------------
 
 @app.route("/draft-schedule")
 def draft():
@@ -1073,14 +1159,13 @@ def draft():
             if isinstance(end, str):
                 end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
-            # Ensure that the times are in UTC if they're naive
+            # Localize to UTC if naive
             if start.tzinfo is None:
-                start = pytz.utc.localize(start)  # Localize to UTC if naive
+                start = start.replace(tzinfo=ZoneInfo("UTC"))
             if end.tzinfo is None:
-                end = pytz.utc.localize(end)  # Localize to UTC if naive
+                end = end.replace(tzinfo=ZoneInfo("UTC"))
 
-            # Convert start and end times from UTC to local time zone (let FullCalendar handle this)
-            # You can pass these times as UTC and FullCalendar will handle conversion to local time automatically
+            # Convert start and end times from UTC to local time zone (FullCalendar handles this)
             event_dict = {
                 "id": event_id,
                 "title": title,
@@ -1098,7 +1183,7 @@ def draft():
         print(f"Error fetching events from PostgreSQL: {e}")
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
 
-
+# ----------------------------------------------------------------------
 
 @app.route("/restore-draft-schedule", methods=["POST"])
 def restore_draft_schedule():

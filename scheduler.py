@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from collections import defaultdict
 import psycopg2
+import pytz
 import os
 
 # ----------------------------------------------------------------------
@@ -44,6 +45,19 @@ def fetch_draft_schedule():
 
 # ----------------------------------------------------------------------
 
+def convert_est_to_utc(est_time):
+    # Get the EST timezone object
+    est_tz = pytz.timezone('US/Eastern')
+    
+    # Localize the time to EST, assuming it's a naive datetime object (no timezone info)
+    localized_est_time = est_tz.localize(est_time)
+    
+    # Convert to UTC
+    utc_time = localized_est_time.astimezone(pytz.utc)
+    
+    return utc_time
+
+# ----------------------------------------------------------------------
 
 # Preprocess Data
 def preprocess_availability():
@@ -122,7 +136,12 @@ def generate_available_slots(members, unavailable_dict):
                 if event["start"].date() >= current_date:
                     start_datetime = datetime.combine(event["start"].date(), event["start"].time())
                     end_datetime = datetime.combine(event["end"].date(), event["end"].time())
-                    possible_slots.append((start_datetime, end_datetime, event["location"]))
+
+                    # Convert start and end times to UTC
+                    start_datetime_utc = convert_est_to_utc(start_datetime)
+                    end_datetime_utc = convert_est_to_utc(end_datetime)
+
+                    possible_slots.append((start_datetime_utc, end_datetime_utc, event["location"]))
             continue
 
         # case that member has time conflicts
@@ -145,6 +164,10 @@ def generate_available_slots(members, unavailable_dict):
                             )
                             member_end_datetime = datetime.combine(new_member_date, end)
 
+                            # Convert member start/end times to UTC
+                            member_start_datetime_utc = convert_est_to_utc(member_start_datetime)
+                            member_end_datetime_utc = convert_est_to_utc(member_end_datetime)
+
                             start_datetime = datetime.combine(
                                 event["start"].date(), event["start"].time()
                             )
@@ -152,11 +175,15 @@ def generate_available_slots(members, unavailable_dict):
                                 event["end"].date(), event["end"].time()
                             )
 
+                            # Convert event start/end times to UTC
+                            event_start_utc = convert_est_to_utc(start_datetime)
+                            event_end_utc = convert_est_to_utc(end_datetime)
+
                             if not is_conflicting(
-                                member_start_datetime, member_end_datetime, event
+                                member_start_datetime_utc, member_end_datetime_utc, event
                             ):
                                 possible_slots.append(
-                                    (start_datetime, end_datetime, event["location"])
+                                    (event_start_utc, event_end_utc, event["location"])
                                 )
 
                     else:
@@ -166,9 +193,12 @@ def generate_available_slots(members, unavailable_dict):
                             )
                             member_end_datetime = datetime.combine(one_time_date, end)
 
+                            member_start_datetime_utc = convert_est_to_utc(member_start_datetime)
+                            member_end_datetime_utc = convert_est_to_utc(member_end_datetime)
+
                             conflict_found = any(
                                 is_conflicting(
-                                    member_start_datetime, member_end_datetime, event
+                                    member_start_datetime_utc, member_end_datetime_utc, event
                                 )
                                 for event in existing_event_times
                             )
@@ -180,9 +210,12 @@ def generate_available_slots(members, unavailable_dict):
                                 event["end"].date(), event["end"].time()
                             )
 
+                            event_start_utc = convert_est_to_utc(start_datetime)
+                            event_end_utc = convert_est_to_utc(end_datetime)
+
                             if not conflict_found:
                                 possible_slots.append(
-                                    (start_datetime, end_datetime, event["location"])
+                                    (event_start_utc, event_end_utc, event["location"])
                                 )
 
     return possible_slots

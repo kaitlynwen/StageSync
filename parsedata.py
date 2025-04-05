@@ -2,19 +2,20 @@ from datetime import datetime, timedelta
 import io
 import os
 import pandas as pd
-import pytz
 import re
+from zoneinfo import ZoneInfo  # New import for zoneinfo
 
 ########################################################################
 
 # Time zone conversion function: Convert from EST to UTC
 def convert_est_to_utc(dt):
-    """Convert a datetime object from EST to UTC."""
-    est = pytz.timezone('US/Eastern')
-    utc = pytz.utc
+    """Convert a datetime object from EST to UTC using zoneinfo."""
+    # Use ZoneInfo instead of pytz for time zone conversion
+    est = ZoneInfo("US/Eastern")  # Eastern Time Zone
+    utc = ZoneInfo("UTC")  # UTC time zone
 
     # Localize the datetime to EST
-    localized_dt = est.localize(dt)  # Localize the datetime object to EST
+    localized_dt = dt.replace(tzinfo=est)  # Replace with the EST timezone info
     # Convert it to UTC
     utc_dt = localized_dt.astimezone(utc)  # Convert to UTC
     return utc_dt
