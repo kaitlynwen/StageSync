@@ -154,7 +154,7 @@ def generate_available_slots(members, unavailable_dict):
 
                     possible_slots.append((start_datetime_utc, end_datetime_utc, event["location"]))
             continue
-
+        
         # case that member has time conflicts
         for day, start, end, is_recurring, one_time_date in unavailable_dict[member]:
             # If the slot is recurring, add subsequent weeks
@@ -195,36 +195,25 @@ def generate_available_slots(members, unavailable_dict):
                                     (event_start_utc, event_end_utc, event["location"])
                                 )
 
-                    else:
-                        if one_time_date:
-                            member_start_datetime = datetime.combine(one_time_date, start.time())
-                            member_end_datetime = datetime.combine(one_time_date, end.time())
+            else:
+                if one_time_date:
+                    member_start_datetime = datetime.combine(one_time_date, start.time())
+                    member_end_datetime = datetime.combine(one_time_date, end.time())
 
-                            # Convert member start/end times to UTC and ensure they're aware
-                            member_start_datetime_utc = add_utc_zone(member_start_datetime)
-                            member_end_datetime_utc = add_utc_zone(member_end_datetime)
+                    # Convert member start/end times to UTC and ensure they're aware
+                    member_start_datetime_utc = add_utc_zone(member_start_datetime)
+                    member_end_datetime_utc = add_utc_zone(member_end_datetime)
 
-                            conflict_found = any(
-                                is_conflicting(
-                                    member_start_datetime_utc, member_end_datetime_utc, event
-                                )
-                                for event in existing_event_times
-                            )
 
-                            start_datetime = datetime.combine(
-                                event["start"].date(), event["start"].time()
-                            )
-                            end_datetime = datetime.combine(
-                                event["end"].date(), event["end"].time()
-                            )
+                    for event in possible_slots:
+                        conflict_found = is_conflicting(member_start_datetime_utc, member_end_datetime_utc, 
+                                                        {'start':event[0],
+                                                         'end':event[1],
+                                                         'location':event[2]})
 
-                            event_start_utc = add_utc_zone(start_datetime)
-                            event_end_utc = add_utc_zone(end_datetime)
-
-                            if not conflict_found:
-                                possible_slots.append(
-                                    (event_start_utc, event_end_utc, event["location"])
-                                )
+                        if conflict_found:
+                            print(event)
+                            possible_slots.remove(event)
 
     return possible_slots
 
@@ -316,6 +305,7 @@ def assign_rehearsals():
                 if selected_slot:
                     # Assign this slot to the group
                     start, end, location = selected_slot
+
                     if groupid not in schedule.keys():
                         schedule[groupid] = []
                     schedule[groupid].append((start, end, location))

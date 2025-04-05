@@ -336,8 +336,13 @@ def get_one_time_conflict(netid):
 
             for date, start, end in cursor.fetchall():
                 date = date.strftime("%m/%d")
-                start = convert_to_12hr_format(start)
-                end = convert_to_12hr_format(end)
+                
+                start_est = convert_from_utc(start)
+                end_est = convert_from_utc(end)
+                
+                start = convert_to_12hr_format(start_est)
+                end = convert_to_12hr_format(end_est)
+                
                 one_time_conflicts.append(f"{date}.{start}-{end}")
 
             cursor.execute(
@@ -569,14 +574,15 @@ def update():
                 try:
                     start_time_est = datetime.strptime(start_time, "%I:%M%p")
                     end_time_est = datetime.strptime(end_time, "%I:%M%p")
+                    
+                    # Localize to EST (Eastern Standard Time)
+                    est = ZoneInfo("US/Eastern")
+                    start_time_est = start_time_est.replace(tzinfo=est)
+                    end_time_est = end_time_est.replace(tzinfo=est)
+                
                 except ValueError as e:
                     print(f"Error parsing time: {e}")
                     continue
-                
-                # Localize to EST
-                est = ZoneInfo("US/Eastern")
-                start_time_est = start_time_est.replace(tzinfo=est)
-                end_time_est = end_time_est.replace(tzinfo=est)
 
                 # Convert to UTC before saving
                 start_time_utc = convert_to_utc(start_time_est)
