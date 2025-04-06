@@ -4,7 +4,7 @@ var modal = document.getElementById("edit-group-modal");
 var modalContent = modal.querySelector(".modal-content"); // Select modal content area
 
 // Get the button that opens the modal
-var buttons = document.querySelectorAll(".edit-group-btn");
+var buttons = document.querySelectorAll(".dropdown-edit");
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
@@ -12,6 +12,10 @@ var span = document.getElementsByClassName("close")[0];
 // Add click event listeners to all "Edit" buttons
 buttons.forEach(function (btn) {
   btn.addEventListener("click", function () {
+    // Close the dropdown menu
+    const dropdownMenu = btn.closest(".relative").querySelector("[id^='dropdownMenu']");
+    if (dropdownMenu) dropdownMenu.classList.add("hidden");
+    
     const groupName = this.dataset.groupName;
     const groupId = this.dataset.groupId;
 

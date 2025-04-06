@@ -87,10 +87,17 @@
               </div>
             </div>
             <div class="space-y-2">
-              {% for member in group.members %}
-              <div class="text-neutral-900 dark:text-neutral-300">{{ member.first_name }} {{ member.last_name }}</div>
+              {% set visible_members = group.members[:3] %}
+              {% for member in visible_members %}
+                <div class="text-neutral-900 dark:text-neutral-300">{{ member.first_name }} {{ member.last_name }}</div>
               {% endfor %}
-            </div>
+            
+              {% if group.members|length > 3 %}
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  +{{ group.members|length - 3 }} more...
+                </div>
+              {% endif %}
+            </div>            
           </div>
           {% endfor %}
         </div>
