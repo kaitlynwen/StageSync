@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo  # Import ZoneInfo for time zone handling
 
 import auth
 import psycopg2
+from psycopg2.extras import execute_values #Faster bulk inserts for efficiency
 from top import app
 from scheduler import assign_rehearsals, update_events_table
 from req_lib import ReqLib
@@ -870,8 +871,9 @@ def remove_admins():
 def manage_groups():
     user_info = get_user_info()
     group_info = get_groups()
+    members = get_all_users()
     if user_info.get("is_admin", True):
-        return render_template("manage-groups.html", user=user_info, groups=group_info)
+        return render_template("manage-groups.html", user=user_info, groups=group_info, allMembers=members)
     else:
         return redirect(url_for("home"))
 
@@ -880,12 +882,11 @@ def manage_groups():
 def update_group_name():
     data = request.get_json()
     group_id = data.get("groupId")
-    print(group_id)
     group_name = data.get("groupName")
     new_group_name = data.get("newGroupName")
-    netids = data.get("netids", [])
-    print(netids)
-
+    remove = data.get("remove", [])
+    add = data.get("add", [])
+    
     try:
         if not group_name or not new_group_name:
             return (
@@ -911,7 +912,17 @@ def update_group_name():
                     WHERE groupid = %s
                     AND netid = ANY(%s);
                 """
-                cur.execute(query, (group_id, netids))
+                cur.execute(query, (group_id, remove))
+                conn.commit()
+
+                # Add selected members to group
+                query = """
+                    INSERT INTO group_members (groupid, netid)
+                    VALUES %s
+                    ON CONFLICT DO NOTHING
+                """
+                params = [(group_id, netid) for netid in add]
+                execute_values(cur, query, params)
                 conn.commit()
 
         return jsonify({"success": True}), 200  # Return success with status code 200

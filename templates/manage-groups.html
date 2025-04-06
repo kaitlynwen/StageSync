@@ -65,7 +65,7 @@
                       <button
                         class="dropdown-edit w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-600"
                         data-group-name="{{ group.title }}" data-group-id="{{ group.groupid }}"
-                        data-members='{{ group.members | tojson }}'>
+                        data-members='{{ group.members | tojson }}' data-all-members='{{ allMembers | tojson }}'>
                         Edit
                       </button>
                     </li>

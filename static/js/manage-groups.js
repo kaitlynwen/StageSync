@@ -15,12 +15,26 @@ buttons.forEach(function (btn) {
     // Close the dropdown menu
     const dropdownMenu = btn.closest(".relative").querySelector("[id^='dropdownMenu']");
     if (dropdownMenu) dropdownMenu.classList.add("hidden");
-    
+
     const groupName = this.dataset.groupName;
     const groupId = this.dataset.groupId;
 
-    // List of members
+    // List of members in group
     const members = JSON.parse(this.dataset.members);
+    // console.log(members)
+
+    // netIDs of members in group
+    const memberNetids = members.map(item => item.netid);
+    // console.log(memberNetids);
+
+    // List of members
+    const allMembers = JSON.parse(this.dataset.allMembers);
+    // console.log(allMembers)
+
+    // Filter members in group from all members
+    // https://stackoverflow.com/questions/34901593/how-to-filter-an-array-from-all-elements-of-another-array
+    const availableMembers = allMembers.filter(item => !memberNetids.includes(item.netid));
+    // console.log(availableMembers)
 
     // Update modal content dynamically
     modalContent.innerHTML = `
@@ -34,7 +48,7 @@ buttons.forEach(function (btn) {
       </div>
 
         <div class="w-1/2">
-          <h2 class="text-lg font-bold text-indigo-500 py-4">Search to Add New Members:</h2>
+          <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Add New Members:</h2>
           <div id="add-members"></div>
         </div>
       </div>
@@ -51,38 +65,25 @@ buttons.forEach(function (btn) {
       const member = members[i];
       removeMembersHtml += `
           <input type="checkbox"
-          class="group-member-checkbox"
+          class="remove-member-checkbox"
           value="${member.netid}" /> 
           ${member.first_name} ${member.last_name}
         <br />
       `;
     }
 
-    // Hard-coded
-    let addMembersHtml = ` <div class="flex justify-between items-center w-full mt-2">
-          <form
-            id="availabilityForm"
-            method="POST"
-            action="{{ url_for('availability') }}"
-            class="flex items-center w-full max-w-4xl"
-          >
-            <select
-              id="memberDropdown"
-              name="selected_netid"
-              class="w-60 px-4 py-2 font-sm border rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
-            >
-              <option value="" disabled selected>Select a member</option>
-              <option
-                value="ts2188"
-                data-firstname="Timothy"
-                data-lastname="Sim"
-              >
-                Timothy Sim
-              </option>
-            </select>
-          </form>
-        </div>
-        `
+    let addMembersHtml = '';
+    for (let i = 0; i < availableMembers.length; i++) {
+      const availableMember = availableMembers[i];
+      addMembersHtml += `
+          <input type="checkbox"
+          class="add-member-checkbox"
+          value="${availableMember.netid}" /> 
+          ${availableMember.first_name} ${availableMember.last_name}
+        <br />
+      `;
+    }
+
 
     // Insert the generated checkboxes into the modal
     document.getElementById("remove-members").innerHTML = removeMembersHtml;
@@ -98,12 +99,22 @@ buttons.forEach(function (btn) {
       var newGroupName = document.getElementById("group-title").value;
 
       // Get all checked checkboxes for remove members
-      const checkedCheckboxes = document.querySelectorAll(
-        ".group-member-checkbox:checked"
+      const removeChecked = document.querySelectorAll(
+        ".remove-member-checkbox:checked"
       );
 
-      // Create an array of netid values of selected users
-      const netidsToRemove = Array.from(checkedCheckboxes).map(
+      // Create an array of netid values of selected remove users
+      const netidsToRemove = Array.from(removeChecked).map(
+        (checkbox) => checkbox.value
+      );
+
+      // Get all checked checkboxes for remove members
+      const addChecked = document.querySelectorAll(
+        ".add-member-checkbox:checked"
+      );
+
+      // Create an array of netid values of selected remove users
+      const netidsToAdd = Array.from(addChecked).map(
         (checkbox) => checkbox.value
       );
 
@@ -111,7 +122,8 @@ buttons.forEach(function (btn) {
       fetch("/update-group-info", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupId, groupName, newGroupName, netids: netidsToRemove }),
+        body: JSON.stringify({ groupId, groupName, newGroupName, 
+          remove: netidsToRemove, add: netidsToAdd }),
       })
         .then(response => response.json()) // Convert response to JSON
         .then(data => {
