@@ -193,21 +193,17 @@ document.querySelectorAll(".dropdown-delete").forEach(function(deleteButton) {
     const dropdownMenu = deleteButton.closest(".relative").querySelector("[id^='dropdownMenu']");
     if (dropdownMenu) dropdownMenu.classList.add("hidden");
 
-    const groupId = this.dataset.groupId;  // Get the group ID from the data attribute
+    const groupId = this.dataset.groupId; 
 
-    // Pass the group ID to the modal for deletion
     deleteModal.querySelector("button[data-modal-hide='delete-modal']").dataset.groupId = groupId;
 
-    // Show the delete modal using Tailwind classes
-    deleteModal.classList.remove("hidden");  // Show the modal by removing the 'hidden' class
+    deleteModal.classList.remove("hidden");
   });
 });
 
-// Handle the delete confirmation
 deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventListener("click", function() {
   const groupId = this.dataset.groupId;
   
-  // Send delete request to backend
   fetch("/delete-group", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -217,11 +213,11 @@ deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventList
     .then(data => {
       if (data.success) {
         alert("Group successfully deleted");
-        deleteModal.classList.add("hidden");  // Hide the modal by adding the 'hidden' class
+        deleteModal.classList.add("hidden"); 
         location.reload();
       } else {
         alert("An error occurred: " + data.message);
-        deleteModal.classList.add("hidden");  // Hide the modal in case of error
+        deleteModal.classList.add("hidden");
       }
     })
     .catch(error => {
