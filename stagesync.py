@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo  # Import ZoneInfo for time zone handling
 
 import auth
 import psycopg2
+from psycopg2.extras import execute_values #Faster bulk inserts for efficiency
 from top import app
 from scheduler import assign_rehearsals, update_events_table
 from req_lib import ReqLib
@@ -199,9 +200,9 @@ def get_groups():
                             users.last_name,
                             users.netid,
                             rehearsal_groups.groupid
-                        FROM group_members
-                        JOIN rehearsal_groups ON group_members.groupid = rehearsal_groups.groupid
-                        JOIN users ON group_members.netid = users.netid
+                        FROM rehearsal_groups
+                        LEFT JOIN group_members ON group_members.groupid = rehearsal_groups.groupid
+                        LEFT JOIN users ON group_members.netid = users.netid
                         ORDER BY rehearsal_groups.title, users.last_name, users.first_name;
                     """
                 )
@@ -218,17 +219,18 @@ def get_groups():
                             "title": group_name,
                             "members": [],
                         }
-                    groups[group_id]["members"].append(
-                        {
-                            "first_name": first_name,
-                            "last_name": last_name,
-                            "netid": netid,
-                        }
-                    )
+                    # Only append members if members exist in the group
+                    if netid:
+                            groups[group_id]["members"].append(
+                                {
+                                    "first_name": first_name,
+                                    "last_name": last_name,
+                                    "netid": netid,
+                                }
+                            )
 
     except Exception as ex:
         print("Database error:", ex)
-
     # Convert dictionary to list of dictionaries
     return list(groups.values())
 
@@ -870,8 +872,9 @@ def remove_admins():
 def manage_groups():
     user_info = get_user_info()
     group_info = get_groups()
+    members = get_all_users()
     if user_info.get("is_admin", True):
-        return render_template("manage-groups.html", user=user_info, groups=group_info)
+        return render_template("manage-groups.html", user=user_info, groups=group_info, allMembers=members)
     else:
         return redirect(url_for("home"))
 
@@ -880,12 +883,11 @@ def manage_groups():
 def update_group_name():
     data = request.get_json()
     group_id = data.get("groupId")
-    print(group_id)
     group_name = data.get("groupName")
     new_group_name = data.get("newGroupName")
-    netids = data.get("netids", [])
-    print(netids)
-
+    remove = data.get("remove", [])
+    add = data.get("add", [])
+    
     try:
         if not group_name or not new_group_name:
             return (
@@ -911,7 +913,94 @@ def update_group_name():
                     WHERE groupid = %s
                     AND netid = ANY(%s);
                 """
-                cur.execute(query, (group_id, netids))
+                cur.execute(query, (group_id, remove))
+                conn.commit()
+
+                # Add selected members to group
+                query = """
+                    INSERT INTO group_members (groupid, netid)
+                    VALUES %s
+                    ON CONFLICT DO NOTHING
+                """
+                params = [(group_id, netid) for netid in add]
+                execute_values(cur, query, params)
+                conn.commit()
+
+        return jsonify({"success": True}), 200  # Return success with status code 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
+
+@app.route("/create-group", methods=["POST"])
+def create_group():
+    data = request.get_json()
+    group_name = data.get("groupName")
+    
+    try:
+        # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Create new group
+                query = """
+                    INSERT INTO rehearsal_groups (title)
+                    VALUES (%s)
+                    ON CONFLICT DO NOTHING
+                """
+                cur.execute(query, (group_name,))
+                conn.commit()
+
+        return jsonify({"success": True}), 200  # Return success with status code 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
+
+@app.route("/delete-group", methods=["POST"])
+def delete_group():
+    data = request.get_json()
+    group_id = data.get("groupId")
+    
+    try:
+        # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Delete group from draft_schedule
+                query = """
+                    DELETE FROM draft_schedule 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
+                conn.commit()
+
+                # Delete group from events
+                query = """
+                    DELETE FROM events 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
+                conn.commit()
+
+                # Delete group from group_members
+                query = """
+                    DELETE FROM group_members 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
+                conn.commit()
+
+                # Delete group from rehearsal_groups
+                query = """
+                    DELETE FROM rehearsal_groups 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
                 conn.commit()
 
         return jsonify({"success": True}), 200  # Return success with status code 200
@@ -986,9 +1075,9 @@ def authorize():
             )  # Return error with status code 400
         
         first_name, last_name, email=active_directory_user(netid)
-        print("First name: ", first_name)
-        print("Last name: ", last_name)
-        print("email: ", email)
+        # print("First name: ", first_name)
+        # print("Last name: ", last_name)
+        # print("email: ", email)
 
         if first_name is None:
             return (

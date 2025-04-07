@@ -43,6 +43,10 @@
         <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
           Upload, input, or modify rehearsal group information below
         </p>
+        <button data-modal-target="create-modal" data-modal-toggle="create-modal" 
+        class="block text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800" type="button">
+          Create
+        </button>
       </div>
 
       <div class="flex justify-between items-center">
@@ -51,19 +55,62 @@
           <div class="bg-neutral-200 p-4 rounded-lg w-64 relative dark:bg-neutral-800 dark:text-neutral-200">
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-semibold mb-2">{{ group.title }}</h2>
-              <!-- Filters: https://jinja.palletsprojects.com/ -->
-              <button class="edit-group-btn bg-indigo-500 hover:bg-indigo-700 text-white px-2 py-1 rounded text-sm mb-2"
-                data-group-name="{{ group.title }}"
-                data-group-id="{{ group.groupid}}"
-                data-members='{{ group.members | tojson }}'>
-                Edit
-              </button>
+              <div class="relative inline-block text-left">
+                <button id="dropdownButton-{{ group.groupid }}" data-dropdown-toggle="dropdownMenu-{{ group.groupid }}"
+                  class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
+                  <i class='bx bx-dots-vertical-rounded text-2xl'></i>
+                </button>
+
+                <div id="dropdownMenu-{{ group.groupid }}"
+                  class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-36 dark:bg-neutral-700">
+                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+                    <li>
+                      <!-- Filters: https://jinja.palletsprojects.com/ -->
+                      <button
+                        class="dropdown-edit w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-600"
+                        data-group-name="{{ group.title }}" data-group-id="{{ group.groupid }}"
+                        data-members='{{ group.members | tojson }}' data-all-members='{{ allMembers | tojson }}'>
+                        Edit
+                      </button>
+                    </li>
+                    <li>
+                      <button class="dropdown-view w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-600"
+                        data-group-id="{{ group.groupid }}">
+                        View
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        data-modal-target="delete-modal" data-modal-toggle="delete-modal"
+                        class="dropdown-delete w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-neutral-600"
+                        data-group-id="{{ group.groupid }}">
+                        Delete
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
             <div class="space-y-2">
-              {% for member in group.members %}
-              <div class="text-neutral-900 dark:text-neutral-300">{{ member.first_name }} {{ member.last_name }}</div>
-              {% endfor %}
-            </div>
+              {% set visible_members = group.members[:3] %}
+              {% if visible_members %}
+                {% for member in visible_members %}
+                  <div class="text-neutral-900 dark:text-neutral-300">
+                    {{ member.first_name }} {{ member.last_name }}
+                  </div>
+                {% endfor %}
+            
+                {% if group.members|length > 3 %}
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                    +{{ group.members|length - 3 }} more...
+                  </div>
+                {% endif %}
+              {% else %}
+                <div class="italic text-gray-500 dark:text-gray-400">
+                  No members yet
+                </div>
+              {% endif %}
+            </div>                      
           </div>
           {% endfor %}
         </div>
@@ -73,12 +120,52 @@
 
   <!-- The Modal: https://www.w3schools.com/howto/howto_css_modals.asp -->
   <div id="edit-group-modal" class="modal">
-
     <!-- Modal content -->
     <div class="modal-content">
       <span class="close">&times;</span>
     </div>
+  </div>
 
+  <!-- Tailwind Flowbite Modals: https://flowbite.com/docs/components/modal/ -->
+  <div id="create-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative p-4 w-full max-w-md max-h-full">
+          <div class="modal-content">
+              <div class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600 border-gray-200">
+                  <h2 class="text-lg font-bold text-indigo-500">
+                      New Group Name
+                  </h2>
+              </div>
+              <!-- Modal body -->
+              <div class="p-4 md:p-5">
+                <input type="text" id="new-group" class="w-full px-3 py-2 border rounded" />
+                
+                <div class="flex justify-end gap-2 mt-6">
+                  <button type="button" class="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300" data-modal-hide="create-modal">
+                    Cancel
+                  </button>
+                  <button type="button" id="create-group" class="px-4 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700">
+                    Create
+                  </button>
+                </div>
+              </div>
+          </div>
+      </div>
+  </div> 
+
+  <div id="delete-modal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+            <div class="p-4 md:p-5 text-center">
+                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Are you sure you want to delete this group?</h3>
+                <button data-modal-hide="delete-modal" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                  Delete
+                </button>
+                <button data-modal-hide="delete-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                  Cancel
+                </button>
+            </div>
+        </div>
+    </div>
   </div>
 
   <!-- Footer Section -->
