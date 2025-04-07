@@ -947,10 +947,61 @@ def create_group():
                 # Create new group
                 query = """
                     INSERT INTO rehearsal_groups (title)
-                    VALUES %s
+                    VALUES (%s)
                     ON CONFLICT DO NOTHING
                 """
-                cur.execute(query, (group_name))
+                cur.execute(query, (group_name,))
+                conn.commit()
+
+        return jsonify({"success": True}), 200  # Return success with status code 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return (
+            jsonify({"error": "Internal Server Error"}),
+            500,
+        )  # Return error with status code 500
+
+@app.route("/delete-group", methods=["POST"])
+def delete_group():
+    data = request.get_json()
+    group_id = data.get("groupId")
+    print(group_id)
+    
+    try:
+        # Connect to the database
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                # Delete group from draft_schedule
+                query = """
+                    DELETE FROM draft_schedule 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
+                conn.commit()
+
+                # Delete group from events
+                query = """
+                    DELETE FROM events 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
+                conn.commit()
+
+                # Delete group from group_members
+                query = """
+                    DELETE FROM group_members 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
+                conn.commit()
+
+                # Delete group from rehearsal_groups
+                query = """
+                    DELETE FROM rehearsal_groups 
+                    WHERE groupid = %s
+                """
+                cur.execute(query, (group_id,))
                 conn.commit()
 
         return jsonify({"success": True}), 200  # Return success with status code 200

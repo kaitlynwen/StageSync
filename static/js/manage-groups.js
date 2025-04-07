@@ -157,7 +157,7 @@ document.getElementById("create-group").addEventListener("click", function () {
   const groupName = document.getElementById("new-group").value.trim();
 
   if (!groupName) {
-    alert("Group name cannot be empty!");
+    alert("Group name cannot be empty");
     return;
   }
 
@@ -171,7 +171,7 @@ document.getElementById("create-group").addEventListener("click", function () {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        alert("Group created!");
+        alert("Group successfully created");
         document.getElementById("create-modal").classList.add("hidden");
         location.reload();
       } else {
@@ -182,3 +182,57 @@ document.getElementById("create-group").addEventListener("click", function () {
       console.error("Fetch error:", error);
     });
 });
+
+// Delete Group Modal (Utilizes Tailwind Flowbite)
+var deleteModal = document.getElementById("delete-modal");
+
+// Add click event listener to all "Delete" buttons
+document.querySelectorAll(".dropdown-delete").forEach(function(deleteButton) {
+  deleteButton.addEventListener("click", function() {
+    // Close the dropdown menu
+    const dropdownMenu = deleteButton.closest(".relative").querySelector("[id^='dropdownMenu']");
+    if (dropdownMenu) dropdownMenu.classList.add("hidden");
+
+    const groupId = this.dataset.groupId;  // Get the group ID from the data attribute
+
+    // Pass the group ID to the modal for deletion
+    deleteModal.querySelector("button[data-modal-hide='delete-modal']").dataset.groupId = groupId;
+
+    // Show the delete modal using Tailwind classes
+    deleteModal.classList.remove("hidden");  // Show the modal by removing the 'hidden' class
+  });
+});
+
+// Handle the delete confirmation
+deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventListener("click", function() {
+  const groupId = this.dataset.groupId;
+  
+  // Send delete request to backend
+  fetch("/delete-group", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ groupId }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Group successfully deleted");
+        deleteModal.classList.add("hidden");  // Hide the modal by adding the 'hidden' class
+        location.reload();
+      } else {
+        alert("An error occurred: " + data.message);
+        deleteModal.classList.add("hidden");  // Hide the modal in case of error
+      }
+    })
+    .catch(error => {
+      console.error("Fetch error:", error);
+      deleteModal.classList.add("hidden");  // Hide the modal on network error
+    });
+});
+
+// Close modal when user clicks outside of it
+window.onclick = function(event) {
+  if (event.target == deleteModal) {
+    deleteModal.classList.add("hidden");  // Hide the modal when clicked outside
+  }
+};
