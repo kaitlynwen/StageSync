@@ -966,7 +966,6 @@ def create_group():
 def delete_group():
     data = request.get_json()
     group_id = data.get("groupId")
-    print(group_id)
     
     try:
         # Connect to the database
