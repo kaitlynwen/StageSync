@@ -1,19 +1,19 @@
-// Get the modal
-var modal = document.getElementById("edit-group-modal");
+// Get the edit modal
+var editModal = document.getElementById("edit-group-modal");
 
-var modalContent = modal.querySelector(".modal-content"); // Select modal content area
+var modalContent = editModal.querySelector(".modal-content"); // Select modal content area
 
-// Get the button that opens the modal
-var buttons = document.querySelectorAll(".dropdown-edit");
+// Get the button that opens the edit modal
+var edit = document.querySelectorAll(".dropdown-edit");
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
 // Add click event listeners to all "Edit" buttons
-buttons.forEach(function (btn) {
-  btn.addEventListener("click", function () {
+edit.forEach(function (edit) {
+  edit.addEventListener("click", function () {
     // Close the dropdown menu
-    const dropdownMenu = btn.closest(".relative").querySelector("[id^='dropdownMenu']");
+    const dropdownMenu = edit.closest(".relative").querySelector("[id^='dropdownMenu']");
     if (dropdownMenu) dropdownMenu.classList.add("hidden");
 
     const groupName = this.dataset.groupName;
@@ -90,8 +90,8 @@ buttons.forEach(function (btn) {
     document.getElementById("add-members").innerHTML = addMembersHtml;
 
     // Add event listener to close button
-    modal.querySelector(".close").onclick = function () {
-      modal.style.display = "none";
+    editModal.querySelector(".close").onclick = function () {
+      editModal.style.display = "none";
     };
 
     document.getElementById("save-group").addEventListener("click", function () {
@@ -129,11 +129,11 @@ buttons.forEach(function (btn) {
         .then(data => {
           if (data.success) {
             alert("Changes saved!");
-            modal.style.display = "none";
+            editModal.style.display = "none";
             location.reload();
           } else {
             alert("An error occured: " + data.message);
-            modal.style.display = "none"; // Close modal on success
+            editModal.style.display = "none"; // Close modal on success
           }
         })
         .catch(error => {
@@ -141,13 +141,44 @@ buttons.forEach(function (btn) {
         });
     });
     // Show the modal
-    modal.style.display = "block";
+    editModal.style.display = "block";
   });
 });
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
+  if (event.target == editModal) {
+    editModal.style.display = "none";
   }
 }
+
+// Create Group Modal (Utilizes Tailwind Flowbite)
+document.getElementById("create-group").addEventListener("click", function () {
+  const groupName = document.getElementById("new-group").value.trim();
+
+  if (!groupName) {
+    alert("Group name cannot be empty!");
+    return;
+  }
+
+  fetch("/create-group", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ groupName }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Group created!");
+        document.getElementById("create-modal").classList.add("hidden");
+        location.reload();
+      } else {
+        alert("An error occurred: " + data.message);
+      }
+    })
+    .catch((error) => {
+      console.error("Fetch error:", error);
+    });
+});
