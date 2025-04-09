@@ -438,6 +438,14 @@ def save_user_settings(netid, activity, reminders):
 
 # --------------------------------------------------------------------
 
+# Force HTTPS request
+@app.before_request
+def before_request():
+    if (not app.debug) and (not flask.request.is_secure):
+        url = flask.request.url.replace('http://', 'https://', 1)
+        return flask.redirect(url, code=301)
+    return None
+
 # Routes
 @app.route("/", methods=["GET"])
 @app.route("/home", methods=["GET"])
