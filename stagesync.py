@@ -5,7 +5,7 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # ----------------------------------------------------------------------
 
-from flask import render_template, redirect, url_for, request, jsonify, flash
+from flask import render_template, redirect, url_for, request, jsonify, flash, request
 from datetime import datetime, timedelta
 import os
 import dotenv
@@ -441,9 +441,9 @@ def save_user_settings(netid, activity, reminders):
 # Force HTTPS request
 @app.before_request
 def before_request():
-    if (not app.debug) and (not flask.request.is_secure):
-        url = flask.request.url.replace('http://', 'https://', 1)
-        return flask.redirect(url, code=301)
+    if (not app.debug) and (not request.is_secure):
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
     return None
 
 # Routes
