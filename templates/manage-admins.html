@@ -1,136 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- FullCalendar Styles and Scripts -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
-      integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+  <!-- Boxicons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-    <!-- Flowbite -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+  <!-- FullCalendar Styles and Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
+    integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <!-- Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/custom.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/tailwind.css') }}"
-    />
-    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+  <!-- Flowbite -->
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 
-    <!-- Set Title of Page -->
-    <title>Manage Admins - StageSync</title>
-  </head>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
 
-  <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
-    <div class="flex flex-grow">
-      <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
-        {% include 'sidebar-admin.html' %}
-      </div>
+  <!-- Set Title of Page -->
+  <title>Manage Admins - StageSync</title>
+</head>
 
-      <!-- Main Content Section -->
-      <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
-        <div class="flex justify-between items-center mt-2">
+<body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
+  <div class="flex flex-grow">
+    <!-- Sidebar Section -->
+    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
+      {% include 'sidebar-admin.html' %}
+    </div>
+
+    <!-- Main Content Section -->
+    <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
+      <div class="flex justify-between items-center mt-2">
+        <div>
           <p class="text-3xl font-bold dark:text-neutral-200">Manage Admins</p>
-        </div>
-
-        <div class="flex justify-between items-center">
           <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
             Manage members with administrator permissions below
           </p>
         </div>
 
-        <div class="flex justify-between items-center">
-          <!-- table code from https://flowbite.com/docs/components/tables/ -->
-          <table
-            class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
-          >
-            <thead
-              class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
-            >
-              <tr>
-                <th scope="col" class="px-6 py-3"></th>
-                <th scope="col" class="px-6 py-3">netid</th>
-                <th scope="col" class="px-6 py-3">First Name</th>
-                <th scope="col" class="px-6 py-3">Last Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for admin in admins %}
-              <tr
-                class="bg-white border-b dark:bg-neutral-800 dark:border-neutral-700 border-neutral-200"
-              >
-                <td class="px-6 py-4">
-                  <input
-                    type="checkbox"
-                    class="admin-checkbox text-indigo-500 bg-neutral-50 border-neutral-100 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"  
-                    value="{{ admin.netid }}"
-                  />
-                </td>
-                <td class="px-6 py-4">{{ admin.netid }}</td>
-                <td class="px-6 py-4">{{ admin.first_name }}</td>
-                <td class="px-6 py-4">{{ admin.last_name }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div id="alert-container" class="flex flex-col space-y-2 mb-4">
+          {% for category, message in messages %}
+          <div class="alert w-full px-4 py-3 rounded-md relative transition-all duration-300 opacity-100
+            {% if category == 'success' %}
+              bg-green-100 border border-green-400 text-green-700
+            {% elif category == 'error' %}
+              bg-red-100 border border-red-400 text-red-700
+            {% elif category == 'warning' %}
+              bg-yellow-100 border border-yellow-400 text-yellow-700
+            {% elif category == 'info' %}
+              bg-blue-100 border border-blue-400 text-blue-700
+            {% endif %}
+          " role="alert">
+            <div class="flex justify-between items-center">
+              <strong class="font-bold flex items-center">
+                {% if category == 'success' %}
+                <i class="bx bxs-check-circle bx-sm mr-2"></i> Success!
+                {% elif category == 'error' %}
+                <i class="bx bxs-error bx-sm mr-2"></i> Error!
+                {% elif category == 'warning' %}
+                <i class="bx bxs-error-circle bx-sm mr-2"></i> Warning!
+                {% elif category == 'info' %}
+                <i class="bx bxs-info-circle bx-sm mr-2"></i> Info!
+                {% endif %}
+              </strong>
 
-        <div class="flex justify-between mt-4">
-          <button
-            id="remove-admin-button"
-            class="text-white font-sm border-2 bg-indigo-500 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 py-2 px-4 rounded-md"
-          >
-            Remove Selected Admins
+              <button onclick="this.parentElement.parentElement.remove()" class="flex items-center focus:outline-none
+          {% if category == 'success' %}text-green-700 hover:text-green-900
+          {% elif category == 'error' %}text-red-700 hover:text-red-900
+          {% elif category == 'warning' %}text-yellow-700 hover:text-yellow-900
+          {% elif category == 'info' %}text-blue-700 hover:text-blue-900
+          {% endif %}">
+                <i class="bx bx-x bx-sm"></i>
+              </button>
+            </div>
+            <span class="block sm:inline mt-1">{{ message }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+      </div>
+
+      <div class="flex justify-between items-center">
+        <!-- table code from https://flowbite.com/docs/components/tables/ -->
+        <table class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400">
+          <thead class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400">
+            <tr>
+              <th scope="col" class="px-6 py-3"></th>
+              <th scope="col" class="px-6 py-3">netid</th>
+              <th scope="col" class="px-6 py-3">First Name</th>
+              <th scope="col" class="px-6 py-3">Last Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for admin in admins %}
+            <tr class="bg-white border-b dark:bg-neutral-800 dark:border-neutral-700 border-neutral-200">
+              <td class="px-6 py-4">
+                <input type="checkbox"
+                  class="admin-checkbox text-indigo-500 bg-neutral-50 border-neutral-100 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
+                  value="{{ admin.netid }}" />
+              </td>
+              <td class="px-6 py-4">{{ admin.netid }}</td>
+              <td class="px-6 py-4">{{ admin.first_name }}</td>
+              <td class="px-6 py-4">{{ admin.last_name }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-between mt-4">
+        <button id="remove-admin-button"
+          class="text-white font-sm border-2 bg-indigo-500 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 py-2 px-4 rounded-md">
+          Remove Selected Admins
+        </button>
+        <form id="add-id-form" method="POST" action="{{ url_for('manage_users') }}" class="flex items-center">
+          <label for="memberDropdown" class="font-sm mr-2 text-neutral-700 dark:text-neutral-200">Select a
+            member:</label>
+          <select id="memberDropdown" name="selected_netid"
+            class="w-60 px-4 py-2 font-sm border rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
+            required>
+            <option value="" disabled selected>Select a member</option>
+            {% for member in members %}
+            {% if member not in admins %}
+            <option value="{{ member.netid }}" data-firstname="{{ member.first_name }}"
+              data-lastname="{{ member.last_name }}">
+              {{ member.first_name }} {{ member.last_name }}
+            </option>
+            {% endif %}
+            {% endfor %}
+          </select>
+          <button type="submit"
+            class="ml-2 px-4 py-2 bg-indigo-500 text-white border-2 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 rounded-md"
+            id="addAdminBtn">
+            Add Admin
           </button>
+        </form>
+      </div>
+    </main>
+  </div>
 
-          <form id="add-admin-form">
-            <label for="netid" class="font-sm mr-2 dark:text-neutral-200"
-              >NetID to Add as Admin:</label
-            >
-            <input
-              type="text"
-              id="netid"
-              name="netid"
-              class="px-4 py-2 font-sm border rounded-md"
-              placeholder="Enter NetID"
-              required
-            />
-            <button
-              type="submit"
-              class="text-white bg-indigo-500 border-2 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 py-2 px-4 rounded-md ml-2"
-            >
-              Add Admin
-            </button>
-          </form>
-        </div>
-      </main>
-    </div>
+  <!-- Footer Section -->
+  <footer class="bg-neutral-900">
+    {% include 'footer.html' %}
+  </footer>
 
-    <!-- Footer Section -->
-    <footer class="bg-neutral-900">
-      {% include 'footer.html' %}
-    </footer>
+  <script src="{{ url_for('static', filename='js/manage-admins.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/flash-alerts.js') }}"></script>
+</body>
 
-    <script src="{{ url_for('static', filename='js/manage-admins.js') }}"></script>
-  </body>
 </html>

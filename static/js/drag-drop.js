@@ -63,12 +63,4 @@ document.addEventListener("DOMContentLoaded", function () {
     // Update UI to show selected file name
     dropzoneContent.innerHTML = `<p class="text-sm font-semibold text-green-600">Selected: ${file.name}</p>`;
   }
-
-  // Make alerts disappear after 5 seconds (5000ms)
-  setTimeout(() => {
-    document.querySelectorAll(".alert").forEach((alert) => {
-      alert.style.opacity = "0";
-      setTimeout(() => alert.remove(), 500);
-    });
-  }, 5000);
 });

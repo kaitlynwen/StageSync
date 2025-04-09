@@ -770,29 +770,48 @@ def publish():
         return redirect(url_for("home"))
 
 
-@app.route("/manage-admins", methods=["GET"])
+@app.route("/manage-admins", methods=["GET", "POST"])
 def manage_users():
     user_info = get_user_info()
     admin_info = get_admin_users()
+    
     if user_info.get("is_admin", True):
-        return render_template("manage-admins.html", user=user_info, admins=admin_info)
+        members = get_all_users()  # Fetch members list
+
+        if request.method == "POST":
+            selected_netid = request.form.get("selected_netid")
+            if selected_netid:
+                response = add_admin(selected_netid)
+
+                # Unpack response
+                if isinstance(response, tuple):
+                    data, status_code = response
+                else:
+                    data = response
+                    status_code = 200
+
+                result = data.get_json()
+
+                if status_code == 200 and result.get("success"):
+                    flash("Admin added successfully!", "success")
+                    return redirect(url_for("manage_users"))
+                else:
+                    message = result.get("message") or result.get("error") or "Something went wrong."
+                    flash(message, "error")  # Flash error message
+
+        return render_template(
+            "manage-admins.html",
+            user=user_info,
+            members=members,
+            admins=admin_info
+        )
+
     else:
         return redirect(url_for("home"))
 
 
-@app.route("/add-admin", methods=["POST"])
-def add_admin():
+def add_admin(netid):
     try:
-        # Get the netid of the user to add as admin from the request body
-        data = request.get_json()
-        netid = data.get("netid")
-
-        if not netid:
-            return (
-                jsonify({"success": False, "message": "NetID is required"}),
-                400,
-            )  # Return error with status code 400
-
         # Check to see if netid exists in database
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
