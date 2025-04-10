@@ -5,7 +5,7 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # ----------------------------------------------------------------------
 
-from flask import render_template, redirect, url_for, request, jsonify, flash, request
+from flask import render_template, redirect, url_for, request, jsonify, flash
 from datetime import datetime, timedelta
 import os
 import dotenv
