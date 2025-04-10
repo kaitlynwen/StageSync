@@ -121,6 +121,9 @@
           class="text-white font-sm border-2 bg-indigo-500 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 py-2 px-4 rounded-md">
           Remove Selected Admins
         </button>
+        <form id="remove-admin-form" method="POST" action="{{ url_for('manage_users') }}">
+          <input type="hidden" name="netids_to_remove" id="netids-to-remove" />
+        </form>        
         <form id="add-id-form" method="POST" action="{{ url_for('manage_users') }}" class="flex items-center">
           <label for="memberDropdown" class="font-sm mr-2 text-neutral-700 dark:text-neutral-200">Select a
             member:</label>

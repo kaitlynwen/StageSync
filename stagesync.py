@@ -5,7 +5,7 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # ----------------------------------------------------------------------
 
-from flask import render_template, redirect, url_for, request, jsonify, flash
+from flask import json, render_template, redirect, url_for, request, jsonify, flash
 from datetime import datetime, timedelta
 import os
 import dotenv
@@ -145,7 +145,7 @@ def get_user_by_netid(netid):
                 cursor.execute(
                     """
                     SELECT first_name, last_name FROM users
-                    WHERE netid = %s
+                    WHERE netid = %s ORDER BY last_name, first_name
                 """,
                     (netid,),
                 )
@@ -169,7 +169,7 @@ def get_admin_users():
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT netid, first_name, last_name FROM users WHERE is_admin = TRUE"
+                    "SELECT netid, first_name, last_name FROM users WHERE is_admin = TRUE ORDER BY last_name, first_name"
                 )
                 for netid, first_name, last_name in cur.fetchall():
                     admin_users.append(
@@ -785,83 +785,93 @@ def publish():
 def manage_users():
     user_info = get_user_info()
     admin_info = get_admin_users()
-    
-    if user_info.get("is_admin", True):
-        members = get_all_users()  # Fetch members list
 
-        if request.method == "POST":
-            selected_netid = request.form.get("selected_netid")
-            if selected_netid:
-                response = add_admin(selected_netid)
-
-                # Unpack response
-                if isinstance(response, tuple):
-                    data, status_code = response
-                else:
-                    data = response
-                    status_code = 200
-
-                result = data.get_json()
-
-                if status_code == 200 and result.get("success"):
-                    flash("Admin added successfully!", "success")
-                    return redirect(url_for("manage_users"))
-                else:
-                    message = result.get("message") or result.get("error") or "Something went wrong."
-                    flash(message, "error")  # Flash error message
-
-        return render_template(
-            "manage-admins.html",
-            user=user_info,
-            members=members,
-            admins=admin_info
-        )
-
-    else:
+    if not user_info.get("is_admin", True):
         return redirect(url_for("home"))
 
+    members = get_all_users()
+
+    if request.method == "POST":
+        # Check if it's a removal request
+        netids_to_remove = request.form.get("netids_to_remove")
+        if netids_to_remove:
+            try:
+                netids = json.loads(netids_to_remove)
+                with psycopg2.connect(DATABASE_URL) as conn:
+                    with conn.cursor() as cur:
+                        query = """
+                            UPDATE users
+                            SET is_admin = FALSE
+                            WHERE netid = ANY(%s);
+                        """
+                        cur.execute(query, (netids,))
+                        conn.commit()
+                flash("Admin permissions removed successfully.", "success")
+                return redirect(url_for("manage_users"))
+            except Exception as e:
+                print(f"Error removing admins: {e}")
+                flash("Failed to remove admin(s).", "error")
+                return redirect(url_for("manage_users"))
+
+        # Otherwise, it's an add-admin request
+        selected_netid = request.form.get("selected_netid")
+        if selected_netid:
+            response = add_admin(selected_netid)
+
+            if isinstance(response, tuple):
+                data, status_code = response
+            else:
+                data = response
+                status_code = 200
+
+            result = data.get_json()
+            if status_code == 200 and result.get("success"):
+                flash("Admin added successfully!", "success")
+            else:
+                message = result.get("message") or result.get("error") or "Something went wrong."
+                flash(message, "error")
+
+            return redirect(url_for("manage_users"))
+
+    return render_template(
+        "manage-admins.html",
+        user=user_info,
+        members=members,
+        admins=admin_info
+    )
 
 def add_admin(netid):
+    if not netid:
+        return jsonify({"success": False, "message": "NetID is required"}), 400
+    
     try:
-        # Check to see if netid exists in database
+        # Check if the user exists in the database
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 query = """
-                    SELECT EXISTS(SELECT 1 
-                    FROM users
-                    WHERE netid = %s);
+                    SELECT EXISTS(SELECT 1 FROM users WHERE netid = %s);
                 """
                 cur.execute(query, (netid,))
                 exists = cur.fetchone()[0]
 
                 if not exists:
-                    return jsonify(
-                        {"success": False, "message": "NetID does not exist"}
-                    )
+                    return jsonify({"success": False, "message": "NetID does not exist"}), 400
 
-        # Connect to the database
-        with psycopg2.connect(DATABASE_URL) as conn:
-            with conn.cursor() as cur:
                 # Update the is_admin flag to True for the selected user
-                query = """
+                update_query = """
                     UPDATE users
                     SET is_admin = TRUE
                     WHERE netid = %s;
                 """
-                cur.execute(query, (netid,))
+                cur.execute(update_query, (netid,))
                 conn.commit()
 
         return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:
         print(f"Error: {e}")
-        return (
-            jsonify({"error": "Internal Server Error"}),
-            500,
-        )  # Return error with status code 500
+        return jsonify({"error": "Internal Server Error"}), 500  # Return error with status code 500
 
-
-@app.route("/remove-admins", methods=["POST"])
 def remove_admins():
     try:
         # Get the netids of users to remove from admin from the request body
@@ -1203,7 +1213,7 @@ def events():
                 events = cur.fetchall()
 
                 # Fetch rehearsal space names (optional)
-                cur.execute("SELECT name FROM rehearsal_spaces")
+                cur.execute("SELECT name FROM rehearsal_spaces ORDER BY name")
                 rehearsal_spaces = cur.fetchall()
 
         # Convert the events to a list of dictionaries
