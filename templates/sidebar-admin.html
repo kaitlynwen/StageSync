@@ -1,162 +1,142 @@
-<!-- Sidebar Links -->
-<nav class="h-full min-h-screen p-4">
-  <!-- Logo Section -->
-  <a href="{{ url_for('home') }}" class="flex items-center space-x-2 p-1 mb-6">
-    <img
-      class="h-auto w-1/6"
-      src="/static/img/Logo.png"
-      alt="Logo"
-    />
-    <span class="text-2xl font-bold text-neutral-950 dark:text-neutral-200 ml-2">StageSync</span>
-  </a>
+<button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button"
+   class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+   <span class="sr-only">Open sidebar</span>
+   <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+      <path clip-rule="evenodd" fill-rule="evenodd"
+         d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z">
+      </path>
+   </svg>
+</button>
 
-  <!-- Settings Section -->
-  <ul class="space-y-2">
-    <li>
-      <a
-        href="{{ url_for('settings') }}"
-        class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition"
-      >
-        <i class="bx bxs-cog bx-sm mr-2"></i>
-        <span>Settings</span>
+<aside id="logo-sidebar"
+   class="fixed p-4 w-1/5 h-screen transition-transform -translate-x-full sm:translate-x-0"
+   aria-label="Sidebar">
+   <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+      <!-- Logo Section -->
+      <a href="{{ url_for('home') }}" class="flex items-center space-x-2 p-1 mb-6">
+         <img class="h-auto w-1/6" src="/static/img/Logo.png" alt="Logo" />
+         <span class="text-2xl self-center whitespace-nowrap font-bold text-neutral-950 dark:text-neutral-200 ml-2">StageSync</span>
       </a>
-    </li>
 
-    <!-- Main Menu Label -->
-    <li class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50">
-      Main Menu
-    </li>
-
-    <!-- Home Button -->
-    <li>
-      <a
-        href="{{ url_for('home') }}"
-        class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition"
-      >
-        <i class="bx bxs-home bx-sm mr-2"></i>
-        <span>Home</span>
-      </a>
-    </li>
-
-    <!-- Update Button -->
-    <li>
-      <a
-        href="{{ url_for('update') }}"
-        class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition"
-      >
-        <i class="bx bxs-edit bx-sm mr-2"></i>
-        <span>Update Availability</span>
-      </a>
-    </li>
-
-    <!-- View Schedule Button -->
-    <li>
-      <a
-        href="{{ url_for('view') }}"
-        class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition"
-      >
-        <i class="bx bxs-calendar-event bx-sm mr-2"></i>
-        <span>View Schedule</span>
-      </a>
-    </li>
-
-    <!-- Admin Menu Label -->
-    <li class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500">
-      Admin Options
-    </li>
-
-    <!-- Upload Reho Info Button -->
-    <li>
-      <a
-        href="{{ url_for('upload') }}"
-        class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition"
-      >
-        <i class="bx bx-upload bx-sm mr-2"></i>
-        <span>Upload Rehearsal Data</span>
-      </a>
-    </li>
-
-    <!-- Generate Schedule Button -->
-    <li>
-      <a
-        href="{{ url_for('generate') }}"
-        class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition"
-      >
-        <i class="bx bxs-calendar bx-sm mr-2"></i>
-        <span>Generate Schedule</span>
-      </a>
-    </li>
-
-    <!-- Published Schedule Button -->
-    <li>
-      <a
-        href="{{ url_for('publish') }}"
-        class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition"
-      >
-        <i class="bx bxs-cloud-upload bx-sm mr-2"></i>
-        <span>Published Schedule</span>
-      </a>
-    </li>
-
-    <!-- Manage Members Dropdown -->
-    <!-- Dropdown Button -->
-    <li class="relative group">
-      <button
-        id="dropdownDefaultButton"
-        data-dropdown-toggle="dropdownMenu"
-        class="w-full flex items-center justify-between text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition-all duration-500"
-        type="button"
-      >
-        <div class="flex items-center">
-          <i class="bx bxs-user-detail bx-sm mr-2"></i>
-          <span>Manage Members</span>
-        </div>
-        <i class="bx bx-chevron-down bx-sm"></i>
-      </button>
-
-      <!-- Dropdown Menu -->
-      <div
-        id="dropdownMenu"
-        class="hidden bg-white divide-y divide-neutral-100 rounded-lg shadow-sm dark:bg-neutral-700 w-full min-w-max"
-      >
-        <ul
-          class="py-2 text-sm text-neutral-700 dark:text-neutral-200"
-          aria-labelledby="dropdownDefaultButton"
-        >
-          <li>
-            <a
-              href="{{ url_for('authorize_members') }}"
-              class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white"
-            >
-              Authorize Members
+      <!-- Settings Section -->
+      <ul class="space-y-2">
+         <li>
+            <a href="{{ url_for('settings') }}"
+               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
+               <i class="bx bxs-cog bx-sm mr-2"></i>
+               <span>Settings</span>
             </a>
-          </li>
-          <li>
-            <a
-              href="{{ url_for('manage_users') }}"
-              class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white"
-            >
-              Manage Admins
+         </li>
+
+         <!-- Main Menu Label -->
+         <li
+            class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50">
+            Main Menu
+         </li>
+
+         <!-- Home Button -->
+         <li>
+            <a href="{{ url_for('home') }}"
+               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
+               <i class="bx bxs-home bx-sm mr-2"></i>
+               <span>Home</span>
             </a>
-          </li>
-          <li>
-            <a
-              href="{{ url_for('manage_groups') }}"
-              class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white"
-            >
-              Manage Groups
+         </li>
+
+         <!-- Update Button -->
+         <li>
+            <a href="{{ url_for('update') }}"
+               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
+               <i class="bx bxs-edit bx-sm mr-2"></i>
+               <span>Update Availability</span>
             </a>
-          </li>
-          <li>
-            <a
-              href="{{ url_for('availability') }}"
-              class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white"
-            >
-              View Availability
+         </li>
+
+         <!-- View Schedule Button -->
+         <li>
+            <a href="{{ url_for('view') }}"
+               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
+               <i class="bx bxs-calendar-event bx-sm mr-2"></i>
+               <span>View Schedule</span>
             </a>
-          </li>
-        </ul>
-      </div>
-    </li>
-  </ul>
-</nav>
+         </li>
+
+         <!-- Admin Menu Label -->
+         <li class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500">
+            Admin Options
+         </li>
+
+         <!-- Upload Reho Info Button -->
+         <li>
+            <a href="{{ url_for('upload') }}"
+               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
+               <i class="bx bx-upload bx-sm mr-2"></i>
+               <span>Upload Rehearsal Data</span>
+            </a>
+         </li>
+
+         <!-- Generate Schedule Button -->
+         <li>
+            <a href="{{ url_for('generate') }}"
+               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
+               <i class="bx bxs-calendar bx-sm mr-2"></i>
+               <span>Generate Schedule</span>
+            </a>
+         </li>
+
+         <!-- Published Schedule Button -->
+         <li>
+            <a href="{{ url_for('publish') }}"
+               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
+               <i class="bx bxs-cloud-upload bx-sm mr-2"></i>
+               <span>Published Schedule</span>
+            </a>
+         </li>
+
+         <!-- Manage Members Dropdown -->
+         <!-- Dropdown Button -->
+         <li class="relative group">
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdownMenu"
+               class="w-full flex items-center justify-between text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition-all duration-500"
+               type="button">
+               <div class="flex items-center">
+                  <i class="bx bxs-user-detail bx-sm mr-2"></i>
+                  <span>Manage Members</span>
+               </div>
+               <i class="bx bx-chevron-down bx-sm"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="dropdownMenu"
+               class="hidden bg-white divide-y divide-neutral-100 rounded-lg shadow-sm dark:bg-neutral-700 w-full min-w-max">
+               <ul class="py-2 text-sm text-neutral-700 dark:text-neutral-200" aria-labelledby="dropdownDefaultButton">
+                  <li>
+                     <a href="{{ url_for('authorize_members') }}"
+                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
+                        Authorize Members
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{{ url_for('manage_users') }}"
+                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
+                        Manage Admins
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{{ url_for('manage_groups') }}"
+                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
+                        Manage Groups
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{{ url_for('availability') }}"
+                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
+                        View Availability
+                     </a>
+                  </li>
+               </ul>
+            </div>
+         </li>
+      </ul>
+   </div>
+</aside>
