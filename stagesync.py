@@ -22,6 +22,9 @@ from req_lib import ReqLib
 
 # ----------------------------------------------------------------------
 
+# Temp set debug to true
+app.debug = True
+
 # Load environment variables
 dotenv.load_dotenv()
 
