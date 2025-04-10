@@ -5,8 +5,11 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # ----------------------------------------------------------------------
 
-from flask import json, render_template, redirect, url_for, request, jsonify, flash
-from datetime import datetime, timedelta
+from io import BytesIO
+from flask import json, render_template, redirect, send_file, url_for, request, jsonify, flash
+from datetime import datetime
+from ics import Calendar, Event
+from req_lib import ReqLib
 import os
 import dotenv
 import parsedata
@@ -17,7 +20,7 @@ import psycopg2
 from psycopg2.extras import execute_values #Faster bulk inserts for efficiency
 from top import app
 from scheduler import assign_rehearsals, update_events_table
-from req_lib import ReqLib
+from export_cal import get_calendar_events
 
 
 # ----------------------------------------------------------------------
@@ -1370,6 +1373,31 @@ def publish_draft():
         print(f"Error publishing schedule: {e}")
         return jsonify({"error": f"Error publishing schedule: {str(e)}"}), 500
 
+
+@app.route("/download-calendar", methods=["GET"])
+def download_calendar():
+    calendar_events = get_calendar_events()
+    calendar = Calendar()
+
+    for e in calendar_events:
+        event = Event()
+        event.name = e["name"]
+        event.begin = e["begin"]
+        event.end = e["end"]
+        event.location = e["location"]
+        calendar.events.add(event)
+
+    # Use an in-memory buffer
+    buffer = BytesIO()
+    buffer.write(calendar.serialize().encode('utf-8'))
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="rehearsals.ics",
+        mimetype="text/calendar"
+    )
 
 # -----------------------------------------------------------------------
 
