@@ -27,14 +27,15 @@
 </head>
 
 <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
-  <div class="flex flex-grow">
+  <main class="flex flex-grow bg-white dark:bg-neutral-900">
     <!-- Sidebar Section -->
-    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
-      {% include 'sidebar-admin.html' %}
+    <div id="sidebar-container" class="size-fit sm:w-1/5 sm:h-auto">
+      {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
+      include 'sidebar.html' %} {% endif %}
     </div>
 
     <!-- Main Content Section -->
-    <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
+    <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
       <div class="flex justify-between items-center mt-2">
         <div>
           <p class="text-3xl font-bold dark:text-neutral-200">Manage Admins</p>
@@ -123,7 +124,7 @@
         </button>
         <form id="remove-admin-form" method="POST" action="{{ url_for('manage_users') }}">
           <input type="hidden" name="netids_to_remove" id="netids-to-remove" />
-        </form>        
+        </form>
         <form id="add-id-form" method="POST" action="{{ url_for('manage_users') }}" class="flex items-center">
           <label for="memberDropdown" class="font-sm mr-2 text-neutral-700 dark:text-neutral-200">Select a
             member:</label>
@@ -147,11 +148,11 @@
           </button>
         </form>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
 
   <!-- Footer Section -->
-  <footer class="bg-neutral-900">
+  <footer class="hidden sm:block mt-auto size-full sticky-bottom">
     {% include 'footer.html' %}
   </footer>
 

@@ -1,257 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Flowbite -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+  <!-- Boxicons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-    <!-- Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/custom.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/tailwind.css') }}"
-    />
-    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+  <!-- Flowbite -->
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 
-    <!-- Set Title of Page -->
-    <title>View Member Availability - StageSync</title>
-  </head>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
 
-  <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
-    <div class="flex flex-grow">
-      <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 dark:bg-neutral-800 min-h-screen p-3">
-        {% include 'sidebar-admin.html' %}
-      </div>
+  <!-- Set Title of Page -->
+  <title>View Member Availability - StageSync</title>
+</head>
 
-      <!-- Main Content Section -->
-      <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
-        <div class="flex justify-between items-center mt-2">
-          <p class="text-3xl font-bold dark:text-neutral-200">View Member Availability</p>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
-            Select a member from the dropdown to view their availability.
-          </p>
-        </div>
-
-        <div class="flex justify-between items-center w-full mt-2">
-          <form
-            id="availabilityForm"
-            method="POST"
-            action="{{ url_for('availability') }}"
-            class="flex items-center w-full max-w-4xl"
-          >
-            <label for="memberDropdown" class="font-sm mr-2 text-neutral-700 dark:text-neutral-200"
-              >Select a member:</label
-            >
-            <select
-              id="memberDropdown"
-              name="selected_netid"
-              class="w-60 px-4 py-2 font-sm border rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
-              required
-            >
-              <option value="" disabled selected>Select a member</option>
-              {% for member in members %}
-              <option
-                value="{{ member.netid }}"
-                data-firstname="{{ member.first_name }}"
-                data-lastname="{{ member.last_name }}"
-              >
-                {{ member.first_name }} {{ member.last_name }}
-              </option>
-              {% endfor %}
-            </select>
-            <button
-              type="submit"
-              class="ml-2 px-4 py-2 bg-indigo-500 text-white border-2 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 rounded-md"
-              id="viewAvailabilityBtn"
-            >
-              View Availability
-            </button>
-          </form>
-        </div>
-
-        {% if selected_member %}
-        <div class="mt-4 text-lg font-bold dark:text-neutral-200">
-          <p>
-            Weekly Conflicts for {{ selected_member.first_name }} {{
-            selected_member.last_name }}:
-          </p>
-        </div>
-        {% endif %}
-
-        <div class="flex justify-between items-center mt-6">
-          <table
-            class="w-screen text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
-          >
-            <tbody>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
-                >
-                  Monday
-                </th>
-                <td class="px-6 py-4">
-                  {% if weekly_conflicts %}
-                    {{ '; '.join(weekly_conflicts['Monday']) }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
-                >
-                  Tuesday
-                </th>
-                <td class="px-6 py-4">
-                  {% if weekly_conflicts %}
-                    {{ '; '.join(weekly_conflicts['Tuesday']) }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
-                >
-                  Wednesday
-                </th>
-                <td class="px-6 py-4">
-                  {% if weekly_conflicts %}
-                    {{ '; '.join(weekly_conflicts['Wednesday']) }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
-                >
-                  Thursday
-                </th>
-                <td class="px-6 py-4">
-                  {% if weekly_conflicts %}
-                    {{ '; '.join(weekly_conflicts['Thursday']) }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
-                >
-                  Friday
-                </th>
-                <td class="px-6 py-4">
-                  {% if weekly_conflicts %}
-                    {{ '; '.join(weekly_conflicts['Friday']) }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
-                >
-                  Saturday
-                </th>
-                <td class="px-6 py-4">
-                  {% if weekly_conflicts %}
-                    {{ '; '.join(weekly_conflicts['Saturday']) }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <th
-                  class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400"
-                >
-                  Sunday
-                </th>
-                <td class="px-6 py-4">
-                  {% if weekly_conflicts %}
-                    {{ '; '.join(weekly_conflicts['Sunday']) }}
-                  {% endif %}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {% if selected_member %}
-        <div class="mt-8 text-lg font-bold dark:text-neutral-200">
-          <p>
-            One-Time Conflicts for {{ selected_member.first_name }} {{
-            selected_member.last_name }}:
-          </p>
-        </div>
-        {% endif %}
-
-        <div class="flex justify-between items-center mt-6">
-          <table
-            class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400"
-          >
-            <thead
-              class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
-            >
-              <tr>
-                <th scope="col" class="px-6 py-3">Conflict</th>
-                <th scope="col" class="px-6 py-3">
-                  Explanation and Notes (Optional)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50"
-              >
-                <td class="px-6 py-4">
-                  {% if one_time_conflicts %}
-                    {{ '; '.join(one_time_conflicts) }}
-                  {% endif %}
-                </td>
-                <td class="px-6 py-4">
-                  {% if conflict_notes %}
-                    {{ conflict_notes }}
-                  {% endif %}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </main>
+<body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
+  <main class="flex flex-grow bg-white dark:bg-neutral-900">
+    <!-- Sidebar Section -->
+    <div id="sidebar-container" class="size-fit sm:w-1/5 sm:h-auto">
+      {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
+      include 'sidebar.html' %} {% endif %}
     </div>
 
-    <!-- Footer Section -->
-    <footer class="bg-neutral-900">
-      {% include 'footer.html' %}
-    </footer>
-  </body>
+    <!-- Main Content Section -->
+    <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
+      <div class="flex justify-between items-center mt-2">
+        <p class="text-3xl font-bold dark:text-neutral-200">View Member Availability</p>
+      </div>
+      <div class="flex justify-between items-center">
+        <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
+          Select a member from the dropdown to view their availability.
+        </p>
+      </div>
+
+      <div class="flex justify-between items-center w-full mt-2">
+        <form id="availabilityForm" method="POST" action="{{ url_for('availability') }}"
+          class="flex items-center w-full max-w-4xl">
+          <label for="memberDropdown" class="font-sm mr-2 text-neutral-700 dark:text-neutral-200">Select a
+            member:</label>
+          <select id="memberDropdown" name="selected_netid"
+            class="w-60 px-4 py-2 font-sm border rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
+            required>
+            <option value="" disabled selected>Select a member</option>
+            {% for member in members %}
+            <option value="{{ member.netid }}" data-firstname="{{ member.first_name }}"
+              data-lastname="{{ member.last_name }}">
+              {{ member.first_name }} {{ member.last_name }}
+            </option>
+            {% endfor %}
+          </select>
+          <button type="submit"
+            class="ml-2 px-4 py-2 bg-indigo-500 text-white border-2 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 rounded-md"
+            id="viewAvailabilityBtn">
+            View Availability
+          </button>
+        </form>
+      </div>
+
+      {% if selected_member %}
+      <div class="mt-4 text-lg font-bold dark:text-neutral-200">
+        <p>
+          Weekly Conflicts for {{ selected_member.first_name }} {{
+          selected_member.last_name }}:
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="flex justify-between items-center mt-6">
+        <table class="w-screen text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400">
+          <tbody>
+            {% set days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+            {% for day in days %}
+            <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
+              <th
+                class="px-6 py-4 bg-neutral-50 uppercase text-sm text-neutral-700 w-20 dark:bg-neutral-700 dark:text-neutral-400">
+                {{ day }}
+              </th>
+              <td class="px-6 py-4">
+                {% if weekly_conflicts and weekly_conflicts[day] %}
+                {{ '; '.join(weekly_conflicts[day]) }}
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+
+      {% if selected_member %}
+      <div class="mt-8 text-lg font-bold dark:text-neutral-200">
+        <p>
+          One-Time Conflicts for {{ selected_member.first_name }} {{
+          selected_member.last_name }}:
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="flex justify-between items-center mt-6">
+        <table class="w-full text-sm text-left rtl:text-right text-neutral-500 dark:text-neutral-400">
+          <thead class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400">
+            <tr>
+              <th scope="col" class="px-6 py-3">Conflict</th>
+              <th scope="col" class="px-6 py-3">
+                Explanation and Notes (Optional)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
+              <td class="px-6 py-4">
+                {% if one_time_conflicts %}
+                {{ '; '.join(one_time_conflicts) }}
+                {% endif %}
+              </td>
+              <td class="px-6 py-4">
+                {% if conflict_notes %}
+                {{ conflict_notes }}
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="hidden sm:block mt-auto size-full sticky-bottom">
+    {% include 'footer.html' %}
+  </footer>
+</body>
+
 </html>

@@ -9,12 +9,12 @@
 </button>
 
 <aside id="logo-sidebar"
-   class="fixed p-4 w-1/5 h-screen transition-transform -translate-x-full sm:translate-x-0"
+   class="hidden sm:block size-full transition-transform -translate-x-full sm:translate-x-0 bg-neutral-50 min-h-screen dark:bg-neutral-800"
    aria-label="Sidebar">
-   <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+   <div class="hidden sm:block size-full px-10 py-8 overflow-y-auto">
       <!-- Logo Section -->
       <a href="{{ url_for('home') }}" class="flex items-center space-x-2 p-1 mb-6">
-         <img class="h-auto w-1/6" src="/static/img/Logo.png" alt="Logo" />
+         <img class="size-1/5" src="/static/img/Logo.png" alt="Logo" />
          <span class="text-2xl self-center whitespace-nowrap font-bold text-neutral-950 dark:text-neutral-200 ml-2">StageSync</span>
       </a>
 

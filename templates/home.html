@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Boxicons -->
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
     <!-- FullCalendar Styles and Scripts -->
     <script
@@ -23,16 +20,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     
     <!-- Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/custom.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/tailwind.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}" />
 
-  
     <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
 
     <!-- Set Title of Page -->
@@ -40,15 +30,15 @@
   </head>
 
   <body class="flex flex-col min-h-screen font-sans bg-white">
-    <div class="flex flex-grow">
+    <main class="flex flex-grow bg-white dark:bg-neutral-900">
       <!-- Sidebar Section -->
-      <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
+      <div id="sidebar-container" class="size-fit sm:w-1/5 sm:h-auto">
         {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
         include 'sidebar.html' %} {% endif %}
       </div>
 
       <!-- Main Content Section -->
-      <main class="w-4/5 py-8 px-10 bg-white flex flex-col flex-grow dark:bg-neutral-900">
+      <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
         <div class="flex justify-between items-center">
           <p id="subtitle" class="text-lg font-bold text-indigo-500">HOME</p>
         </div>
@@ -63,11 +53,11 @@
             <div id="calendar" class="pt-4 h-5/6"></div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
 
     <!-- Footer Section -->
-    <footer class="bg-neutral-900">
+    <footer class="hidden sm:block mt-auto size-full sticky-bottom">
       {% include 'footer.html' %}
     </footer>
 
