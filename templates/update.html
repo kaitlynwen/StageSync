@@ -27,15 +27,15 @@
 </head>
 
 <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
-  <div class="flex flex-grow">
+  <main class="flex flex-grow bg-white dark:bg-neutral-900">
     <!-- Sidebar Section -->
-    <div id="sidebar-container" class="w-1/5 bg-neutral-50 min-h-screen p-3 dark:bg-neutral-800">
-      {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {% include 'sidebar.html' %} {% endif %}
+    <div id="sidebar-container" class="size-fit sm:w-1/5 sm:h-auto">
+      {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
+      include 'sidebar.html' %} {% endif %}
     </div>
 
     <!-- Main Content Section -->
-    <main class="w-4/5 py-6 px-10 flex flex-col flex-grow">
-
+    <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
       <div class="flex justify-between items-center mt-2">
         <p class="text-3xl font-bold dark:text-neutral-200">Update Availability</p>
       </div>
@@ -181,13 +181,14 @@
           </button>
         </div>
       </form>
+      </div>
     </main>
-  </div>
 
   <!-- Footer Section -->
-  <footer class="bg-neutral-900 sticky-bottom">
+  <footer class="hidden sm:block mt-auto size-full sticky-bottom">
     {% include 'footer.html' %}
   </footer>
+
 
   <!-- JavaScript for Tabs and Validation -->
   <script src="{{ url_for('static', filename='js/update-avail.js') }}"></script>
