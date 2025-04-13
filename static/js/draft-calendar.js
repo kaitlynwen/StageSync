@@ -56,9 +56,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const updatedEvent = {
         id: info.event.id,
         title: info.event.title,
-        // Convert to UTC format (this is done by toISOString())
-        start: info.event.start.toISOString(),
-        end: info.event.end.toISOString(),
+        start: info.event.start,
+        end: info.event.end,
         location: info.event.extendedProps.location
       };
 

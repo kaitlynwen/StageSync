@@ -385,13 +385,6 @@ def update_event():
     if not all([event_id, start, end]):
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Convert start and end times to UTC (assuming the times from the frontend are in local time)
-    local_timezone = ZoneInfo("America/New_York")  # Using zoneinfo to define the local timezone (Eastern Time)
-    
-    # Parse the datetime and localize to the local time zone
-    start = datetime.fromisoformat(start).replace(tzinfo=local_timezone).astimezone(ZoneInfo("UTC"))
-    end = datetime.fromisoformat(end).replace(tzinfo=local_timezone).astimezone(ZoneInfo("UTC"))
-
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
