@@ -85,7 +85,7 @@
                 Yes, I'm sure
               </button>
               <button data-modal-hide="discard-modal" type="button"
-                class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-neutral-700">
+                class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-indigo-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-neutral-700">
                 No, cancel</button>
             </div>
           </div>
@@ -116,12 +116,83 @@
                 Yes, publish it
               </button>
               <button data-modal-hide="publish-modal" type="button"
-                class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-neutral-700">
+                class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-indigo-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-neutral-700">
                 No, cancel</button>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Add Event Modal -->
+      <div id="event-modal" tabindex="-1" aria-hidden="true"
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-2xl max-h-full">
+          <div class="relative bg-white rounded-lg shadow-sm dark:bg-neutral-700">
+            <!-- Modal Header -->
+            <div
+              class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+              <h3 class="text-lg font-semibold text-neutral-900 dark:text-white">Add New Event</h3>
+              <button type="button"
+                class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+                data-modal-toggle="event-modal">
+                <i class="bx bx-x bx-sm"></i>
+              </button>
+            </div>
+
+            <!-- Modal Body -->
+            <form id="event-form" class="p-4 md:p-5">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label for="event-title"
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Title</label>
+                  <input type="text" id="event-title" required
+                    class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white" />
+                </div>
+                <div>
+                  <label for="location" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    Location
+                  </label>
+                  <input type="dtext" id="location"
+                    class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300" required>
+                </div>
+                <div>
+                  <label for="start-time" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    Start Time (EST)
+                  </label>
+                  <input type="datetime-local" id="start-time"
+                    class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300" required>
+                </div>
+                <div>
+                  <label for="end-time" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    End Time (EST)
+                  </label>
+                  <input type="datetime-local" id="end-time"
+                    class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300" required>
+                </div>
+                <div>
+                  <label for="group" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    Group
+                  </label>
+                  <select id="group" name="selected_netid"
+                    class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300 dark:bg-neutral-800 dark:text-white">
+                    <option value="" disabled selected>Select a group</option>
+                    {% for groupid, group_name in group_names.items() %}
+                    <option value="{{ groupid }}" data="{{ group_name }}">
+                      {{ group_name }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <button type="submit"
+                class="text-white bg-indigo-500 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">
+                Add Event
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Calendar -->
       <div class="flex justify-center mt-4 flex-grow">

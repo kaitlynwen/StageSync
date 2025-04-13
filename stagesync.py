@@ -357,6 +357,8 @@ def generate():
     if not user_info.get("is_admin", False):
         return redirect(url_for("home"))
 
+    group_names = get_group_names()
+
     if request.method == "POST":
         # Generate the schedule
         schedule = assign_rehearsals()
@@ -365,7 +367,7 @@ def generate():
         # Redirect to avoid re-executing POST request on refresh
         return redirect(url_for("generate"))
 
-    return render_template("generate.html")
+    return render_template("generate.html", group_names=group_names)
 
 
 @app.route("/update-event", methods=["POST"])
@@ -914,22 +916,37 @@ def publish_draft():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Updates events table with info from draft_schedule
-                cur.execute(
-                    """
+                # Step 1: Update events in the `events` table where publish_id is not NULL
+                cur.execute("""
                     UPDATE events
                     SET 
                         title = draft_schedule.title,
                         start = draft_schedule.start,
                         "end" = draft_schedule.end,
-                        groupid = draft_schedule.groupid,
-                        created_at = draft_schedule.created_at,
-                        location = draft_schedule.location
+                        location = draft_schedule.location,
+                        groupid = draft_schedule.group_id,
+                        created_at = draft_schedule.created_at
                     FROM draft_schedule
-                    WHERE 
-                        events.id = draft_schedule.publish_id;
-                """
-                )
+                    WHERE events.id = draft_schedule.publish_id;
+                """)
+
+                # Step 2: Insert new events from the `draft_schedule` table where publish_id is NULL
+                cur.execute("""
+                    INSERT INTO events (title, location, start, "end", groupid, created_at)
+                    SELECT title, location, start, "end", group_id, NOW()
+                    FROM draft_schedule
+                    WHERE publish_id IS NULL
+                    RETURNING id, title, location, start, "end", groupid;
+                """)
+
+                # Fetch the newly inserted events
+                new_events = cur.fetchall()
+
+                # Step 3: After inserting new events, delete the entries in draft_schedule where publish_id is NULL
+                cur.execute("""
+                    DELETE FROM draft_schedule
+                    WHERE publish_id IS NULL;
+                """)
 
                 # Commit the transaction
                 conn.commit()
@@ -939,6 +956,68 @@ def publish_draft():
     except Exception as e:
         print(f"Error publishing schedule: {e}")
         return jsonify({"error": f"Error publishing schedule: {str(e)}"}), 500
+
+    
+@app.route("/add-event", methods=["POST"])
+def add_event():
+    user_info = get_user_info()
+    if not user_info.get("is_admin", False):
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.get_json()
+
+    # Retrieve the event data from the request
+    title = data.get("title")
+    location = data.get("location")
+    start = data.get("start")
+    end = data.get("end")
+    group_id = data.get("group_id")
+    
+    if group_id == '':
+        group_id = None
+
+    # Validate required fields
+    if not all([title, location, start, end]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        print(title, location, start, end, group_id)
+        # Parse the start and end times from the request (assuming ISO format)
+        start = datetime.fromisoformat(start)
+        end = datetime.fromisoformat(end)
+    except ValueError:
+        return jsonify({"error": "Invalid datetime format"}), 400
+
+    # Insert the new event into the draft_schedule table (not the events table yet)
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                insert_query = """
+                    INSERT INTO draft_schedule (title, location, start, "end", groupid, publish_id)
+                    VALUES (%s, %s, %s, %s, %s, NULL)
+                    RETURNING id, title, location, start, "end", groupid, publish_id;
+                """
+                cur.execute(insert_query, (title, location, start, end, group_id))
+                event = cur.fetchone()
+                conn.commit()
+
+        # Return the added event as a response
+        event_response = {
+            "id": event[0],
+            "title": event[1],
+            "location": event[2],
+            "start": event[3].isoformat(),
+            "end": event[4].isoformat(),
+            "group_id": event[5],
+            "publish_id": event[6]  # This will be NULL initially
+        }
+
+        return jsonify({"message": "Event added successfully", "event": event_response}), 201
+
+    except Exception as e:
+        print("Error adding event:", str(e))
+        return jsonify({"error": "Failed to add event"}), 500
+
 
 
 @app.route("/download-calendar", methods=["GET"])

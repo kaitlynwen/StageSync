@@ -180,6 +180,36 @@ def get_groups():
 # ----------------------------------------------------------------------
 
 
+def get_group_names():
+    """Fetch all group names."""
+    groups = {}
+
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT 
+                            rehearsal_groups.title AS group_name, 
+                            rehearsal_groups.groupid
+                        FROM rehearsal_groups
+                        ORDER BY rehearsal_groups.title;
+                    """
+                )
+                for (
+                    group_name,
+                    group_id,
+                ) in cur.fetchall():
+                    if group_id not in groups:
+                        groups[group_id] = group_name
+    except Exception as ex:
+        print("Database error:", ex)
+
+    return groups
+
+
+# ----------------------------------------------------------------------
+
+
 # Delete existing time conflicts from database
 def delete_conflict(netid):
     with psycopg2.connect(DATABASE_URL) as conn:
