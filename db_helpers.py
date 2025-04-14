@@ -408,7 +408,7 @@ def get_reminder_emails():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT user_netid FROM user_settings
-                    WHERE receive_reminders = TRUE
+                    WHERE receive_activity_updates = TRUE
                 """)
                 rows = cur.fetchall()
                 return [f"{netid}@princeton.edu" for (netid,) in rows]
