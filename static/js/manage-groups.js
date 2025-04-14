@@ -38,14 +38,17 @@ edit.forEach(function (edit) {
 
     // Update modal content dynamically
     modalContent.innerHTML = `
-      <span class="close">&times;</span>
-      <h2 class="text-lg font-bold text-indigo-500 py-4">Change Group Name:</h2>
-      <input type="text" id="group-title" value="${groupName}" />
+    <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-600">
+      <h2 class="text-lg font-bold text-indigo-500">Change Group Name:</h2>
+      <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl close">&times;</button>
+    </div>
+    <div class="p-4 space-y-4">
+      <input type="text" id="group-title" value="${groupName}" class="w-full px-3 py-2 border rounded-md" />
       <div class="flex justify-between items-start">
         <div class="w-1/2">
           <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Remove Existing Members:</h2>
           <div id="remove-members"></div>
-      </div>
+        </div>
 
         <div class="w-1/2">
           <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Add New Members:</h2>
@@ -58,6 +61,7 @@ edit.forEach(function (edit) {
           Save
         </button>
       </div>
+    </div>
     `;
 
     let removeMembersHtml = '';
@@ -122,8 +126,10 @@ edit.forEach(function (edit) {
       fetch("/update-group-info", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupId, groupName, newGroupName, 
-          remove: netidsToRemove, add: netidsToAdd }),
+        body: JSON.stringify({
+          groupId, groupName, newGroupName,
+          remove: netidsToRemove, add: netidsToAdd
+        }),
       })
         .then(response => response.json()) // Convert response to JSON
         .then(data => {
@@ -141,7 +147,7 @@ edit.forEach(function (edit) {
         });
     });
     // Show the modal
-    editModal.style.display = "block";
+    editModal.style.display = "flex";
   });
 });
 
@@ -187,13 +193,13 @@ document.getElementById("create-group").addEventListener("click", function () {
 var deleteModal = document.getElementById("delete-modal");
 
 // Add click event listener to all "Delete" buttons
-document.querySelectorAll(".dropdown-delete").forEach(function(deleteButton) {
-  deleteButton.addEventListener("click", function() {
+document.querySelectorAll(".dropdown-delete").forEach(function (deleteButton) {
+  deleteButton.addEventListener("click", function () {
     // Close the dropdown menu
     const dropdownMenu = deleteButton.closest(".relative").querySelector("[id^='dropdownMenu']");
     if (dropdownMenu) dropdownMenu.classList.add("hidden");
 
-    const groupId = this.dataset.groupId; 
+    const groupId = this.dataset.groupId;
 
     deleteModal.querySelector("button[data-modal-hide='delete-modal']").dataset.groupId = groupId;
 
@@ -201,9 +207,9 @@ document.querySelectorAll(".dropdown-delete").forEach(function(deleteButton) {
   });
 });
 
-deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventListener("click", function() {
+deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventListener("click", function () {
   const groupId = this.dataset.groupId;
-  
+
   fetch("/delete-group", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -213,7 +219,7 @@ deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventList
     .then(data => {
       if (data.success) {
         alert("Group successfully deleted");
-        deleteModal.classList.add("hidden"); 
+        deleteModal.classList.add("hidden");
         location.reload();
       } else {
         alert("An error occurred: " + data.message);
@@ -227,7 +233,7 @@ deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventList
 });
 
 // Close modal when user clicks outside of it
-window.onclick = function(event) {
+window.onclick = function (event) {
   if (event.target == deleteModal) {
     deleteModal.classList.add("hidden");  // Hide the modal when clicked outside
   }

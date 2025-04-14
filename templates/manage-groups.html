@@ -116,10 +116,11 @@
           </div>
           <!-- The Modal: https://www.w3schools.com/howto/howto_css_modals.asp -->
           <!--Edit Modal -->
-          <div id="edit-group-modal" class="modal">
-            <!-- Modal content -->
-            <div class="modal-content">
-              <span class="close">&times;</span>
+          <div id="edit-group-modal" tabindex="-1" aria-hidden="true"
+            class="hidden fixed inset-0 z-50 flex justify-center items-center w-full h-full">
+            <div class="relative p-4 w-full max-w-xl max-h-full">
+              <div class="modal-content bg-white rounded-lg shadow dark:bg-neutral-800">
+              </div>
             </div>
           </div>
 
@@ -128,7 +129,7 @@
           <div id="create-modal" tabindex="-1" aria-hidden="true"
             class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
             <div class="relative p-4 w-full max-w-md max-h-full">
-              <div class="modal-content">
+              <div class="modal-content bg-white rounded-lg shadow dark:bg-neutral-800">
                 <div
                   class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600 border-gray-200">
                   <h2 class="text-lg font-bold text-indigo-500">
