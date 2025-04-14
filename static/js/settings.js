@@ -20,28 +20,35 @@ function showTab(tab) {
   
   document.addEventListener("DOMContentLoaded", () => {
     const themeToggle = document.getElementById("theme-toggle");
-    const body = document.body;
+    const html = document.documentElement;
   
-    // --- Apply theme based on localStorage or system preference ---
     const savedTheme = localStorage.getItem("theme");
+    console.log("Dark mode script loaded 1")
   
     if (savedTheme === "dark") {
-      body.classList.add("dark");
+      html.classList.add("dark");
       if (themeToggle) themeToggle.checked = true;
-    } else if (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      body.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      if (themeToggle) themeToggle.checked = true;
+    } else if (savedTheme === "light") {
+      html.classList.remove("dark");
+      if (themeToggle) themeToggle.checked = false;
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefersDark) {
+        html.classList.add("dark");
+        if (themeToggle) themeToggle.checked = true;
+      } else {
+        html.classList.remove("dark");
+        if (themeToggle) themeToggle.checked = false;
+      }
     }
   
-    // --- Listen for toggle changes ---
     if (themeToggle) {
       themeToggle.addEventListener("change", () => {
         if (themeToggle.checked) {
-          body.classList.add("dark");
+          html.classList.add("dark");
           localStorage.setItem("theme", "dark");
         } else {
-          body.classList.remove("dark");
+          html.classList.remove("dark");
           localStorage.setItem("theme", "light");
         }
       });

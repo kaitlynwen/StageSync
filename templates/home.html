@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!--Dark mode toggle-->
+    <script>
+      (function() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const html = document.documentElement;
+    
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+          html.classList.add('dark');
+        } else {
+          html.classList.remove('dark');
+        }
+      })();
+    </script>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -30,6 +45,13 @@
   </head>
 
   <body class="flex flex-col min-h-screen font-sans bg-white">
+    <div class="p-4 text-xl bg-white text-black dark:bg-black dark:text-white">
+      Dark Mode Test Block
+    </div>
+    <div class="bg-gray-700 dark:bg-gray-800">
+      This should have a gray background in light mode and darker gray in dark mode.
+    </div>
+    
     <main class="flex flex-grow bg-white dark:bg-neutral-900">
       <!-- Sidebar Section -->
       <div id="sidebar-container" class="size-fit sm:w-1/5 sm:h-auto">
