@@ -269,8 +269,9 @@ def update():
         # Get updated conflicts (converted to UTC for saving)
         weekly_conflicts = get_weekly_conflict(user_netid)
         one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
-
         success_message = "Availability successfully updated!"
+        notify_admins_user_updated(user_netid)
+
 
         return render_template(
             "update.html",
