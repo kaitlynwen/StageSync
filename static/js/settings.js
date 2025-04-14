@@ -23,7 +23,6 @@ function showTab(tab) {
     const html = document.documentElement;
   
     const savedTheme = localStorage.getItem("theme");
-    console.log("Dark mode script loaded 1")
   
     if (savedTheme === "dark") {
       html.classList.add("dark");
