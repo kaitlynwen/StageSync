@@ -14,6 +14,8 @@ from flask import jsonify, request
 import auth
 import psycopg2
 import dotenv
+from email.message import EmailMessage
+import smtplib
 
 from datetime_helpers import *
 
@@ -398,8 +400,48 @@ def save_user_settings(netid, activity, reminders):
         print(f"Error saving settings: {e}")
 
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------
 
+def get_reminder_emails():
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT user_netid FROM user_settings
+                    WHERE receive_reminders = TRUE
+                """)
+                rows = cur.fetchall()
+                return [f"{netid}@princeton.edu" for (netid,) in rows]
+    except Exception as e:
+        print(f"Error fetching reminder emails: {e}")
+        return []
+
+
+# ------------------------------------------------------------
+
+def send_schedule_update_email():
+    recipients = get_reminder_emails()
+    if not recipients:
+        print("No recipients for schedule update email.")
+        return
+
+    msg = EmailMessage()
+    msg["Subject"] = "Schedule Updated"
+    msg["From"] = "stagesync@gmail.com"
+    msg["To"] = ", ".join(recipients)
+    msg.set_content("The rehearsal schedule has been updated.")
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(os.getenv("SMTP_USER"), os.getenv("SMTP_PASS"))
+            server.send_message(msg)
+        print("Schedule update email sent.")
+    except Exception as e:
+        print(f"Error sending schedule email: {e}")
+
+
+# ------------------------------------------------------------
 
 def add_admin(netid):
     if not netid:

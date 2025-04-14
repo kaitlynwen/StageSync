@@ -389,6 +389,7 @@ def generate():
         # Generate the schedule
         schedule = assign_rehearsals()
         update_events_table(schedule)
+        send_schedule_update_email()
 
         # Redirect to avoid re-executing POST request on refresh
         return redirect(url_for("generate"))
