@@ -443,6 +443,37 @@ def send_schedule_update_email():
 
 # ------------------------------------------------------------
 
+def notify_admins_user_updated(netid):
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT email FROM users
+                    WHERE is_admin = TRUE
+                """)
+                rows = cur.fetchall()
+                emails = [email for (email,) in rows]
+
+        if not emails:
+            return
+
+        msg = EmailMessage()
+        msg["Subject"] = f"{netid} Updated Availability"
+        msg["From"] = os.getenv("SMTP_USER")
+        msg["To"] = ", ".join(emails)
+        msg.set_content(f"User {netid} has just updated their availability on StageSync.")
+
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(os.getenv("SMTP_USER"), os.getenv("SMTP_PASS"))
+            server.send_message(msg)
+
+        print("Admin update notification sent.")
+    except Exception as e:
+        print(f"Failed to notify admins: {e}")
+
+# ------------------------------------------------------------
+
 def add_admin(netid):
     if not netid:
         return jsonify({"success": False, "message": "NetID is required"}), 400
