@@ -25,6 +25,7 @@ import parsedata
 from zoneinfo import ZoneInfo
 import psycopg2
 from psycopg2.extras import execute_values
+from markupsafe import escape
 
 
 from top import app
@@ -178,18 +179,19 @@ def update():
 
         delete_conflict(user_netid)
 
+        # Access and sanitize
         weekly_conflicts = {
-            "Monday": request.form["monday_conflicts"],
-            "Tuesday": request.form["tuesday_conflicts"],
-            "Wednesday": request.form["wednesday_conflicts"],
-            "Thursday": request.form["thursday_conflicts"],
-            "Friday": request.form["friday_conflicts"],
-            "Saturday": request.form["saturday_conflicts"],
-            "Sunday": request.form["sunday_conflicts"],
+            "Monday": escape(request.form["monday_conflicts"]),
+            "Tuesday": escape(request.form["tuesday_conflicts"]),
+            "Wednesday": escape(request.form["wednesday_conflicts"]),
+            "Thursday": escape(request.form["thursday_conflicts"]),
+            "Friday": escape(request.form["friday_conflicts"]),
+            "Saturday": escape(request.form["saturday_conflicts"]),
+            "Sunday": escape(request.form["sunday_conflicts"]),
         }
 
-        one_time_conflicts = request.form["one_time_conflict"]
-        conflict_notes = request.form["conflict_notes"]
+        one_time_conflicts = escape(request.form["one_time_conflict"])
+        conflict_notes = escape(request.form["conflict_notes"])
 
         # Parse and insert weekly conflicts, convert times to UTC before saving
         for day, conflicts in weekly_conflicts.items():
