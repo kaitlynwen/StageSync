@@ -4,6 +4,8 @@ import psycopg2
 import os
 from zoneinfo import ZoneInfo
 
+from datetime_helpers import convert_from_utc
+
 # ----------------------------------------------------------------------
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -295,7 +297,7 @@ def assign_rehearsals():
                 selected_slot = None
                 for slot in available_slots:
                     start, end, location = slot
-                    slot_day = start.date()  # Get the date of the rehearsal slot
+                    slot_day = convert_from_utc(start).date()  # Get the date of the rehearsal slot
                     
                     # Check if the group already has a rehearsal scheduled on this day
                     conflict_found = False
@@ -306,7 +308,7 @@ def assign_rehearsals():
                             conflict_start = add_utc_zone(conflict_start)
                             conflict_end = add_utc_zone(conflict_end)
 
-                            if not is_recurring and (slot_day == conflict_start.date()):
+                            if not is_recurring and (slot_day == convert_from_utc(conflict_start).date()):
                                 # One-time conflict
                                 if is_conflicting(conflict_start, conflict_end, {"start": start, "end": end}):
                                     conflict_found = True

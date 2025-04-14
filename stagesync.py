@@ -6,7 +6,16 @@
 # ----------------------------------------------------------------------
 
 from io import BytesIO
-from flask import json, render_template, redirect, send_file, url_for, request, jsonify, flash
+from flask import (
+    json,
+    render_template,
+    redirect,
+    send_file,
+    url_for,
+    request,
+    jsonify,
+    flash,
+)
 from datetime import datetime
 from ics import Calendar, Event
 from req_lib import ReqLib
@@ -61,6 +70,7 @@ def allowed_file(filename):
 
 # ----------------------------------------------------------------------
 
+
 # Use OIT's Active Directory API to obtain basic user information
 def active_directory_user(netid):
     req_lib = ReqLib()
@@ -74,21 +84,24 @@ def active_directory_user(netid):
         print("NetID does not exist")
         return None, None, None
     else:
-        name=req[0]['displayname'].split()
-        email=req[0]['mail']
-        first_name=name[0]
-        last_name=name[-1]
+        name = req[0]["displayname"].split()
+        email = req[0]["mail"]
+        first_name = name[0]
+        last_name = name[-1]
         return first_name, last_name, email
 
+
 # --------------------------------------------------------------------
+
 
 # Force HTTPS request
 @app.before_request
 def before_request():
     if (not app.debug) and (not request.is_secure):
-        url = request.url.replace('http://', 'https://', 1)
+        url = request.url.replace("http://", "https://", 1)
         return redirect(url, code=301)
     return None
+
 
 # Routes
 @app.route("/", methods=["GET"])
@@ -108,13 +121,14 @@ def settings():
     settings = get_user_settings(user_netid)
     return render_template("settings.html", user=user_info, settings=settings)
 
-@app.route('/update-settings', methods=['POST'])
+
+@app.route("/update-settings", methods=["POST"])
 def update_settings():
     user_info = get_user_info()
     user_netid = user_info["user"]
-    selected = request.form.getlist('notifications')
-    activity = 'activity' in selected
-    reminders = 'reminders' in selected
+    selected = request.form.getlist("notifications")
+    activity = "activity" in selected
+    reminders = "reminders" in selected
     save_user_settings(user_netid, activity, reminders)
     return redirect(url_for("settings"))
 
@@ -132,7 +146,7 @@ def update():
         # Convert the weekly conflicts times from UTC to EST for display
         for day, conflicts in weekly_conflicts.items():
             for idx, conflict in enumerate(conflicts):
-                
+
                 start_time, end_time = conflict.split("-")
                 start_time = start_time.strip()
                 end_time = end_time.strip()
@@ -146,20 +160,22 @@ def update():
                     continue
 
                 # Update the conflict with the converted time (in EST)
-                conflicts[idx] = f"{start_time_dt.strftime('%I:%M%p')}-{end_time_dt.strftime('%I:%M%p')}"
+                conflicts[idx] = (
+                    f"{start_time_dt.strftime('%I:%M%p')}-{end_time_dt.strftime('%I:%M%p')}"
+                )
 
         return render_template(
             "update.html",
             user=user_info,
             weekly_conflicts=weekly_conflicts,
             one_time_conflicts=one_time_conflicts,
-            conflict_notes=conflict_notes
+            conflict_notes=conflict_notes,
         )
 
     else:
         user_info = get_user_info()
         user_netid = user_info["user"]
-        
+
         delete_conflict(user_netid)
 
         weekly_conflicts = {
@@ -171,7 +187,7 @@ def update():
             "Saturday": request.form["saturday_conflicts"],
             "Sunday": request.form["sunday_conflicts"],
         }
-        
+
         one_time_conflicts = request.form["one_time_conflict"]
         conflict_notes = request.form["conflict_notes"]
 
@@ -187,22 +203,24 @@ def update():
                         # Convert to naive datetime objects first
                         start_time_est = datetime.strptime(start_time, "%I:%M%p")
                         end_time_est = datetime.strptime(end_time, "%I:%M%p")
-                        
+
                         # Localize to EST (Eastern Standard Time)
                         est = ZoneInfo("US/Eastern")
                         start_time_est = start_time_est.replace(tzinfo=est)
                         end_time_est = end_time_est.replace(tzinfo=est)
-                        
+
                     except ValueError as e:
                         print(f"Error parsing time: {e}")
                         continue
-                    
+
                     # Convert to UTC before saving
                     start_time_utc = convert_to_utc(start_time_est)
                     end_time_utc = convert_to_utc(end_time_est)
 
                     # Store the conflicts in UTC
-                    insert_weekly_conflict(user_netid, day, start_time_utc, end_time_utc)
+                    insert_weekly_conflict(
+                        user_netid, day, start_time_utc, end_time_utc
+                    )
 
         # Handle one-time conflicts (same logic as above)
         if one_time_conflicts:
@@ -214,7 +232,9 @@ def update():
 
                 # Parse the date and convert to datetime
                 try:
-                    date = datetime.strptime(date_str, "%m/%d").replace(year=datetime.now().year)
+                    date = datetime.strptime(date_str, "%m/%d").replace(
+                        year=datetime.now().year
+                    )
                     day = date.strftime("%A")
                 except ValueError as e:
                     print(f"Error parsing date: {e}")
@@ -228,12 +248,12 @@ def update():
                 try:
                     start_time_est = datetime.strptime(start_time, "%I:%M%p")
                     end_time_est = datetime.strptime(end_time, "%I:%M%p")
-                    
+
                     # Localize to EST (Eastern Standard Time)
                     est = ZoneInfo("US/Eastern")
                     start_time_est = start_time_est.replace(tzinfo=est)
                     end_time_est = end_time_est.replace(tzinfo=est)
-                
+
                 except ValueError as e:
                     print(f"Error parsing time: {e}")
                     continue
@@ -241,15 +261,17 @@ def update():
                 # Convert to UTC before saving
                 start_time_utc = convert_to_utc(start_time_est)
                 end_time_utc = convert_to_utc(end_time_est)
-                
-                insert_one_time_conflict(user_netid, date, day, start_time_utc, end_time_utc, conflict_notes)
+
+                insert_one_time_conflict(
+                    user_netid, date, day, start_time_utc, end_time_utc, conflict_notes
+                )
 
         # Get updated conflicts (converted to UTC for saving)
         weekly_conflicts = get_weekly_conflict(user_netid)
         one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
 
         success_message = "Availability successfully updated!"
-        
+
         return render_template(
             "update.html",
             user=user_info,
@@ -289,7 +311,9 @@ def upload():
 
             # Extract events and capture warnings
             try:
-                _, calendar_events, warnings = parsedata.extract_schedule(file, filename, group_name)
+                _, calendar_events, warnings = parsedata.extract_schedule(
+                    file, filename, group_name
+                )
 
                 # Flash any warnings captured from parsing
                 for warning in warnings:
@@ -332,7 +356,9 @@ def upload():
                                     end_time_utc,  # Store UTC end time
                                     event["location"],
                                     event["groupid"],
-                                    datetime.now(ZoneInfo("UTC")),  # Store UTC time for created_at
+                                    datetime.now(
+                                        ZoneInfo("UTC")
+                                    ),  # Store UTC time for created_at
                                 ),
                             )
 
@@ -406,7 +432,7 @@ def update_event():
     except Exception as e:
         print("Error updating event:", str(e))
         return jsonify({"error": "Failed to update event"}), 500
-    
+
 
 @app.route("/published-schedule", methods=["GET"])
 def publish():
@@ -464,17 +490,19 @@ def manage_users():
             if status_code == 200 and result.get("success"):
                 flash("Admin added successfully!", "success")
             else:
-                message = result.get("message") or result.get("error") or "Something went wrong."
+                message = (
+                    result.get("message")
+                    or result.get("error")
+                    or "Something went wrong."
+                )
                 flash(message, "error")
 
             return redirect(url_for("manage_users"))
 
     return render_template(
-        "manage-admins.html",
-        user=user_info,
-        members=members,
-        admins=admin_info
+        "manage-admins.html", user=user_info, members=members, admins=admin_info
     )
+
 
 @app.route("/manage-groups", methods=["GET"])
 def manage_groups():
@@ -482,7 +510,9 @@ def manage_groups():
     group_info = get_groups()
     members = get_all_users()
     if user_info.get("is_admin", True):
-        return render_template("manage-groups.html", user=user_info, groups=group_info, allMembers=members)
+        return render_template(
+            "manage-groups.html", user=user_info, groups=group_info, allMembers=members
+        )
     else:
         return redirect(url_for("home"))
 
@@ -495,7 +525,7 @@ def update_group_name():
     new_group_name = data.get("newGroupName")
     remove = data.get("remove", [])
     add = data.get("add", [])
-    
+
     try:
         if not group_name or not new_group_name:
             return (
@@ -548,7 +578,7 @@ def update_group_name():
 def create_group():
     data = request.get_json()
     group_name = data.get("groupName")
-    
+
     try:
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -576,7 +606,7 @@ def create_group():
 def delete_group():
     data = request.get_json()
     group_id = data.get("groupId")
-    
+
     try:
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
@@ -667,7 +697,9 @@ def authorize_members():
     user_info = get_user_info()
     all_members = get_all_users()
     if user_info.get("is_admin", True):
-        return render_template("authorize.html", user=user_info, old_members=all_members)
+        return render_template(
+            "authorize.html", user=user_info, old_members=all_members
+        )
     else:
         return redirect(url_for("home"))
 
@@ -684,8 +716,8 @@ def authorize():
                 jsonify({"success": False, "message": "NetID is required"}),
                 400,
             )  # Return error with status code 400
-        
-        first_name, last_name, email=active_directory_user(netid)
+
+        first_name, last_name, email = active_directory_user(netid)
         # print("First name: ", first_name)
         # print("Last name: ", last_name)
         # print("email: ", email)
@@ -719,7 +751,7 @@ def authorize():
             500,
         )  # Return error with status code 500
 
-    
+
 @app.route("/unauthorize", methods=["POST"])
 def unauthorize():
     try:
@@ -828,19 +860,23 @@ def events():
         print(f"Error fetching events from PostgreSQL: {e}")
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
 
+
 # ----------------------------------------------------------------------
+
 
 @app.route("/draft-schedule")
 def draft():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                cur.execute("""
+                cur.execute(
+                    """
                     SELECT d.publish_id, d.title, d.start, d."end", r.name
                     FROM draft_schedule d
                     LEFT JOIN rehearsal_spaces r ON d.location = r.name
                     ORDER BY d.start ASC
-                """)
+                """
+                )
                 events = cur.fetchall()
 
         # Convert the events to a list of dictionaries
@@ -882,7 +918,9 @@ def draft():
         print(f"Error fetching events from PostgreSQL: {e}")
         return jsonify({"error": f"Error fetching events: {str(e)}"}), 500
 
+
 # ----------------------------------------------------------------------
+
 
 @app.route("/restore-draft-schedule", methods=["POST"])
 def restore_draft_schedule():
@@ -917,7 +955,8 @@ def publish_draft():
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 # Step 1: Update events in the `events` table where publish_id is not NULL
-                cur.execute("""
+                cur.execute(
+                    """
                     UPDATE events
                     SET 
                         title = draft_schedule.title,
@@ -928,25 +967,34 @@ def publish_draft():
                         created_at = draft_schedule.created_at
                     FROM draft_schedule
                     WHERE events.id = draft_schedule.publish_id;
-                """)
+                """
+                )
+                
+                # Get the last published event ID
+                cur.execute("SELECT MAX(id) FROM events")
+                last_id = cur.fetchone()[0] or 0
 
-                # Step 2: Insert new events from the `draft_schedule` table where publish_id is NULL
-                cur.execute("""
+                # Step 2: Insert new events from the `draft_schedule` table
+                cur.execute(
+                    """
                     INSERT INTO events (title, location, start, "end", groupid, created_at)
                     SELECT title, location, start, "end", group_id, NOW()
                     FROM draft_schedule
-                    WHERE publish_id IS NULL
+                    WHERE publish_id > %s
                     RETURNING id, title, location, start, "end", groupid;
-                """)
+                """
+                , (last_id,))
 
                 # Fetch the newly inserted events
                 new_events = cur.fetchall()
 
                 # Step 3: After inserting new events, delete the entries in draft_schedule where publish_id is NULL
-                cur.execute("""
+                cur.execute(
+                    """
                     DELETE FROM draft_schedule
                     WHERE publish_id IS NULL;
-                """)
+                """
+                )
 
                 # Commit the transaction
                 conn.commit()
@@ -957,13 +1005,13 @@ def publish_draft():
         print(f"Error publishing schedule: {e}")
         return jsonify({"error": f"Error publishing schedule: {str(e)}"}), 500
 
-    
+
 @app.route("/add-event", methods=["POST"])
 def add_event():
     user_info = get_user_info()
     if not user_info.get("is_admin", False):
         return jsonify({"error": "Unauthorized"}), 403
-    
+
     data = request.get_json()
 
     # Retrieve the event data from the request
@@ -972,16 +1020,15 @@ def add_event():
     start = data.get("start")
     end = data.get("end")
     group_id = data.get("group_id")
-    
-    if group_id == '':
-        group_id = None
 
+    if group_id == "":
+        group_id = None
+        
     # Validate required fields
     if not all([title, location, start, end]):
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
-        print(title, location, start, end, group_id)
         # Parse the start and end times from the request (assuming ISO format)
         start = datetime.fromisoformat(start)
         end = datetime.fromisoformat(end)
@@ -992,12 +1039,17 @@ def add_event():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
+                publish_id = 0
+                # Get the last published event ID
+                cur.execute("SELECT MAX(publish_id) FROM draft_schedule")
+                publish_id = cur.fetchone()[0] + 1 or 0
+                
                 insert_query = """
                     INSERT INTO draft_schedule (title, location, start, "end", groupid, publish_id)
-                    VALUES (%s, %s, %s, %s, %s, NULL)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     RETURNING id, title, location, start, "end", groupid, publish_id;
                 """
-                cur.execute(insert_query, (title, location, start, end, group_id))
+                cur.execute(insert_query, (title, location, start, end, group_id, publish_id))
                 event = cur.fetchone()
                 conn.commit()
 
@@ -1009,15 +1061,53 @@ def add_event():
             "start": event[3].isoformat(),
             "end": event[4].isoformat(),
             "group_id": event[5],
-            "publish_id": event[6]  # This will be NULL initially
+            "publish_id": event[6],  # This will be NULL initially
         }
 
-        return jsonify({"message": "Event added successfully", "event": event_response}), 201
+        return (
+            jsonify({"message": "Event added successfully", "event": event_response}),
+            201,
+        )
 
     except Exception as e:
         print("Error adding event:", str(e))
         return jsonify({"error": "Failed to add event"}), 500
 
+
+
+@app.route("/delete-event", methods=["POST"])
+def delete_event():
+    user_info = get_user_info()
+    if not user_info.get("is_admin", False):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.get_json()
+
+    # Retrieve the event data from the request
+    event_id = data.get("event_id")
+        
+    # Validate required fields
+    if not event_id:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                delete_query = """
+                    DELETE FROM draft_schedule
+                    WHERE id = %s;
+                """
+                cur.execute(delete_query, (event_id,))
+                conn.commit()
+
+        return (
+            jsonify({"message": "Event removed successfully"}),
+            201,
+        )
+
+    except Exception as e:
+        print("Error adding event:", str(e))
+        return jsonify({"error": "Failed to add event"}), 500
 
 
 @app.route("/download-calendar", methods=["GET"])
@@ -1035,15 +1125,16 @@ def download_calendar():
 
     # Use an in-memory buffer
     buffer = BytesIO()
-    buffer.write(calendar.serialize().encode('utf-8'))
+    buffer.write(calendar.serialize().encode("utf-8"))
     buffer.seek(0)
 
     return send_file(
         buffer,
         as_attachment=True,
         download_name="rehearsals.ics",
-        mimetype="text/calendar"
+        mimetype="text/calendar",
     )
+
 
 # -----------------------------------------------------------------------
 
