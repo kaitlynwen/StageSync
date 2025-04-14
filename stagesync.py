@@ -456,11 +456,16 @@ def manage_users():
     members = get_all_users()
 
     if request.method == "POST":
-        # Check if it's a removal request
         netids_to_remove = request.form.get("netids_to_remove")
         if netids_to_remove:
             try:
                 netids = json.loads(netids_to_remove)
+                netids = [n for n in netids if n != "cs-stagesync"]  
+
+                if not netids:
+                    flash("Cannot remove cs-stagesync from admin.", "error")
+                    return redirect(url_for("manage_users"))
+
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
                         query = """
@@ -470,8 +475,10 @@ def manage_users():
                         """
                         cur.execute(query, (netids,))
                         conn.commit()
+
                 flash("Admin permissions removed successfully.", "success")
                 return redirect(url_for("manage_users"))
+
             except Exception as e:
                 print(f"Error removing admins: {e}")
                 flash("Failed to remove admin(s).", "error")
@@ -492,19 +499,17 @@ def manage_users():
             if status_code == 200 and result.get("success"):
                 flash("Admin added successfully!", "success")
             else:
-                message = (
-                    result.get("message")
-                    or result.get("error")
-                    or "Something went wrong."
-                )
+                message = result.get("message") or result.get("error") or "Something went wrong."
                 flash(message, "error")
 
             return redirect(url_for("manage_users"))
 
     return render_template(
-        "manage-admins.html", user=user_info, members=members, admins=admin_info
+        "manage-admins.html",
+        user=user_info,
+        members=members,
+        admins=admin_info
     )
-
 
 @app.route("/manage-groups", methods=["GET"])
 def manage_groups():
