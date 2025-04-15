@@ -25,6 +25,7 @@ import parsedata
 from zoneinfo import ZoneInfo
 import psycopg2
 from psycopg2.extras import execute_values
+from markupsafe import escape
 
 
 from top import app
@@ -178,18 +179,19 @@ def update():
 
         delete_conflict(user_netid)
 
+        # Access and sanitize
         weekly_conflicts = {
-            "Monday": request.form["monday_conflicts"],
-            "Tuesday": request.form["tuesday_conflicts"],
-            "Wednesday": request.form["wednesday_conflicts"],
-            "Thursday": request.form["thursday_conflicts"],
-            "Friday": request.form["friday_conflicts"],
-            "Saturday": request.form["saturday_conflicts"],
-            "Sunday": request.form["sunday_conflicts"],
+            "Monday": escape(request.form["monday_conflicts"]),
+            "Tuesday": escape(request.form["tuesday_conflicts"]),
+            "Wednesday": escape(request.form["wednesday_conflicts"]),
+            "Thursday": escape(request.form["thursday_conflicts"]),
+            "Friday": escape(request.form["friday_conflicts"]),
+            "Saturday": escape(request.form["saturday_conflicts"]),
+            "Sunday": escape(request.form["sunday_conflicts"]),
         }
 
-        one_time_conflicts = request.form["one_time_conflict"]
-        conflict_notes = request.form["conflict_notes"]
+        one_time_conflicts = escape(request.form["one_time_conflict"])
+        conflict_notes = escape(request.form["conflict_notes"])
 
         # Parse and insert weekly conflicts, convert times to UTC before saving
         for day, conflicts in weekly_conflicts.items():
@@ -269,8 +271,9 @@ def update():
         # Get updated conflicts (converted to UTC for saving)
         weekly_conflicts = get_weekly_conflict(user_netid)
         one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
-
         success_message = "Availability successfully updated!"
+        notify_admins_user_updated(user_netid)
+
 
         return render_template(
             "update.html",
@@ -463,11 +466,16 @@ def manage_users():
     members = get_all_users()
 
     if request.method == "POST":
-        # Check if it's a removal request
         netids_to_remove = request.form.get("netids_to_remove")
         if netids_to_remove:
             try:
                 netids = json.loads(netids_to_remove)
+                netids = [n for n in netids if n != "cs-stagesync"]  
+
+                if not netids:
+                    flash("Cannot remove cs-stagesync from admin.", "error")
+                    return redirect(url_for("manage_users"))
+
                 with psycopg2.connect(DATABASE_URL) as conn:
                     with conn.cursor() as cur:
                         query = """
@@ -477,8 +485,10 @@ def manage_users():
                         """
                         cur.execute(query, (netids,))
                         conn.commit()
+
                 flash("Admin permissions removed successfully.", "success")
                 return redirect(url_for("manage_users"))
+
             except Exception as e:
                 print(f"Error removing admins: {e}")
                 flash("Failed to remove admin(s).", "error")
@@ -499,19 +509,17 @@ def manage_users():
             if status_code == 200 and result.get("success"):
                 flash("Admin added successfully!", "success")
             else:
-                message = (
-                    result.get("message")
-                    or result.get("error")
-                    or "Something went wrong."
-                )
+                message = result.get("message") or result.get("error") or "Something went wrong."
                 flash(message, "error")
 
             return redirect(url_for("manage_users"))
 
     return render_template(
-        "manage-admins.html", user=user_info, members=members, admins=admin_info
+        "manage-admins.html",
+        user=user_info,
+        members=members,
+        admins=admin_info
     )
-
 
 @app.route("/manage-groups", methods=["GET"])
 def manage_groups():
