@@ -386,12 +386,20 @@ def generate():
     group_names = get_group_names()
 
     if request.method == "POST":
-        # Generate the schedule
-        schedule = assign_rehearsals()
-        update_events_table(schedule)
-        send_schedule_update_email()
+        schedule, warnings = assign_rehearsals()
+        event_update_warnings = update_events_table(schedule) or []
+        warnings = warnings or []
+        warnings.extend(event_update_warnings)
 
-        # Redirect to avoid re-executing POST request on refresh
+        for warning, category in warnings:
+            flash(warning, category=category)
+
+        send_schedule_update_email()
+        
+        has_error = any(category == "error" for _, category in warnings)
+        
+        if not has_error:
+            flash("Schedule has been successfully generated!", category="success")
         return redirect(url_for("generate"))
 
     return render_template("generate.html", group_names=group_names)

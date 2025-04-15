@@ -8,7 +8,7 @@
 # db_helpers.py that deal with handling dates, timezones, etc.
 # ----------------------------------------------------------------------
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 # ----------------------------------------------------------------------
@@ -46,6 +46,21 @@ def convert_from_utc(dt):
 # ----------------------------------------------------------------------
 
 
+def add_utc_zone(utc_time):
+    utc_tz = ZoneInfo("UTC")
+
+    if utc_time.tzinfo is None:
+        utc_time = utc_time.replace(tzinfo=utc_tz)
+    
+    # Convert to UTC
+    utc_time = utc_time.astimezone(utc_tz)
+    
+    return utc_time
+
+
+# ----------------------------------------------------------------------
+
+
 # Convert time to 24-hour format for PostgreSQL
 def convert_to_24hr_format(time_str):
     return datetime.strptime(time_str, "%I:%M%p").strftime("%H:%M:%S")
@@ -57,3 +72,31 @@ def convert_to_24hr_format(time_str):
 # Convert time to 12-hour format for html
 def convert_to_12hr_format(time_str):
     return time_str.strftime("%I:%M %p").replace(" ", "")
+
+
+# ----------------------------------------------------------------------
+
+
+# Function to convert the day of the week to the specific date
+def convert_day_to_date(day_of_week):
+    today = datetime.today()
+    day_mapping = {
+        "Monday": 0,
+        "Tuesday": 1,
+        "Wednesday": 2,
+        "Thursday": 3,
+        "Friday": 4,
+        "Saturday": 5,
+        "Sunday": 6,
+    }
+
+    current_weekday = today.weekday()
+    target_weekday = day_mapping.get(day_of_week, None)
+
+    if target_weekday is None:
+        raise ValueError(f"Invalid day of the week: {day_of_week}")
+
+    delta_days = target_weekday - current_weekday
+    target_date = today + timedelta(days=delta_days)
+
+    return target_date.date()
