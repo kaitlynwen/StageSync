@@ -427,7 +427,7 @@ def send_schedule_update_email():
 
     msg = EmailMessage()
     msg["Subject"] = "Schedule Updated"
-    msg["From"] = "stagesync@gmail.com"
+    msg["From"] = "michaeligbinoba68@gmail.com"
     msg["To"] = ", ".join(recipients)
     msg.set_content("The rehearsal schedule has been updated.")
 
