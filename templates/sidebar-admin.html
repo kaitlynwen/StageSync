@@ -125,12 +125,6 @@
                class="hidden bg-white divide-y divide-neutral-100 rounded-lg shadow-sm dark:bg-neutral-700 w-full min-w-max">
                <ul class="py-2 text-sm text-neutral-700 dark:text-neutral-200" aria-labelledby="dropdownDefaultButton">
                   <li>
-                     <a href="{{ url_for('user_access') }}"
-                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
-                        User Access Control
-                     </a>
-                  </li>
-                  <li>
                      <a href="{{ url_for('manage_users') }}"
                         class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
                         Manage Admins
@@ -140,6 +134,12 @@
                      <a href="{{ url_for('manage_groups') }}"
                         class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
                         Manage Groups
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{{ url_for('user_access') }}"
+                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
+                        User Access Control
                      </a>
                   </li>
                   <li>
