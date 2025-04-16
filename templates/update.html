@@ -4,11 +4,11 @@
 <head>
   <!--Dark mode toggle-->
   <script>
-    (function() {
+    (function () {
       const savedTheme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const html = document.documentElement;
-  
+
       if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         html.classList.add('dark');
       } else {
@@ -51,22 +51,21 @@
     <!-- Main Content Section -->
     <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
       <div class="flex justify-between items-center mt-2">
-        <p class="text-3xl font-bold dark:text-neutral-200">Update Availability</p>
-      </div>
-
-      <div class="flex justify-between items-center mt-2">
-        <p id="subtitle" class="text-lg font-bold text-indigo-500 py-2">
-          Please list all conflicts AFTER 5PM on weekdays and ANYTIME on
-          weekends
-        </p>
+        <div>
+          <p class="text-3xl font-bold dark:text-neutral-200">Update Availability</p>
+          <p class="text-md text-neutral-500 pt-4">
+            List all conflicts after 5 PM on weekdays and anytime on weekends in the table(s) below.
+          </p>
+        </div>
       </div>
 
       <form action="{{ url_for('update') }}" method="POST" onsubmit="return validateConflicts()">
         <!-- Tabs Navigation -->
-        <div class="text-sm font-medium text-center text-neutral-500 border-b border-neutral-200 dark:text-neutral-200">
+        <div class="text-sm font-medium text-center mt-4 text-neutral-500 border-b border-neutral-200 dark:text-neutral-200">
           <ul class="flex flex-wrap -mb-px">
             <li class="me-2">
-              <button type="button" id="weekly-tab" class="inline-block p-4 border-b-2 border-indigo-500 text-indigo-500 hover:text-neutral-600 hover:border-neutral-300"
+              <button type="button" id="weekly-tab"
+                class="inline-block p-4 border-b-2 border-indigo-500 text-indigo-500 hover:text-neutral-600 hover:border-neutral-300"
                 onclick="showTab('weekly')">
                 Weekly Conflicts
               </button>
@@ -84,10 +83,12 @@
         <!-- Weekly Conflicts Section -->
         <div id="weekly-content" class="tab-content dark:text-neutral-200">
           <div class="flex justify-between items-center mt-6">
-            <p class="text-m font-normal">
-              <strong>Weekly Conflict Format:</strong><br />
-              Please list your weekly conflicts in the following format:
-            </p>
+            <div>
+              <p class="text-xl font-bold dark:text-neutral-200">Weekly Conflict Format</p>
+              <p class="text-md pt-4">
+                Please list your weekly conflicts in the following format:
+              </p>
+            </div>
           </div>
 
           <div class="flex justify-between items-center mt-2">
@@ -116,12 +117,14 @@
             <tbody>
               {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
               <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
-                <th class="px-6 py-4 bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400 uppercase text-sm text-neutral-700 w-20">
+                <th
+                  class="px-6 py-4 bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400 uppercase text-sm text-neutral-700 w-20">
                   {{ day }}
                 </th>
                 <td class="px-6 py-4">
-                  <input class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-600" type="text"
-                    name="{{ day.lower() }}_conflicts" value="{{ '; '.join(weekly_conflicts[day]) }}" />
+                  <input
+                    class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-600"
+                    type="text" name="{{ day.lower() }}_conflicts" value="{{ '; '.join(weekly_conflicts[day]) }}" />
                 </td>
               </tr>
               {% endfor %}
@@ -132,10 +135,12 @@
         <!-- One-Time Conflicts Section -->
         <div id="one-time-content" class="tab-content hidden dark:text-neutral-200">
           <div class="flex justify-between items-center mt-6 ">
-            <p class="text-m font-normal">
-              <strong>One-Time Conflict Format:</strong><br />
-              Please list your one-time conflicts in the following format:
-            </p>
+            <div>
+              <p class="text-xl font-bold dark:text-neutral-200">One-Time Conflict Format</p>
+              <p class="text-md pt-4">
+                Please list your one-time conflicts in the following format:
+              </p>
+            </div>
           </div>
 
           <div class="flex justify-between items-center mt-2">
@@ -171,12 +176,15 @@
             <tbody>
               <tr class="bg-white dark:bg-neutral-800 dark:border-neutral-700 border-neutral-50">
                 <td class="px-6 py-4">
-                  <input class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-700" type="text"
-                    name="one_time_conflict" id="one-time-conflict" value="{{ '; '.join(one_time_conflicts) }}" />
+                  <input
+                    class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-700"
+                    type="text" name="one_time_conflict" id="one-time-conflict"
+                    value="{{ '; '.join(one_time_conflicts) }}" />
                 </td>
                 <td class="px-6 py-4">
-                  <input class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-700" type="text"
-                    name="conflict_notes" value="{{ conflict_notes }}" />
+                  <input
+                    class="w-full border-b-2 border-neutral-200 border-t-0 border-x-0 dark:bg-neutral-800 dark:border-neutral-700"
+                    type="text" name="conflict_notes" value="{{ conflict_notes }}" />
                 </td>
               </tr>
             </tbody>
@@ -195,8 +203,8 @@
           </button>
         </div>
       </form>
-      </div>
-    </main>
+    </div>
+  </main>
 
   <!-- Footer Section -->
   <footer class="hidden sm:block mt-auto size-full sticky-bottom">
@@ -208,4 +216,5 @@
   <script src="{{ url_for('static', filename='js/update-avail.js') }}"></script>
 
 </body>
+
 </html>

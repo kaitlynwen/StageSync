@@ -37,55 +37,45 @@
     <!-- Main Content Section -->
     <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
       <div class="flex justify-between items-center mt-2">
-        <p class="text-3xl font-bold dark:text-neutral-200">Settings</p>
+        <div>
+          <p class="text-3xl font-bold dark:text-neutral-200">Settings</p>
+          <p class="text-md text-neutral-500 pt-4">
+            Make changes to email notifications and preferences here
+          </p>
+        </div>
       </div>
+
+      <hr class="h-px my-6 bg-neutral-200 border-0 dark:bg-neutral-700">
 
       <div class="flex justify-between items-center">
-        <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
-          Make changes to email notifications and preferences here
-        </p>
+        <div>
+          <p class="text-xl font-bold dark:text-neutral-200">Notifications</p>
+          <p class="text-md text-neutral-500 py-4">
+            Manage your email notification preferences here.
+          </p>
+        </div>
       </div>
 
-      <!-- Tabs Navigation -->
-      <div class="text-sm font-medium text-center text-neutral-500 border-b border-neutral-200 dark:text-neutral-200">
-        <!-- Tabs Navigation -->
-        <ul class="flex flex-wrap -mb-px">
-          <li class="me-2">
-            <button type="button" id="notifications"
-              class="inline-block p-4 border-b-2 border-indigo-500 text-indigo-500 hover:text-neutral-600 hover:border-neutral-300"
-              onclick="showTab('notifications')">
-              Notifications
-            </button>
-          </li>
-          <li class="me-2">
-            <button type="button" id="appearance"
-              class="inline-block p-4 border-b-2 border-transparent hover:text-neutral-600 hover:border-neutral-300 dark:text-neutral-200"
-              onclick="showTab('appearance')">
-              Appearance
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <div id="notifications-content" class="tab-content dark:text-neutral-200">
+      <div id="notifications-content">
         <form action="/update-settings" method="POST" class="space-y-4">
-          <div class="flex items-center px-2 mt-6 ml-2">
+          <div class="flex items-center px-2 mt-2">
             <input type="checkbox" id="activity-updates" name="notifications" value="activity" {% if settings.activity
-              %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+              %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-neutral-300 rounded focus:ring-indigo-500" />
             <label for="activity-updates" class="ml-2 text-neutral-800 dark:text-neutral-200">
               Receive schedule updates
             </label>
           </div>
-          <div class="flex items-center px-2 mt-6 ml-2">
+          <div class="flex items-center px-2 mt-6">
             <input type="checkbox" id="reminders" name="notifications" value="reminders" {% if settings.reminders
-              %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+              %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-neutral-300 rounded focus:ring-indigo-500" />
             <label for="reminders" class="ml-2 text-neutral-800 dark:text-neutral-200">
               Receive reminders for events
             </label>
           </div>
-            <div class="flex items-center px-2 mt-6 ml-2">
-                <input type="checkbox" id="availability-updates" name="notifications" value="availability" {% if settings.reminders
-                  %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
+          <div class="flex items-center px-2 mt-6">
+            <input type="checkbox" id="availability-updates" name="notifications" value="availability" {% if
+              settings.reminders %}checked{% endif %}
+              class="w-5 h-5 text-indigo-600 border-neutral-300 rounded focus:ring-indigo-500" />
             <label for="availability-updates" class="ml-2 text-neutral-800 dark:text-neutral-200">
               Recieve availability updates
             </label>
@@ -98,13 +88,28 @@
 
         </form>
       </div>
-      <div id="appearance-content" class="tab-content hidden dark:text-neutral-200">
-        <div class="flex items-center mt-6 ml-2">
-          <label for="theme-toggle" class="mr-4 text-neutral-800 dark:text-neutral-200">Dark Mode</label>
-          <input type="checkbox" id="theme-toggle"
-            class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+
+      <hr class="h-px my-6 bg-neutral-200 border-0 dark:bg-neutral-700">
+
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-xl font-bold dark:text-neutral-200">Appearance</p>
+          <p class="text-md text-neutral-500 py-4">
+            Customize the appearance of the application here.
+          </p>
         </div>
       </div>
+
+      <div id="appearance-content">
+        <div class="flex items-center mt-2">
+          <label for="theme-toggle" class="inline-flex relative items-center cursor-pointer">
+            <input type="checkbox" id="theme-toggle" class="sr-only peer" checked />
+            <div class="relative w-11 h-6 bg-neutral-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-neutral-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-neutral-600 peer-checked:bg-indigo-500 dark:peer-checked:bg-indigo-600"></div>
+            <span class="ms-3 text-neutral-900 dark:text-neutral-300">Dark Mode</span>
+          </label>
+        </div>
+      </div>
+      
     </div>
   </main>
 

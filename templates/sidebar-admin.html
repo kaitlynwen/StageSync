@@ -67,13 +67,13 @@
          </li>
 
          <!-- View Schedule Button -->
-         <li>
+         <!-- <li>
             <a href="{{ url_for('view') }}"
                class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
                <i class="bx bxs-calendar-event bx-sm mr-2"></i>
                <span>View Schedule</span>
             </a>
-         </li>
+         </li> -->
 
          <!-- Admin Menu Label -->
          <li class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500">
@@ -125,9 +125,9 @@
                class="hidden bg-white divide-y divide-neutral-100 rounded-lg shadow-sm dark:bg-neutral-700 w-full min-w-max">
                <ul class="py-2 text-sm text-neutral-700 dark:text-neutral-200" aria-labelledby="dropdownDefaultButton">
                   <li>
-                     <a href="{{ url_for('authorize_members') }}"
+                     <a href="{{ url_for('user_access') }}"
                         class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
-                        Authorize Members
+                        User Access Control
                      </a>
                   </li>
                   <li>

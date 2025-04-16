@@ -4,11 +4,11 @@
 <head>
   <!--Dark mode toggle-->
   <script>
-    (function() {
+    (function () {
       const savedTheme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const html = document.documentElement;
-  
+
       if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         html.classList.add('dark');
       } else {
@@ -50,24 +50,23 @@
     <!-- Main Content Section -->
     <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
       <div class="flex justify-between items-center mt-2">
-        <p class="text-3xl font-bold dark:text-neutral-200">Manage Groups</p>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
-          Upload, input, or modify rehearsal group information below
-        </p>
+        <div>
+          <p class="text-3xl font-bold dark:text-neutral-200">Manage Groups</p>
+          <p class="text-md text-neutral-500 pt-4">
+            Upload, input, or modify rehearsal group information below
+          </p>
+        </div>
         <button data-modal-target="create-modal" data-modal-toggle="create-modal"
-          class="block text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+          class="block text-white bg-indigo-500 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
           type="button">
           Create
         </button>
       </div>
 
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-center mt-4">
         <div class="flex gap-6 flex-wrap mt-2">
           {% for group in groups %}
-          <div class="bg-neutral-200 p-4 rounded-lg w-64 relative dark:bg-neutral-800 dark:text-neutral-200">
+          <div class="bg-neutral-200 p-4 rounded-md w-3xs relative dark:bg-neutral-800 dark:text-neutral-200">
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-semibold mb-2">{{ group.title }}</h2>
               <div class="relative inline-block text-left">

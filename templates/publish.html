@@ -62,14 +62,12 @@
       <!-- Main Content Section -->
       <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
         <div class="flex justify-between items-center mt-2">
-          <p class="text-3xl font-bold dark:text-neutral-200">Published Schedule</p>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
+          <div>
+            <p class="text-3xl font-bold dark:text-neutral-200">Published Schedule</p>
+            <p class="text-md text-neutral-500 pt-4">
             View or export the current published version of the schedule
-          </p>
-
+            </p>
+          </div>
           <div class="flex justify-between items-center">
             <a href="{{ url_for('download_calendar') }}">
               <button

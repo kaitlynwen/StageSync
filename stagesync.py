@@ -709,13 +709,13 @@ def availability():
     return redirect(url_for("home"))
 
 
-@app.route("/authorize-members", methods=["GET"])
-def authorize_members():
+@app.route("/user-access", methods=["GET"])
+def user_access():
     user_info = get_user_info()
     all_members = get_all_users()
     if user_info.get("is_admin", True):
         return render_template(
-            "authorize.html", user=user_info, old_members=all_members
+            "user-access.html", user=user_info, old_members=all_members
         )
     else:
         return redirect(url_for("home"))

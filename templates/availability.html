@@ -4,11 +4,11 @@
 <head>
   <!--Dark mode toggle-->
   <script>
-    (function() {
+    (function () {
       const savedTheme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const html = document.documentElement;
-  
+
       if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         html.classList.add('dark');
       } else {
@@ -46,21 +46,19 @@
     <!-- Main Content Section -->
     <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
       <div class="flex justify-between items-center mt-2">
-        <p class="text-3xl font-bold dark:text-neutral-200">View Member Availability</p>
-      </div>
-      <div class="flex justify-between items-center">
-        <p id="subtitle" class="text-lg font-bold text-indigo-500 py-4">
-          Select a member from the dropdown to view their availability.
-        </p>
+        <div>
+          <p class="text-3xl font-bold dark:text-neutral-200">View Member Availability</p>
+          <p class="text-md text-neutral-500 py-4">
+            Select a member from the dropdown to view their availability.
+          </p>
+        </div>
       </div>
 
       <div class="flex justify-between items-center w-full mt-2">
         <form id="availabilityForm" method="POST" action="{{ url_for('availability') }}"
           class="flex items-center w-full max-w-4xl">
-          <label for="memberDropdown" class="font-sm mr-2 text-neutral-700 dark:text-neutral-200">Select a
-            member:</label>
           <select id="memberDropdown" name="selected_netid"
-            class="w-60 px-4 py-2 font-sm border rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
+            class="w-60 px-4 py-2 font-sm border bg-neutral-50 border-neutral-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
             required>
             <option value="" disabled selected>Select a member</option>
             {% for member in members %}
