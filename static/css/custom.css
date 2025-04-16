@@ -1,5 +1,6 @@
 /* Custom Theme Variables */
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* FullCalendar Styling */
 .fc-toolbar-title {

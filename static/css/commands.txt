@@ -1,2 +1,2 @@
 rm -rf ./static/css/tailwind.css
-npx @tailwindcss/cli -i ./static/css/custom.css -o ./static/css/tailwind.css 
+npx @tailwindcss/cli -i ./static/css/custom.css -o ./static/css/tailwind.css

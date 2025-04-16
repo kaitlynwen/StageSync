@@ -56,6 +56,7 @@
     --color-neutral-800: oklch(0.269 0 0);
     --color-neutral-900: oklch(0.205 0 0);
     --color-neutral-950: oklch(0.145 0 0);
+    --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
     --container-3xs: 16rem;
@@ -745,6 +746,9 @@
   .p-4 {
     padding: calc(var(--spacing) * 4);
   }
+  .p-6 {
+    padding: calc(var(--spacing) * 6);
+  }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
   }
@@ -851,6 +855,9 @@
   }
   .whitespace-nowrap {
     white-space: nowrap;
+  }
+  .text-black {
+    color: var(--color-black);
   }
   .text-blue-700 {
     color: var(--color-blue-700);
@@ -1387,116 +1394,121 @@
     }
   }
   .dark\:border-gray-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       border-color: var(--color-gray-600);
     }
   }
   .dark\:border-neutral-500 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       border-color: var(--color-neutral-500);
     }
   }
   .dark\:border-neutral-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       border-color: var(--color-neutral-600);
     }
   }
   .dark\:border-neutral-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       border-color: var(--color-neutral-700);
     }
   }
+  .dark\:bg-black {
+    &:where(.dark, .dark *) {
+      background-color: var(--color-black);
+    }
+  }
   .dark\:bg-gray-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       background-color: var(--color-gray-700);
     }
   }
   .dark\:bg-gray-800 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       background-color: var(--color-gray-800);
     }
   }
   .dark\:bg-indigo-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       background-color: var(--color-indigo-600);
     }
   }
   .dark\:bg-neutral-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       background-color: var(--color-neutral-600);
     }
   }
   .dark\:bg-neutral-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       background-color: var(--color-neutral-700);
     }
   }
   .dark\:bg-neutral-800 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       background-color: var(--color-neutral-800);
     }
   }
   .dark\:bg-neutral-900 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       background-color: var(--color-neutral-900);
     }
   }
   .dark\:text-gray-200 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       color: var(--color-gray-200);
     }
   }
   .dark\:text-gray-300 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       color: var(--color-gray-300);
     }
   }
   .dark\:text-gray-400 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       color: var(--color-gray-400);
     }
   }
   .dark\:text-neutral-200 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       color: var(--color-neutral-200);
     }
   }
   .dark\:text-neutral-300 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       color: var(--color-neutral-300);
     }
   }
   .dark\:text-neutral-400 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       color: var(--color-neutral-400);
     }
   }
   .dark\:text-white {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       color: var(--color-white);
     }
   }
   .dark\:ring-offset-neutral-800 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       --tw-ring-offset-color: var(--color-neutral-800);
     }
   }
   .dark\:peer-checked\:bg-indigo-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:is(:where(.peer):checked ~ *) {
         background-color: var(--color-indigo-600);
       }
     }
   }
   .dark\:peer-focus\:ring-indigo-800 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:is(:where(.peer):focus ~ *) {
         --tw-ring-color: var(--color-indigo-800);
       }
     }
   }
   .dark\:hover\:bg-gray-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:hover {
         @media (hover: hover) {
           background-color: var(--color-gray-700);
@@ -1505,7 +1517,7 @@
     }
   }
   .dark\:hover\:bg-indigo-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:hover {
         @media (hover: hover) {
           background-color: var(--color-indigo-700);
@@ -1514,7 +1526,7 @@
     }
   }
   .dark\:hover\:bg-neutral-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:hover {
         @media (hover: hover) {
           background-color: var(--color-neutral-600);
@@ -1523,7 +1535,7 @@
     }
   }
   .dark\:hover\:bg-neutral-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:hover {
         @media (hover: hover) {
           background-color: var(--color-neutral-700);
@@ -1532,7 +1544,7 @@
     }
   }
   .dark\:hover\:text-white {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:hover {
         @media (hover: hover) {
           color: var(--color-white);
@@ -1541,49 +1553,49 @@
     }
   }
   .dark\:focus\:ring-gray-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:focus {
         --tw-ring-color: var(--color-gray-600);
       }
     }
   }
   .dark\:focus\:ring-gray-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:focus {
         --tw-ring-color: var(--color-gray-700);
       }
     }
   }
   .dark\:focus\:ring-green-800 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:focus {
         --tw-ring-color: var(--color-green-800);
       }
     }
   }
   .dark\:focus\:ring-indigo-600 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:focus {
         --tw-ring-color: var(--color-indigo-600);
       }
     }
   }
   .dark\:focus\:ring-indigo-800 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:focus {
         --tw-ring-color: var(--color-indigo-800);
       }
     }
   }
   .dark\:focus\:ring-neutral-700 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:focus {
         --tw-ring-color: var(--color-neutral-700);
       }
     }
   }
   .dark\:focus\:ring-red-800 {
-    @media (prefers-color-scheme: dark) {
+    &:where(.dark, .dark *) {
       &:focus {
         --tw-ring-color: var(--color-red-800);
       }
