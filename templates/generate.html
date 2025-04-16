@@ -4,11 +4,11 @@
 <head>
   <!--Dark mode toggle-->
   <script>
-    (function() {
+    (function () {
       const savedTheme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const html = document.documentElement;
-  
+
       if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         html.classList.add('dark');
       } else {
@@ -76,8 +76,7 @@
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        <div id="alert-container"
-          class="flex flex-col fixed top-4 right-4 space-y-2 z-50 w-1/3">
+        <div id="alert-container" class="flex flex-col fixed top-4 right-4 space-y-2 z-50 w-1/3">
           {% for category, message in messages %}
           <div class="alert w-fit px-4 py-3 rounded-md relative transition-all duration-300 opacity-100
             {% if category == 'success' %}
@@ -242,6 +241,82 @@
                 class="text-white bg-indigo-500 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">
                 Add Event
               </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Event Modal -->
+      <div id="edit-event-modal" tabindex="-1" aria-hidden="true"
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-2xl max-h-full">
+          <div class="relative bg-white rounded-lg shadow-sm dark:bg-neutral-700">
+            <!-- Modal Header -->
+            <div
+              class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+              <h3 class="text-lg font-semibold text-neutral-900 dark:text-white">Edit Event</h3>
+              <button type="button"
+                class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+                data-modal-toggle="edit-event-modal">
+                <i class="bx bx-x bx-sm"></i>
+              </button>
+            </div>
+
+            <!-- Modal Body -->
+            <form id="edit-event-form" class="p-4 md:p-5">
+              <input type="hidden" id="edit-event-id" />
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label for="edit-event-title"
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Title</label>
+                  <input type="text" id="edit-event-title" required
+                    class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white" />
+                </div>
+                <div>
+                  <label for="edit-location"
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Location</label>
+                  <input type="text" id="edit-location"
+                    class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white"
+                    required />
+                </div>
+                <div>
+                  <label for="edit-start-time"
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Start Time (EST)</label>
+                  <input type="datetime-local" id="edit-start-time"
+                    class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white"
+                    required />
+                </div>
+                <div>
+                  <label for="edit-end-time" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">End
+                    Time (EST)</label>
+                  <input type="datetime-local" id="edit-end-time"
+                    class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white"
+                    required />
+                </div>
+                <div>
+                  <label for="edit-group"
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Group</label>
+                  <select id="edit-group" name="edit_group"
+                    class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300 dark:bg-neutral-800 dark:text-white">
+                    <option value="disabled" disabled selected>Select a group</option>
+                    {% for groupid, group_name in group_names.items() %}
+                    <option value="{{ groupid }}">{{ group_name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-4">
+                <button type="submit"
+                  class="text-white bg-indigo-500 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">
+                  Update
+                </button>
+                <button type="button" id="delete-event-button"
+                  class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                  Delete
+                </button>
+              </div>
             </form>
           </div>
         </div>

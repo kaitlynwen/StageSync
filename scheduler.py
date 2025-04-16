@@ -343,13 +343,14 @@ def update_events_table(schedule):
                                         cur.execute(
                                             """
                                             UPDATE draft_schedule
-                                            SET title = %s, start = %s, "end" = %s
+                                            SET title = %s, start = %s, "end" = %s, groupid = %s
                                             WHERE start = %s AND "end" = %s AND "location" = %s
                                             """,
                                             (
                                                 group_title + " | " + existing_event[1],
                                                 event_start,
                                                 event_end,
+                                                groupid,
                                                 event_start,
                                                 event_end,
                                                 location,

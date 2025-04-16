@@ -421,6 +421,7 @@ def update_event():
     end = data.get("end")
     title = data.get("title")
     location = data.get("location")
+    groupid = data.get("groupid")
 
     if not all([event_id, start, end]):
         return jsonify({"error": "Missing required fields"}), 400
@@ -433,10 +434,11 @@ def update_event():
                     SET title = %s,
                         start = %s,
                         "end" = %s,
-                        location = %s
+                        location = %s,
+                        groupid = %s
                     WHERE publish_id = %s;
                 """
-                cur.execute(update_query, (title, start, end, location, event_id))
+                cur.execute(update_query, (title, start, end, location, groupid, event_id))
                 conn.commit()
 
         return jsonify({"message": "Event updated successfully"})
@@ -888,7 +890,7 @@ def draft():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    SELECT d.publish_id, d.title, d.start, d."end", r.name
+                    SELECT d.publish_id, d.title, d.start, d."end", d.groupid, r.name
                     FROM draft_schedule d
                     LEFT JOIN rehearsal_spaces r ON d.location = r.name
                     ORDER BY d.start ASC
@@ -903,7 +905,8 @@ def draft():
             title = event[1]
             start = event[2]
             end = event[3]
-            location = event[4] if event[4] else ""
+            groupid = event[4]
+            location = event[5] if event[5] else ""
 
             # Ensure start and end are datetime objects
             if isinstance(start, str):
@@ -924,6 +927,7 @@ def draft():
                 "start": start.isoformat(),  # ISO format with time zone info
                 "end": end.isoformat(),  # ISO format with time zone info
                 "location": location,
+                "groupid": groupid,
                 "color": COLOR_MAP.get(location, "#CCCCCC"),  # Default gray if unknown
             }
 
