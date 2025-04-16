@@ -971,7 +971,25 @@ def publish_draft():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Step 1: Update events in the `events` table where publish_id is not NULL
+                # Get the last published event ID
+                cur.execute("SELECT MAX(id) FROM events")
+                last_id = cur.fetchone()[0] or 0
+                
+                cur.execute(
+                    """
+                    INSERT INTO events (title, location, start, "end", groupid)
+                    SELECT title, location, start, "end", groupid
+                    FROM draft_schedule
+                    WHERE publish_id > %s;
+                    """,
+                    (last_id,)
+                )
+                
+                cur.execute(
+                    "DELETE FROM draft_schedule WHERE publish_id > %s", (last_id,)
+                )
+                
+                # Step 1: Update events in the `events` table where publish_id is in table
                 cur.execute(
                     """
                     UPDATE events
@@ -980,41 +998,12 @@ def publish_draft():
                         start = draft_schedule.start,
                         "end" = draft_schedule.end,
                         location = draft_schedule.location,
-                        groupid = draft_schedule.group_id,
+                        groupid = draft_schedule.groupid,
                         created_at = draft_schedule.created_at
                     FROM draft_schedule
                     WHERE events.id = draft_schedule.publish_id;
                 """
                 )
-                
-                # Get the last published event ID
-                cur.execute("SELECT MAX(id) FROM events")
-                last_id = cur.fetchone()[0] or 0
-
-                # Step 2: Insert new events from the `draft_schedule` table
-                cur.execute(
-                    """
-                    INSERT INTO events (title, location, start, "end", groupid, created_at)
-                    SELECT title, location, start, "end", group_id, NOW()
-                    FROM draft_schedule
-                    WHERE publish_id > %s
-                    RETURNING id, title, location, start, "end", groupid;
-                """
-                , (last_id,))
-
-                # Fetch the newly inserted events
-                new_events = cur.fetchall()
-
-                # Step 3: After inserting new events, delete the entries in draft_schedule where publish_id is NULL
-                cur.execute(
-                    """
-                    DELETE FROM draft_schedule
-                    WHERE publish_id IS NULL;
-                """
-                )
-
-                # Commit the transaction
-                conn.commit()
 
         return jsonify({"message": "Schedule published successfully!"})
 
