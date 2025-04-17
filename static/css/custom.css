@@ -4,7 +4,53 @@
 
 /* FullCalendar Styling */
 .fc-toolbar-title {
-    font-weight: 700;
-    color: var(--color-slate-700) ;
+  font-weight: 700;
+  color: var(--color-slate-700);
 }
 
+.fc-event {
+  box-shadow: none !important;
+}
+
+/* FullCalendar Dark Mode */
+html.dark .fc-theme-standard td,
+html.dark .fc-theme-standard tr,
+html.dark .fc-theme-standard th {
+  border-color: var(--color-neutral-700);
+  color: var(--color-neutral-200);
+}
+
+html.dark .fc-toolbar-title {
+  font-weight: 700;
+  color: var(--color-slate-500);
+}
+
+html.dark .fc-scrollgrid,
+html.dark .fc-daygrid-day,
+html.dark .fc-timegrid-slot,
+html.dark .fc-col-header-cell,
+html.dark .fc-timegrid-axis-frame {
+  border-color: var(--color-neutral-700);
+}
+
+/* Customize all buttons */
+html.dark .fc-button {
+  background-color: var(--color-slate-500); /* Set button background color */
+  border-color: var(--color-slate-500); /* Set button border color */
+  color: var(--color-neutral-100); /* Set text color */
+}
+
+/* Hover effect for buttons */
+html.dark .fc-button:hover {
+  background-color: var(--color-slate-700); /* Set hover background */
+  border-color: var(--color-slate-700); /* Set hover border */
+  color: var(--color-neutral-50); /* Set hover text color */
+}
+
+/* Style for the active/selected button */
+.fc-button-active {
+  background-color: var(
+    --color-slate-700
+  ) !important; /* Change background color */
+  border-color: var(--color-slate-700) !important; /* Change border color */
+}
