@@ -543,8 +543,8 @@ def manage_groups():
 def update_group_name():
     data = request.get_json()
     group_id = data.get("groupId")
-    group_name = data.get("groupName")
-    new_group_name = data.get("newGroupName")
+    group_name = data.get("groupName", "").strip()
+    new_group_name = data.get("newGroupName", "").strip()
     remove = data.get("remove", [])
     add = data.get("add", [])
 
@@ -599,7 +599,7 @@ def update_group_name():
 @app.route("/create-group", methods=["POST"])
 def create_group():
     data = request.get_json()
-    group_name = data.get("groupName")
+    group_name = data.get("groupName", "").strip()
 
     try:
         # Connect to the database
