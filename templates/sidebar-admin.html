@@ -1,17 +1,17 @@
 <!-- Hamburger Button -->
 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button"
-  class="fixed top-4 left-4 z-50 inline-flex items-center py-1 px-2 text-sm text-neutral-950 rounded-md hover:bg-neutral-200 sm:hidden hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:ring-neutral-900 bg-white dark:bg-neutral-800">
+  class="fixed top-4 left-4 z-50 inline-flex items-center py-1 px-2 text-sm text-neutral-950 bg-opacity-0 rounded-md hover:bg-neutral-200 sm:hidden focus:outline-none dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:ring-neutral-900 bg-white dark:bg-neutral-800">
   <span class="sr-only">Open sidebar</span>
   <i class='bx bx-menu bx-md'></i>
 </button>
 
 <!-- Sidebar -->
 <aside id="logo-sidebar"
-   class="w-64 h-auto bg-neutral-50 dark:bg-neutral-800 sm:block hidden transition-transform -translate-x-full sm:translate-x-0"
-   aria-label="Sidebar">
+  class="fixed top-0 left-0 z-40 w-64 h-full bg-neutral-50 dark:bg-neutral-800 transform -translate-x-full sm:translate-x-0 sm:static sm:h-auto transition-transform duration-300 ease-in-out"
+  aria-label="Sidebar">
    <div class="h-full px-6 py-6 overflow-y-auto bg-neutral-50 dark:bg-neutral-800">
       <!-- Logo Section -->
-      <a href="{{ url_for('home') }}" class="flex items-center pt-2 ps-2.5 mb-5 group">
+      <a href="{{ url_for('home') }}" class="flex items-center pt-12 sm:pt-2 ps-2.5 mb-5 group">
          <img class="h-6 me-3 sm:h-7" src="/static/img/Logo.png" alt="StageSync Logo" />
          <span
             class="self-center text-2xl font-bold whitespace-nowrap dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-white">StageSync</span>
