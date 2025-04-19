@@ -1,88 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!--Dark mode toggle-->
-    <script>
-      (function() {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const html = document.documentElement;
-    
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-          html.classList.add('dark');
-        } else {
-          html.classList.remove('dark');
-        }
-      })();
-    </script>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Boxicons -->
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+<head>
+  <!--Dark mode toggle-->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const html = document.documentElement;
 
-    <!-- FullCalendar Styles and Scripts -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
-      integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+    })();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Flowbite -->
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+  <!-- Boxicons -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-    <!-- Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/custom.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/tailwind.css') }}"
-    />
-    <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+  <!-- FullCalendar Styles and Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.js"
+    integrity="sha512-3I+0zIxy2IkeeCvvhXUEu+AFT3zAGuHslHLDmM8JBv6FT7IW6WjhGpUZ55DyGXArYHD0NshixtmNUWJzt0K32w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <!-- Set Title of Page -->
-    <title>Published Schedule - StageSync</title>
-  </head>
+  <!-- Flowbite -->
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 
-  <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
-    <div class="flex flex-grow">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/Logo.png') }}" />
+
+  <!-- Set Title of Page -->
+  <title>Published Schedule - StageSync</title>
+</head>
+
+<body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
+  <div class="flex flex-grow">
     <main class="flex flex-grow bg-white dark:bg-neutral-900">
       <!-- Sidebar Section -->
-      <div id="sidebar-container" class="size-fit sm:w-1/5 sm:h-auto">
-        {% if user.is_admin %} {% include 'sidebar-admin.html' %} {% else %} {%
-        include 'sidebar.html' %} {% endif %}
-      </div>
+      {% if user.is_admin %}
+      {% include 'sidebar-admin.html' %}
+      {% else %}
+      {% include 'sidebar.html' %}
+      {% endif %}
+
       <!-- Main Content Section -->
-      <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
+      <div class="flex-1 flex flex-col pt-18 sm:pt-6 pb-18 px-6 sm:px-10">
         <div class="flex justify-between items-center mt-2">
           <div>
             <p class="text-3xl font-bold dark:text-neutral-200">Published Schedule</p>
             <p class="text-md text-neutral-500 pt-4 dark:text-neutral-400">
-            View or export the current published version of the schedule
+              View or export the current published version of the schedule
             </p>
           </div>
           <div class="flex justify-between items-center">
             <a href="{{ url_for('download_calendar') }}">
-              <button
-                type="button"
-                class="text-indigo-500 font-semibold font-lg border-2 border-indigo-500 hover:bg-indigo-100 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
-              >
+              <button type="button"
+                class="text-indigo-500 font-semibold font-lg border-2 border-indigo-500 hover:bg-indigo-100 rounded-md text-sm py-2 px-4 text-center me-2 mb-2">
                 Export
               </button>
             </a>
             <a href="{{ url_for('generate') }}">
-              <button
-                type="button"
-                class="text-white font-semibold font-lg bg-2 border-2 border-indigo-500 bg-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 rounded-md text-sm py-2 px-4 text-center me-2 mb-2"
-              >
+              <button type="button"
+                class="text-white font-semibold font-lg bg-2 border-2 border-indigo-500 bg-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 rounded-md text-sm py-2 px-4 text-center me-2 mb-2">
                 Edit Schedule
               </button>
             </a>
@@ -96,14 +83,15 @@
           </div>
         </div>
       </div>
-      </main>
-    </div>
+    </main>
+  </div>
 
-    <!-- Footer Section -->
-    <footer class="hidden sm:block mt-auto size-full sticky-bottom">
-      {% include 'footer.html' %}
-    </footer>
+  <!-- Footer Section -->
+  <footer class="hidden sm:block mt-auto size-full sticky-bottom">
+    {% include 'footer.html' %}
+  </footer>
 
-    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
-  </body>
+  <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+</body>
+
 </html>

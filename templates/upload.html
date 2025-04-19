@@ -4,11 +4,11 @@
 <head>
   <!--Dark mode toggle-->
   <script>
-    (function() {
+    (function () {
       const savedTheme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const html = document.documentElement;
-  
+
       if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         html.classList.add('dark');
       } else {
@@ -44,12 +44,14 @@
 <body class="flex flex-col min-h-screen font-sans bg-white dark:bg-neutral-900">
   <main class="flex flex-grow bg-white dark:bg-neutral-900">
     <!-- Sidebar Section -->
-    <div id="sidebar-container" class="size-fit sm:w-1/5 sm:h-auto">
-      {% include 'sidebar-admin.html' %}
-    </div>
+    {% if user.is_admin %}
+    {% include 'sidebar-admin.html' %}
+    {% else %}
+    {% include 'sidebar.html' %}
+    {% endif %}
 
     <!-- Main Content Section -->
-    <div class="w-full md:w-4/5 flex flex-col py-8 px-10">
+    <div class="flex-1 flex flex-col pt-18 sm:pt-6 pb-18 px-6 sm:px-10">
       <div class="flex justify-between items-center mt-2">
         <div>
           <p class="text-3xl font-bold dark:text-neutral-200">Upload Rehearsal Data</p>

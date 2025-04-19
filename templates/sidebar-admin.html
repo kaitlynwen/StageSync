@@ -1,155 +1,126 @@
-<!--Dark mode toggle-->
-<script>
-   (function() {
-     const savedTheme = localStorage.getItem('theme');
-     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-     const html = document.documentElement;
- 
-     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-       html.classList.add('dark');
-     } else {
-       html.classList.remove('dark');
-     }
-   })();
- </script>
+<!-- Hamburger Button -->
 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button"
-   class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
-   <span class="sr-only">Open sidebar</span>
-   <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-      <path clip-rule="evenodd" fill-rule="evenodd"
-         d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z">
-      </path>
-   </svg>
+  class="fixed top-4 left-4 z-50 inline-flex items-center py-1 px-2 text-sm text-neutral-950 rounded-md hover:bg-neutral-200 sm:hidden hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:ring-neutral-900 bg-white dark:bg-neutral-800">
+  <span class="sr-only">Open sidebar</span>
+  <i class='bx bx-menu bx-md'></i>
 </button>
 
+<!-- Sidebar -->
 <aside id="logo-sidebar"
-   class="hidden sm:block size-full transition-transform -translate-x-full sm:translate-x-0 bg-neutral-50 min-h-screen dark:bg-neutral-800"
+   class="w-64 h-auto bg-neutral-50 dark:bg-neutral-800 sm:block hidden transition-transform -translate-x-full sm:translate-x-0"
    aria-label="Sidebar">
-   <div class="hidden sm:block size-full px-10 py-8 overflow-y-auto">
+   <div class="h-full px-6 py-6 overflow-y-auto bg-neutral-50 dark:bg-neutral-800">
       <!-- Logo Section -->
-      <a href="{{ url_for('home') }}" class="flex items-center space-x-2 p-1 mb-6">
-         <img class="size-1/5" src="/static/img/Logo.png" alt="Logo" />
-         <span class="text-2xl self-center whitespace-nowrap font-bold text-neutral-950 dark:text-neutral-200 ml-2">StageSync</span>
+      <a href="{{ url_for('home') }}" class="flex items-center pt-2 ps-2.5 mb-5 group">
+         <img class="h-6 me-3 sm:h-7" src="/static/img/Logo.png" alt="StageSync Logo" />
+         <span
+            class="self-center text-2xl font-bold whitespace-nowrap dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-white">StageSync</span>
       </a>
 
-      <!-- Settings Section -->
-      <ul class="space-y-2">
+      <ul class="space-y-2 text-sm">
+         <!-- Settings Section -->
          <li>
             <a href="{{ url_for('settings') }}"
-               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
-               <i class="bx bxs-cog bx-sm mr-2"></i>
-               <span>Settings</span>
+               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+               <i
+                  class="shrink-0 bx bxs-cog bx-sm transition duration-75"></i>
+               <span class="flex-1 ms-3 whitespace-nowrap">Settings</span>
             </a>
          </li>
-
          <!-- Main Menu Label -->
          <li
-            class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50">
+            class="flex items-center p-2 text-xs uppercase font-bold text-neutral-800 dark:text-neutral-400">
             Main Menu
          </li>
-
          <!-- Home Button -->
          <li>
             <a href="{{ url_for('home') }}"
-               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
-               <i class="bx bxs-home bx-sm mr-2"></i>
-               <span>Home</span>
+               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+               <i
+                  class="shrink-0 bx bxs-home bx-sm transition duration-75"></i>
+               <span class="flex-1 ms-3 whitespace-nowrap">Home</span>
             </a>
          </li>
-
          <!-- Update Button -->
          <li>
             <a href="{{ url_for('update') }}"
-               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
-               <i class="bx bxs-edit bx-sm mr-2"></i>
-               <span>Update Availability</span>
+               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+               <i
+                  class="shrink-0 bx bxs-edit bx-sm transition duration-75"></i>
+               <span class="flex-1 ms-3 whitespace-nowrap">Update Availability</span>
             </a>
          </li>
-
-         <!-- View Schedule Button -->
-         <!-- <li>
-            <a href="{{ url_for('view') }}"
-               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
-               <i class="bx bxs-calendar-event bx-sm mr-2"></i>
-               <span>View Schedule</span>
-            </a>
-         </li> -->
-
          <!-- Admin Menu Label -->
-         <li class="mt-4 pt-2 text-xs uppercase font-bold text-neutral-500">
-            Admin Options
+         <li
+            class="flex items-center p-2 text-xs uppercase font-bold text-neutral-800 dark:text-neutral-400">
+            Admin Menu
          </li>
-
-         <!-- Upload Reho Info Button -->
+         <!-- Upload Data Button -->
          <li>
             <a href="{{ url_for('upload') }}"
-               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
-               <i class="bx bx-upload bx-sm mr-2"></i>
-               <span>Upload Rehearsal Data</span>
+               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+               <i
+                  class="shrink-0 bx bx-upload bx-sm transition duration-75"></i>
+               <span class="flex-1 ms-3 whitespace-nowrap">Rehearsal Data</span>
             </a>
          </li>
-
          <!-- Generate Schedule Button -->
          <li>
             <a href="{{ url_for('generate') }}"
-               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
-               <i class="bx bxs-calendar bx-sm mr-2"></i>
-               <span>Generate Schedule</span>
+               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+               <i
+                  class="shrink-0 bx bxs-calendar bx-sm transition duration-75"></i>
+               <span class="flex-1 ms-3 whitespace-nowrap">Generate Schedule</span>
             </a>
          </li>
-
          <!-- Published Schedule Button -->
          <li>
             <a href="{{ url_for('publish') }}"
-               class="flex items-center text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition">
-               <i class="bx bxs-cloud-upload bx-sm mr-2"></i>
-               <span>Published Schedule</span>
+               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+               <i
+                  class="shrink-0 bx bxs-cloud-upload bx-sm transition duration-75"></i>
+               <span class="flex-1 ms-3 whitespace-nowrap">Published Schedule</span>
             </a>
          </li>
 
-         <!-- Manage Members Dropdown -->
-         <!-- Dropdown Button -->
-         <li class="relative group">
-            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdownMenu"
-               class="w-full flex items-center justify-between text-neutral-800 hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:bg-opacity-50 p-1 mb-1 rounded-md transition-all duration-500"
-               type="button">
-               <div class="flex items-center">
-                  <i class="bx bxs-user-detail bx-sm mr-2"></i>
-                  <span>Manage Members</span>
-               </div>
-               <i class="bx bx-chevron-down bx-sm"></i>
+         <li>
+            <button type="button"
+               class="flex items-center w-full py-1 px-2 text-sm text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group"
+               aria-controls="dropdown" data-collapse-toggle="dropdown">
+               <i class= "bx bxs-user-detail bx-sm shrink-0 transition duration-75"
+                  aria-hidden="true">
+               </i>
+               <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Manage Members</span>
+               <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+               </svg>
             </button>
-
-            <!-- Dropdown Menu -->
-            <div id="dropdownMenu"
-               class="hidden bg-white divide-y divide-neutral-100 rounded-lg shadow-sm dark:bg-neutral-700 w-full min-w-max">
-               <ul class="py-2 text-sm text-neutral-700 dark:text-neutral-200" aria-labelledby="dropdownDefaultButton">
-                  <li>
-                     <a href="{{ url_for('manage_users') }}"
-                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
-                        Manage Admins
-                     </a>
-                  </li>
-                  <li>
-                     <a href="{{ url_for('manage_groups') }}"
-                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
-                        Manage Groups
-                     </a>
-                  </li>
-                  <li>
-                     <a href="{{ url_for('user_access') }}"
-                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
-                        User Access Control
-                     </a>
-                  </li>
-                  <li>
-                     <a href="{{ url_for('availability') }}"
-                        class="block px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-600 dark:hover:text-white">
-                        View Availability
-                     </a>
-                  </li>
-               </ul>
-            </div>
+            <ul id="dropdown" class="hidden py-2 space-y-2 text-sm">
+               <li>
+                  <a href="{{ url_for('manage_users') }}"
+                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                     Manage Admins
+                  </a>
+               </li>
+               <li>
+                  <a href="{{ url_for('manage_groups') }}"
+                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                     Manage Groups
+                  </a>
+               </li>
+               <li>
+                  <a href="{{ url_for('user_access') }}"
+                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                     User Access Control
+                  </a>
+               </li>
+               <li>
+                  <a href="{{ url_for('availability') }}"
+                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                     View Availability
+                  </a>
+               </li>
+            </ul>
          </li>
       </ul>
    </div>

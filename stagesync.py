@@ -303,14 +303,12 @@ def update():
         )
 
 
-@app.route("/view-schedule", methods=["GET"])
-def view():
-    user_info = get_user_info()
-    return render_template("view.html", user=user_info)
-
-
 @app.route("/upload-data", methods=["GET", "POST"])
 def upload():
+    user_info = get_user_info()
+    if not user_info.get("is_admin", False):
+        return redirect(url_for("home"))
+    
     if request.method == "POST":
         if "file" not in request.files:
             flash("No file part in the request.", "error")
@@ -395,7 +393,7 @@ def upload():
         flash("Invalid file type. Only XLSX files are allowed.", "error")
         return redirect(url_for("upload"))
 
-    return render_template("upload.html")
+    return render_template("upload.html", user=user_info)
 
 
 @app.route("/generate-schedule", methods=["GET", "POST"])
@@ -423,7 +421,7 @@ def generate():
             flash("Schedule has been successfully generated!", category="success")
         return redirect(url_for("generate"))
 
-    return render_template("generate.html", group_names=group_names)
+    return render_template("generate.html", user=user_info, group_names=group_names)
 
 
 @app.route("/update-event", methods=["POST"])
