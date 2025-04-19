@@ -1,83 +1,3 @@
-function safeParseDate(date) {
-  const d = new Date(date);
-  return isNaN(d) ? new Date() : d;
-}
-
-function formatDate(date) {
-  const d = safeParseDate(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
-
-function withLoading(buttonEl, callback) {
-  const originalText = buttonEl.textContent;
-  buttonEl.disabled = true;
-  buttonEl.textContent = "Loading...";
-
-  return callback().finally(() => {
-    buttonEl.disabled = false;
-    buttonEl.textContent = originalText;
-  });
-}
-
-function flashAlert(message, category = "info", duration = 5000) {
-  const container =
-    document.getElementById("alert-container") ||
-    (() => {
-      const div = document.createElement("div");
-      div.id = "alert-container";
-      div.className = "flex flex-col fixed top-4 right-4 space-y-2 z-50 w-1/4";
-      document.body.appendChild(div);
-      return div;
-    })();
-
-  const iconMap = {
-    success: "bxs-check-circle",
-    error: "bxs-error",
-    warning: "bxs-error-circle",
-    info: "bxs-info-circle",
-  };
-
-  const colorMap = {
-    success: "bg-green-100 border-green-400 text-green-700",
-    error: "bg-red-100 border-red-400 text-red-700",
-    warning: "bg-yellow-100 border-yellow-400 text-yellow-700",
-    info: "bg-blue-100 border-blue-400 text-blue-700",
-  };
-
-  const alert = document.createElement("div");
-  alert.className = `alert px-4 py-3 rounded-md relative transition-opacity duration-300 opacity-100 border ${
-    colorMap[category] || colorMap.info
-  }`;
-  alert.setAttribute("role", "alert");
-
-  alert.innerHTML = `
-    <div class="flex justify-between items-center">
-      <strong class="font-bold flex items-center">
-        <i class="bx ${iconMap[category] || iconMap.info} bx-sm mr-2"></i>
-        ${category.charAt(0).toUpperCase() + category.slice(1)}!
-      </strong>
-      <button onclick="this.parentElement.parentElement.remove()" class="flex hover:opacity-75">
-        <i class="bx bx-x bx-sm"></i>
-      </button>
-    </div>
-    <span class="block sm:inline">${message}</span>
-  `;
-
-  container.appendChild(alert);
-
-  if (duration > 0) {
-    setTimeout(() => {
-      alert.classList.add("opacity-0");
-      setTimeout(() => alert.remove(), 300);
-    }, duration);
-  }
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   var calendarEl = document.getElementById("calendar");
   if (!calendarEl) return;
@@ -193,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((data) => {
           console.log("Event updated successfully:", data);
-          calendar.refetchEvents();
+          flashAndReload("Event updated successfully!", "success");
         })
         .catch((error) => {
           console.error("Error updating event:", error);
@@ -225,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((data) => {
           console.log("Event moved successfully:", data);
-          calendar.refetchEvents();
+          flashAlert("Event moved successfully!", "success");
         })
         .catch((error) => {
           console.error("Error moving event:", error);
@@ -250,8 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
         });
         const data = await response.json();
-        calendar.refetchEvents();
-        flashAlert("Draft restored successfully!", "success");
+        flashAndReload("Draft restored successfully!", "success");
       } catch (error) {
         flashAlert("Failed to restore draft.", "error");
       } finally {
@@ -272,8 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         const response = await fetch("/publish-draft", { method: "POST" });
         const data = await response.json();
-        calendar.refetchEvents();
-        flashAlert("Schedule published!", "success");
+        flashAndReload("Schedule published!", "success");
       } catch (error) {
         flashAlert("Failed to publish schedule.", "error");
       } finally {
@@ -282,6 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+  // Event form submission
   document
     .getElementById("event-form")
     .addEventListener("submit", async function (e) {
@@ -322,10 +241,8 @@ document.addEventListener("DOMContentLoaded", function () {
           const result = await response.json();
 
           if (response.ok) {
-            flashAlert("Event added successfully!", "success");
-            document.getElementById("event-form").reset();
             modal.hide();
-            calendar.refetchEvents();
+            flashAndReload("Event added successfully!", "success");
           } else {
             flashAlert(result.error || "Something went wrong!", "error");
             modal.hide();
@@ -337,18 +254,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     });
+
+  // Edit Event form
   document
     .getElementById("edit-event-form")
     .addEventListener("submit", async function (e) {
       e.preventDefault();
-
-      // Grab modal DOM element
-      const modalEl = document.getElementById("event-modal");
-      const editModalEl = document.getElementById("edit-event-modal");
-
-      // Initialize Flowbite modal
-      const modal = new Modal(modalEl);
-      const editModal = new Modal(editModalEl);
 
       const submitBtn = e.submitter;
 
@@ -381,9 +292,8 @@ document.addEventListener("DOMContentLoaded", function () {
           const result = await res.json();
 
           if (res.ok) {
-            flashAlert("Event updated successfully!", "success");
-            editModal.hide();
-            calendar.refetchEvents();
+            editModal.hide(); // Close the edit modal
+            flashAndReload("Event updated successfully!", "success");
           } else {
             flashAlert(result.error || "Failed to update event.", "error");
             editModal.hide();
@@ -416,9 +326,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (res.ok) {
-          flashAlert("Event deleted.", "success");
           editModal.hide();
-          calendar.refetchEvents();
+          flashAndReload("Event deleted.", "success");
         } else {
           const result = await res.json();
           flashAlert(result.error || "Failed to delete event.", "error");
@@ -432,3 +341,94 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 });
+
+function flashAlert(message, category = "info", duration = 3000) {
+  // Ensure the alert container exists
+  let container = document.getElementById("alert-container");
+  if (!container) {
+    // If not, create and append it
+    container = document.createElement("div");
+    container.id = "alert-container";
+    container.className =
+      "flex flex-col fixed top-4 right-4 space-y-2 z-50 w-1/4";
+    document.body.appendChild(container);
+  }
+
+  const iconMap = {
+    success: "bxs-check-circle",
+    error: "bxs-error",
+    warning: "bxs-error-circle",
+    info: "bxs-info-circle",
+  };
+
+  const colorMap = {
+    success: "bg-green-100 border-green-400 text-green-700",
+    error: "bg-red-100 border-red-400 text-red-700",
+    warning: "bg-yellow-100 border-yellow-400 text-yellow-700",
+    info: "bg-blue-100 border-blue-400 text-blue-700",
+  };
+
+  const alert = document.createElement("div");
+  alert.className = `alert px-4 py-3 rounded-md relative transition-opacity duration-300 opacity-100 border ${
+    colorMap[category] || colorMap.info
+  }`;
+  alert.setAttribute("role", "alert");
+
+  alert.innerHTML = `
+    <div class="flex justify-between items-center">
+      <strong class="font-bold flex items-center">
+        <i class="bx ${iconMap[category] || iconMap.info} bx-sm mr-2"></i>
+        ${category.charAt(0).toUpperCase() + category.slice(1)}!
+      </strong>
+      <button onclick="this.parentElement.parentElement.remove()" class="flex hover:opacity-75">
+        <i class="bx bx-x bx-sm"></i>
+      </button>
+    </div>
+    <span class="block sm:inline">${message}</span>
+  `;
+
+  container.appendChild(alert);
+
+  if (duration > 0) {
+    setTimeout(() => {
+      alert.classList.add("opacity-0");
+      setTimeout(() => alert.remove(), 300);
+    }, duration);
+  }
+}
+
+function flashAndReload(message, type) {
+  flashAlert(message, type);
+  setTimeout(() => location.reload(), 600);
+}
+
+function safeParseDate(date) {
+  const d = new Date(date);
+  return isNaN(d) ? new Date() : d;
+}
+
+function formatDate(date) {
+  const d = safeParseDate(date);
+  if (isNaN(d)) {
+    console.error("Invalid date:", date);
+    return ""; // Return empty or handle error case
+  }
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// Helper function to display loading spinner while performing async tasks
+function withLoading(button, asyncCallback) {
+  const originalHTML = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Loading...`;
+
+  return asyncCallback().finally(() => {
+    button.disabled = false;
+    button.innerHTML = originalHTML;
+  });
+}

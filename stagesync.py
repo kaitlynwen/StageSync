@@ -871,7 +871,7 @@ def events():
                 "start": start.isoformat(),  # ISO format with time zone info
                 "end": end.isoformat(),  # ISO format with time zone info
                 "location": location,
-                "color": COLOR_MAP.get(location, "#CCCCCC"),  # Default gray if unknown
+                "color": COLOR_MAP.get(location, "#262626"),  # Default gray if unknown
             }
 
             event_list.append(event_dict)
@@ -931,7 +931,7 @@ def draft():
                 "end": end.isoformat(),  # ISO format with time zone info
                 "location": location,
                 "groupid": groupid,
-                "color": COLOR_MAP.get(location, "#CCCCCC"),  # Default gray if unknown
+                "color": COLOR_MAP.get(location, "#262626"),  # Default gray if unknown
             }
 
             event_list.append(event_dict)
