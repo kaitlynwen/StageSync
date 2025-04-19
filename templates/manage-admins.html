@@ -18,6 +18,7 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <!-- Boxicons -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
@@ -164,8 +165,10 @@
       <div class="flex justify-start mt-4">
         <form id="remove-admin-form" method="POST" action="{{ url_for('manage_users') }}">
           <input type="hidden" name="netids_to_remove" id="netids-to-remove" />
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
         </form>
         <form id="add-id-form" method="POST" action="{{ url_for('manage_users') }}" class="flex items-center">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
           <select id="memberDropdown" name="selected_netid"
             class="w-60 px-4 py-2 font-sm border bg-neutral-50 border-neutral-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
             required>

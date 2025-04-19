@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <!-- Boxicons -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
@@ -58,6 +59,7 @@
 
       <div id="notifications-content" class="dark:text-neutral-400">
         <form action="/update-settings" method="POST" class="space-y-4">
+          <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
           <div class="flex items-center px-2 mt-2">
             <input type="checkbox" id="activity-updates" name="notifications" value="activity" {% if settings.activity
               %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-neutral-300 rounded focus:ring-indigo-500" />

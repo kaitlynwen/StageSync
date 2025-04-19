@@ -97,11 +97,14 @@ document.addEventListener("DOMContentLoaded", function () {
         groupid: info.event.extendedProps.groupid,
       };
       console.log("Updated event:", updatedEvent);
+      
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
       fetch("/update-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
         },
         body: JSON.stringify(updatedEvent),
       })
@@ -113,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((data) => {
           console.log("Event updated successfully:", data);
-          flashAndReload("Event updated successfully!", "success");
+          flashAlert("Event updated successfully.", "success");
         })
         .catch((error) => {
           console.error("Error updating event:", error);
@@ -130,10 +133,13 @@ document.addEventListener("DOMContentLoaded", function () {
         groupid: info.event.extendedProps.groupid,
       };
 
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
       fetch("/update-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
         },
         body: JSON.stringify(updatedEvent),
       })
@@ -145,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((data) => {
           console.log("Event moved successfully:", data);
-          flashAlert("Event moved successfully!", "success");
+          flashAlert("Event moved successfully.", "success");
         })
         .catch((error) => {
           console.error("Error moving event:", error);
@@ -166,11 +172,13 @@ document.addEventListener("DOMContentLoaded", function () {
       btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Restoring...`;
 
       try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
         const response = await fetch("/restore-draft-schedule", {
           method: "POST",
+          headers: {"X-CSRFToken": csrfToken,}
         });
         const data = await response.json();
-        flashAndReload("Draft restored successfully!", "success");
+        flashAndReload("Draft restored successfully.", "success");
       } catch (error) {
         flashAlert("Failed to restore draft.", "error");
       } finally {
@@ -189,9 +197,12 @@ document.addEventListener("DOMContentLoaded", function () {
       btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Publishing...`;
 
       try {
-        const response = await fetch("/publish-draft", { method: "POST" });
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+        const response = await fetch("/publish-draft", { method: "POST",
+          headers: {"X-CSRFToken": csrfToken,}
+         });
         const data = await response.json();
-        flashAndReload("Schedule published!", "success");
+        flashAndReload("Schedule published", "success");
       } catch (error) {
         flashAlert("Failed to publish schedule.", "error");
       } finally {
@@ -232,9 +243,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       await withLoading(submitBtn, async () => {
         try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
           const response = await fetch("/add-event", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, },
             body: JSON.stringify(eventData),
           });
 
@@ -242,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (response.ok) {
             modal.hide();
-            flashAndReload("Event added successfully!", "success");
+            flashAndReload("Event added successfully", "success");
           } else {
             flashAlert(result.error || "Something went wrong!", "error");
             modal.hide();
@@ -280,12 +292,13 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const updatedEvent = { id, title, location, start, end, groupid };
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
       await withLoading(submitBtn, async () => {
         try {
           const res = await fetch("/update-event", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, },
             body: JSON.stringify(updatedEvent),
           });
 
@@ -293,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           if (res.ok) {
             editModal.hide(); // Close the edit modal
-            flashAndReload("Event updated successfully!", "success");
+            flashAndReload("Event updated successfully", "success");
           } else {
             flashAlert(result.error || "Failed to update event.", "error");
             editModal.hide();
@@ -318,10 +331,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const originalHTML = btn.innerHTML;
       btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Deleting...`;
 
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      
       try {
         const res = await fetch("/delete-event", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken,},
           body: JSON.stringify({ event_id: eventId }),
         });
 

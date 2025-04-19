@@ -5,6 +5,9 @@
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
 # ----------------------------------------------------------------------
 
+import os
+import psycopg2
+import parsedata
 from io import BytesIO
 from flask import (
     json,
@@ -19,16 +22,12 @@ from flask import (
 from datetime import datetime
 from ics import Calendar, Event
 from req_lib import ReqLib
-import os
-import dotenv
-import parsedata
 from zoneinfo import ZoneInfo
-import psycopg2
 from psycopg2.extras import execute_values
 from markupsafe import escape
 
 
-from top import app
+from top import app, csrf
 from scheduler import assign_rehearsals, update_events_table
 from export_cal import get_calendar_events
 from datetime_helpers import *
@@ -36,15 +35,6 @@ from db_helpers import *
 
 
 # ----------------------------------------------------------------------
-
-# Temp set debug to true
-app.debug = True
-
-# Load environment variables
-dotenv.load_dotenv()
-
-# Secret key setup (set up in .env)
-app.secret_key = os.environ.get("APP_SECRET_KEY", "your_default_secret_key")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -95,6 +85,25 @@ def active_directory_user(netid):
 # --------------------------------------------------------------------
 
 
+def is_oauth(request):
+    # Skip CSRF for OAuth callback route
+    if request.path.startswith("/oauth/"):
+        return True
+
+    # Skip CSRF for API requests
+    if request.path.startswith("/api/"):
+        return True
+
+    # Skip CSRF for specific methods
+    if request.method in ("GET", "HEAD", "OPTIONS"):
+        return True
+
+    return False
+
+
+# --------------------------------------------------------------------
+
+
 # Force HTTPS request
 @app.before_request
 def before_request():
@@ -102,6 +111,15 @@ def before_request():
         url = request.url.replace("http://", "https://", 1)
         return redirect(url, code=301)
     return None
+
+# Check CSRF token
+@app.before_request
+def check_csrf():
+    if not is_oauth(request):
+        csrf.protect()
+
+
+# --------------------------------------------------------------------
 
 
 # Routes

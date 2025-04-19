@@ -7,6 +7,9 @@ document
       ".member-checkbox:checked"
     );
 
+    // Get CSRF token for validation
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
     // Create an array of netid values of selected users
     const netidsToRemove = Array.from(checkedCheckboxes).map(
       (checkbox) => checkbox.value
@@ -20,6 +23,7 @@ document
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
         },
         body: JSON.stringify({ netids: netidsToRemove }),
       })
@@ -52,12 +56,16 @@ document
 
     const netid = document.getElementById("netid").value.trim();
 
+    // Get CSRF token for validation
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
     if (netid) {
       // Send a request to add the user as an admin
       fetch("/authorize", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
         },
         body: JSON.stringify({ netid: netid }),
       })

@@ -122,10 +122,13 @@ edit.forEach(function (edit) {
         (checkbox) => checkbox.value
       );
 
+      // Get CSRF token for validation
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
       // Send update request to backend
       fetch("/update-group-info", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, },
         body: JSON.stringify({
           groupId, groupName, newGroupName,
           remove: netidsToRemove, add: netidsToAdd
@@ -167,10 +170,13 @@ document.getElementById("create-group").addEventListener("click", function () {
     return;
   }
 
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
   fetch("/create-group", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken,
     },
     body: JSON.stringify({ groupName }),
   })
@@ -210,9 +216,11 @@ document.querySelectorAll(".dropdown-delete").forEach(function (deleteButton) {
 deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventListener("click", function () {
   const groupId = this.dataset.groupId;
 
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
   fetch("/delete-group", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, },
     body: JSON.stringify({ groupId }),
   })
     .then(response => response.json())
