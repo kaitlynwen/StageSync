@@ -422,6 +422,9 @@ def update_event():
     title = data.get("title")
     location = data.get("location")
     groupid = data.get("groupid")
+    
+    if groupid == "":
+        groupid = None
 
     if not all([event_id, start, end]):
         return jsonify({"error": "Missing required fields"}), 400
@@ -1034,6 +1037,8 @@ def add_event():
     if group_id == "":
         group_id = None
         
+    print(group_id)
+        
     # Validate required fields
     if not all([title, location, start, end]):
         return jsonify({"error": "Missing required fields"}), 400
@@ -1105,10 +1110,10 @@ def delete_event():
             with conn.cursor() as cur:
                 delete_query = """
                     DELETE FROM draft_schedule
-                    WHERE id = %s;
+                    WHERE publish_id = %s;
                 """
                 cur.execute(delete_query, (event_id,))
-                conn.commit()
+                conn.commit() 
 
         return (
             jsonify({"message": "Event removed successfully"}),

@@ -1,11 +1,81 @@
-function formatDate(date) {
+function safeParseDate(date) {
   const d = new Date(date);
+  return isNaN(d) ? new Date() : d;
+}
+
+function formatDate(date) {
+  const d = safeParseDate(date);
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0"); // Month is 0-indexed
+  const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   const hours = String(d.getHours()).padStart(2, "0");
   const minutes = String(d.getMinutes()).padStart(2, "0");
   return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function withLoading(buttonEl, callback) {
+  const originalText = buttonEl.textContent;
+  buttonEl.disabled = true;
+  buttonEl.textContent = "Loading...";
+
+  return callback().finally(() => {
+    buttonEl.disabled = false;
+    buttonEl.textContent = originalText;
+  });
+}
+
+function flashAlert(message, category = "info", duration = 5000) {
+  const container =
+    document.getElementById("alert-container") ||
+    (() => {
+      const div = document.createElement("div");
+      div.id = "alert-container";
+      div.className = "flex flex-col fixed top-4 right-4 space-y-2 z-50 w-1/4";
+      document.body.appendChild(div);
+      return div;
+    })();
+
+  const iconMap = {
+    success: "bxs-check-circle",
+    error: "bxs-error",
+    warning: "bxs-error-circle",
+    info: "bxs-info-circle",
+  };
+
+  const colorMap = {
+    success: "bg-green-100 border-green-400 text-green-700",
+    error: "bg-red-100 border-red-400 text-red-700",
+    warning: "bg-yellow-100 border-yellow-400 text-yellow-700",
+    info: "bg-blue-100 border-blue-400 text-blue-700",
+  };
+
+  const alert = document.createElement("div");
+  alert.className = `alert px-4 py-3 rounded-md relative transition-opacity duration-300 opacity-100 border ${
+    colorMap[category] || colorMap.info
+  }`;
+  alert.setAttribute("role", "alert");
+
+  alert.innerHTML = `
+    <div class="flex justify-between items-center">
+      <strong class="font-bold flex items-center">
+        <i class="bx ${iconMap[category] || iconMap.info} bx-sm mr-2"></i>
+        ${category.charAt(0).toUpperCase() + category.slice(1)}!
+      </strong>
+      <button onclick="this.parentElement.parentElement.remove()" class="flex hover:opacity-75">
+        <i class="bx bx-x bx-sm"></i>
+      </button>
+    </div>
+    <span class="block sm:inline">${message}</span>
+  `;
+
+  container.appendChild(alert);
+
+  if (duration > 0) {
+    setTimeout(() => {
+      alert.classList.add("opacity-0");
+      setTimeout(() => alert.remove(), 300);
+    }, duration);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -74,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
     eventStartEditable: userRole === "admin",
     eventClick: function (info) {
       if (userRole !== "admin") {
-        alert("You do not have permission to edit this event");
+        flashAlert("You do not have permission to edit this event", "error");
         return;
       }
 
@@ -169,37 +239,55 @@ document.addEventListener("DOMContentLoaded", function () {
   // Add the "Discard" button functionality
   document
     .getElementById("discard-button")
-    .addEventListener("click", function () {
-      fetch("/restore-draft-schedule", { method: "POST" })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Draft schedule restored:", data);
-          calendar.refetchEvents();
-        })
-        .catch((error) => {
-          console.error("Error restoring draft schedule:", error);
+    .addEventListener("click", async function (e) {
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Restoring...`;
+
+      try {
+        const response = await fetch("/restore-draft-schedule", {
+          method: "POST",
         });
+        const data = await response.json();
+        calendar.refetchEvents();
+        flashAlert("Draft restored successfully!", "success");
+      } catch (error) {
+        flashAlert("Failed to restore draft.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
     });
 
   // Add the "Publish" button functionality
   document
     .getElementById("publish-button")
-    .addEventListener("click", function () {
-      fetch("/publish-draft", { method: "POST" })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Schedule published:", data);
-          calendar.refetchEvents();
-        })
-        .catch((error) => {
-          console.error("Error publishing schedule:", error);
-        });
+    .addEventListener("click", async function (e) {
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Publishing...`;
+
+      try {
+        const response = await fetch("/publish-draft", { method: "POST" });
+        const data = await response.json();
+        calendar.refetchEvents();
+        flashAlert("Schedule published!", "success");
+      } catch (error) {
+        flashAlert("Failed to publish schedule.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
     });
 
   document
     .getElementById("event-form")
     .addEventListener("submit", async function (e) {
       e.preventDefault();
+
+      const submitBtn = e.submitter;
 
       const title = document.getElementById("event-title").value;
       const location = document.getElementById("location").value;
@@ -208,112 +296,139 @@ document.addEventListener("DOMContentLoaded", function () {
       const groupId = document.getElementById("group").value;
 
       if (!title || !location || !start || !end) {
-        alert("Please fill in all required fields.");
+        flashAlert("Please fill in all required fields.", "warning");
         return;
       }
 
-      // Convert start and end times to UTC
-      const startUtc = new Date(start).toISOString(); // Convert to ISO string in UTC
-      const endUtc = new Date(end).toISOString(); // Convert to ISO string in UTC
+      const startUtc = safeParseDate(start).toISOString();
+      const endUtc = safeParseDate(end).toISOString();
 
       const eventData = {
         title,
         location,
         start: startUtc,
         end: endUtc,
-        group_id: groupId, // Optionally rename this on the backend
+        group_id: groupId,
       };
 
+      await withLoading(submitBtn, async () => {
+        try {
+          const response = await fetch("/add-event", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(eventData),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            flashAlert("Event added successfully!", "success");
+            document.getElementById("event-form").reset();
+            modal.hide();
+            calendar.refetchEvents();
+          } else {
+            flashAlert(result.error || "Something went wrong!", "error");
+            modal.hide();
+          }
+        } catch (err) {
+          console.error("Error submitting event:", err);
+          flashAlert("Failed to submit event.", "error");
+          modal.hide();
+        }
+      });
+    });
+  document
+    .getElementById("edit-event-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      // Grab modal DOM element
+      const modalEl = document.getElementById("event-modal");
+      const editModalEl = document.getElementById("edit-event-modal");
+
+      // Initialize Flowbite modal
+      const modal = new Modal(modalEl);
+      const editModal = new Modal(editModalEl);
+
+      const submitBtn = e.submitter;
+
+      const id = document.getElementById("edit-event-id").value;
+      const title = document.getElementById("edit-event-title").value;
+      const location = document.getElementById("edit-location").value;
+      const start = safeParseDate(
+        document.getElementById("edit-start-time").value
+      ).toISOString();
+      const end = safeParseDate(
+        document.getElementById("edit-end-time").value
+      ).toISOString();
+      const groupid = document.getElementById("edit-group").value;
+
+      if (end < start) {
+        flashAlert("Event end time cannot be before start time.", "error");
+        return;
+      }
+
+      const updatedEvent = { id, title, location, start, end, groupid };
+
+      await withLoading(submitBtn, async () => {
+        try {
+          const res = await fetch("/update-event", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedEvent),
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            flashAlert("Event updated successfully!", "success");
+            editModal.hide();
+            calendar.refetchEvents();
+          } else {
+            flashAlert(result.error || "Failed to update event.", "error");
+            editModal.hide();
+          }
+        } catch (error) {
+          console.error("Update error:", error);
+          flashAlert("Unexpected error while updating.", "error");
+        }
+      });
+    });
+
+  document
+    .getElementById("delete-event-button")
+    .addEventListener("click", async function (e) {
+      const btn = e.currentTarget;
+
+      if (!confirm("Are you sure you want to delete this event?")) return;
+
+      const eventId = document.getElementById("edit-event-id").value;
+
+      btn.disabled = true;
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Deleting...`;
+
       try {
-        const response = await fetch("/add-event", {
+        const res = await fetch("/delete-event", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(eventData),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ event_id: eventId }),
         });
 
-        const result = await response.json();
-
-        if (response.ok) {
-          alert("Event added successfully!");
-          document.getElementById("event-form").reset();
-
-          modal.hide();
-
+        if (res.ok) {
+          flashAlert("Event deleted.", "success");
+          editModal.hide();
           calendar.refetchEvents();
         } else {
-          alert(result.error || "Something went wrong!");
+          const result = await res.json();
+          flashAlert(result.error || "Failed to delete event.", "error");
+          editModal.hide();
         }
-      } catch (err) {
-        console.error("Error submitting event:", err);
-        alert("Failed to submit event.");
+      } catch (error) {
+        flashAlert("Error deleting event.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
       }
     });
 });
-
-document
-  .getElementById("edit-event-form")
-  .addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const editModalEl = document.getElementById("edit-event-modal");
-    const editModal = new Modal(editModalEl);
-
-    const id = document.getElementById("edit-event-id").value;
-    const title = document.getElementById("edit-event-title").value;
-    const location = document.getElementById("edit-location").value;
-    const start = new Date(
-      document.getElementById("edit-start-time").value
-    ).toISOString();
-    const end = new Date(
-      document.getElementById("edit-end-time").value
-    ).toISOString();
-    const groupid = document.getElementById("edit-group").value;
-
-    const updatedEvent = { id, title, location, start, end, groupid };
-
-    try {
-      const res = await fetch("/update-event", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedEvent),
-      });
-
-      if (res.ok) {
-        alert("Event updated successfully!");
-        editModal.hide();  // Manually hide the modal via class
-        window.location.reload(); // Reload the page to ensure all changes are reflected
-      } else {
-        const result = await res.json();
-        alert(result.error || "Failed to update event.");
-      }
-    } catch (error) {
-      console.error("Update error:", error);
-    }
-  });
-
-
-document
-  .getElementById("delete-event-button")
-  .addEventListener("click", async function () {
-    const eventId = document.getElementById("edit-event-id").value;
-    const editModalEl = document.getElementById("edit-event-modal");
-    const editModal = new Modal(editModalEl);
-
-    if (!confirm("Are you sure you want to delete this event?")) return;
-
-    try {
-      const res = await fetch(`/delete-event/${eventId}`, { method: "DELETE" });
-
-      if (res.ok) {
-        alert("Event deleted.");
-        editModal.hide(); // Hide the modal after delete
-      } else {
-        const result = await res.json();
-        alert(result.error || "Failed to delete event.");
-      }
-    } catch (error) {
-      console.error("Delete error:", error);
-    }
-  });
