@@ -9,3 +9,4 @@ datetime
 openpyxl
 requests
 ics
+flask_wtf
