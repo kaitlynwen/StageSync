@@ -30,7 +30,7 @@ function showTab(tab) {
       for (const input of weeklyInputs) {
         const value = input.value.trim();
         if (value && !weeklyPattern.test(value)) {
-          alert(`Invalid weekly conflict format for ${input.name.replace('_conflicts', '')}. Please follow the example format: 6:00PM-8:00PM; 10:00PM-11:00PM`);
+          showErrorModal("Please use correct formatting: HH:MMAM/PM - HH:MMAM/PM separated by semicolons.");
           return false;
         }
       }
@@ -41,7 +41,7 @@ function showTab(tab) {
       const value = oneTimeInput.value.trim();
       if (value) {
         if (!oneTimePattern.test(value)) {
-          alert("Invalid one-time conflict format. Please follow the example: 03/15.6:00PM-8:00PM; 03/16.10:00AM-12:00PM");
+          showErrorModal("Please use correct formatting: MM/DD.HH:MMAM/PM - MM/DD.HH:MMAM/PM separated by semicolons.");
           return false;
         }
 
