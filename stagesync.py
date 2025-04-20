@@ -491,10 +491,10 @@ def manage_users():
         if netids_to_remove:
             try:
                 netids = json.loads(netids_to_remove)
-                netids = [n for n in netids if n != "cs-stagesync"]  
+                cs_netids = [n for n in netids if n.startswith("cs-")]
 
-                if not netids:
-                    flash("Cannot remove cs-stagesync from admin.", "error")
+                if cs_netids:
+                    flash("Cannot remove admin netids with prefix 'cs-': " + ", ".join(cs_netids), "error")
                     return redirect(url_for("manage_users"))
 
                 with psycopg2.connect(DATABASE_URL) as conn:
@@ -745,7 +745,7 @@ def user_access():
 @app.route("/authorize", methods=["POST"])
 def authorize():
     try:
-        # Get the netid of the user to add as admin from the request body
+        # Get the netid of the user to authorize from the request body
         data = request.get_json()
         netid = data.get("netid")
 
@@ -793,9 +793,17 @@ def authorize():
 @app.route("/unauthorize", methods=["POST"])
 def unauthorize():
     try:
-        # Get the netids of users to remove from admin from the request body
+        # Get the netids of users to unauthorize from the request body
         data = request.get_json()
         netids = data.get("netids", [])
+
+        cs_netids = [n for n in netids if n.startswith("cs-")]
+        if cs_netids:
+            flash("Cannot remove netids with prefix 'cs-': " + ", ".join(cs_netids), "error")
+            return (
+                jsonify({"success": False, "message": "Cannot remove admin netids with prefix 'cs-': " + ", ".join(cs_netids)}),
+                400,
+            )
 
         if not netids:
             return (

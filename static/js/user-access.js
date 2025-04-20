@@ -28,20 +28,13 @@ document
         body: JSON.stringify({ netids: netidsToRemove }),
       })
         .then((response) => response.json())
-        .then((data) => {
-
-          // console.log("Data:", data); for testing
-
-          if (data.success) {
-            alert("Selected Members Unauthorized successfully");
-            location.reload(); // Reload the page to reflect changes
-          } else {
-            alert("An error occurred: " + data.message);
-          }
+        .then(() => {
+          location.reload(); // Reload the page to reflect changes
+          window.scrollTo(0, 0); // Scroll to top of page
         })
         .catch((error) => {
           console.error("Error:", error);
-          alert("An error occurred. Please try again.");
+          // alert("An error occurred. Please try again.");
         });
     } else {
       alert("Please select at least one user.");
