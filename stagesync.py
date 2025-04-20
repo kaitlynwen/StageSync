@@ -756,11 +756,9 @@ def authorize():
             )  # Return error with status code 400
 
         first_name, last_name, email = active_directory_user(netid)
-        # print("First name: ", first_name)
-        # print("Last name: ", last_name)
-        # print("email: ", email)
 
         if first_name is None:
+            flash("User with NetID \"" + netid + "\" does not exist", "error")
             return (
                 jsonify({"success": False, "message": "NetID does not exist"}),
                 400,
@@ -779,7 +777,7 @@ def authorize():
                     (netid, email, first_name, last_name),
                 )
             conn.commit()
-
+        flash("User with NetID \"" + netid + "\" successfully added", "success")
         return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:
@@ -806,6 +804,7 @@ def unauthorize():
             )
 
         if not netids:
+            flash("NetdID(s) required")
             return (
                 jsonify({"success": False, "message": "NetID(s) required"}),
                 400,
@@ -835,7 +834,7 @@ def unauthorize():
                 """
                 cur.execute(query, (netids,))
                 conn.commit()
-
+        flash("Selected NetID(s) successfully removed", "success")
         return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:

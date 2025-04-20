@@ -41,7 +41,7 @@ document
     }
   });
 
-// dealing with requests to add admins
+// dealing with requests to authorize new netids
 document
   .getElementById("authorize-form")
   .addEventListener("submit", function (event) {
@@ -63,14 +63,9 @@ document
         body: JSON.stringify({ netid: netid }),
       })
         .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            // Adding multiple members and alerting may be tedious
-            // alert("User has been added as an admin successfully!");
-            location.reload(); // Reload the page to reflect the changes
-          } else {
-            alert("An error occurred: " + data.message);
-          }
+        .then(() => {
+          location.reload(); // Reload the page to reflect changes
+          window.scrollTo(0, 0); // Scroll to top of page
         })
         .catch((error) => {
           console.error("Error:", error);
