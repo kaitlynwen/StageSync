@@ -84,6 +84,10 @@
           </ul>
         </div>
 
+
+
+
+
         <!-- Weekly Conflicts Section -->
         <div id="weekly-content" class="tab-content dark:text-neutral-200">
           <div class="flex justify-between items-center mt-6">
@@ -112,6 +116,9 @@
             </ul>
           </div>
 
+
+
+          
           <div class="flex justify-right items-center mt-2 dark:text-neutral-400">
             <strong>Example:</strong>&nbsp;6:00PM-8:00PM; 10:00PM-11:00PM (This
             means two separate conflicts on the same day.)
@@ -147,6 +154,8 @@
             </div>
           </div>
 
+
+          
           <div class="flex justify-between items-center mt-2 dark:text-neutral-400">
             <ul class="list-disc pl-5 mt-2">
               <li>
@@ -164,6 +173,9 @@
             </ul>
           </div>
 
+
+
+          
           <div class="flex justify-right items-center mt-2 dark:text-neutral-400">
             <strong>Example:</strong>&nbsp;03/15.6:00PM-8:00PM;
             03/16.10:00AM-12:00PM (This means two separate conflicts on
@@ -210,14 +222,63 @@
     </div>
   </main>
 
+
+
+
   <!-- Footer Section -->
   <footer class="hidden sm:block mt-auto size-full sticky-bottom">
     {% include 'footer.html' %}
   </footer>
 
 
+
+  
   <!-- JavaScript for Tabs and Validation -->
   <script src="{{ url_for('static', filename='js/update-avail.js') }}"></script>
+
+
+
+
+
+
+  <!-- Error Modal (centered, darkened, scroll-locked) -->
+<div id="errorModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-100 backdrop-blur-sm overflow-y-auto">
+  <div class="relative w-full max-w-md mx-auto my-20 p-6 bg-white dark:bg-neutral-800 rounded-lg shadow-lg">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Invalid Submission</h3>
+      <button type="button" onclick="hideErrorModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    <div id="errorModalText" class="text-sm text-gray-700 dark:text-neutral-200">
+      <!-- Message is injected here -->
+    </div>
+    <div class="mt-6 text-right">
+      <button onclick="hideErrorModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+        OK
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<script>
+  function showErrorModal(message) {
+    document.getElementById('errorModalText').innerText = message;
+    document.getElementById('errorModal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function hideErrorModal() {
+    document.getElementById('errorModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+</script>
 
 </body>
 
