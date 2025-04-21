@@ -178,9 +178,9 @@ document.addEventListener("DOMContentLoaded", function () {
           headers: {"X-CSRFToken": csrfToken,}
         });
         const data = await response.json();
-        flashAndReload("Draft restored successfully.", "success");
+        flashAndReload("Schedule restored successfully.", "success");
       } catch (error) {
-        flashAlert("Failed to restore draft.", "error");
+        flashAlert("Failed to restore schedule.", "error");
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
