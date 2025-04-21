@@ -1026,7 +1026,16 @@ def publish_draft():
                     "DELETE FROM draft_schedule WHERE publish_id > %s", (last_id,)
                 )
                 
-                # Step 1: Update events in the `events` table where publish_id is in table
+                cur.execute(
+                    """
+                    DELETE FROM events
+                    WHERE id NOT IN (
+                        SELECT publish_id FROM draft_schedule WHERE publish_id IS NOT NULL
+                    );
+                    """
+                )
+                
+                # Update events in the `events` table where publish_id is in table
                 cur.execute(
                     """
                     UPDATE events
