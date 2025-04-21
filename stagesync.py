@@ -18,6 +18,7 @@ from flask import (
     request,
     jsonify,
     flash,
+    get_flashed_messages,
 )
 from datetime import datetime
 from ics import Calendar, Event
@@ -183,12 +184,14 @@ def update():
                     f"{start_time_dt.strftime('%I:%M%p')}-{end_time_dt.strftime('%I:%M%p')}"
                 )
 
+        messages = get_flashed_messages()
         return render_template(
             "update.html",
             user=user_info,
             weekly_conflicts=weekly_conflicts,
             one_time_conflicts=one_time_conflicts,
             conflict_notes=conflict_notes,
+            messages=messages
         )
 
     else:
@@ -292,15 +295,8 @@ def update():
         success_message = "Availability successfully updated!"
         notify_admins_user_updated(user_netid)
 
-
-        return render_template(
-            "update.html",
-            user=user_info,
-            success_message=success_message,
-            weekly_conflicts=weekly_conflicts,
-            one_time_conflicts=one_time_conflicts,
-            conflict_notes=conflict_notes,
-        )
+        flash(success_message)
+        return redirect(url_for("update"))
 
 
 @app.route("/upload-data", methods=["GET", "POST"])

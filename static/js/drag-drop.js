@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const dropzone = document.getElementById("dropzone-label");
   const fileInput = document.getElementById("dropzone-file");
   const dropzoneContent = document.getElementById("dropzone-content");
-  const fileNameDisplay = document.getElementById("file-name");
 
   const maxSize = 5 * 1024 * 1024; // 5MB limit
   const allowedTypes = [
@@ -51,12 +50,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!file) return;
 
     if (!allowedTypes.includes(file.type)) {
-      alert("Invalid file type. Only XLSX or CSV allowed.");
+      flashAlert("Invalid file type. Only XLSX or CSV allowed.", "error");
       return;
     }
 
     if (file.size > maxSize) {
-      alert("File size exceeds 5MB. Please upload a smaller file.");
+      flashAlert("File size exceeds 5MB. Please upload a smaller file.", "error");
       return;
     }
 

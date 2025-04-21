@@ -8,6 +8,6 @@ document.getElementById("remove-admin-button").addEventListener("click", functio
     // Submit the form
     document.getElementById("remove-admin-form").submit();
   } else {
-    alert("Please select at least one user.");
+    flatshAlert("Please select at least one user.", "error");
   }
 });

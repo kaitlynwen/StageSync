@@ -37,7 +37,7 @@ document
           // flashAlert("An error occurred. Please try again.");
         });
     } else {
-      flashAlert("Please select at least one user.");
+      flashAlert("Please select at least one user.", "error");
     }
   });
 
@@ -69,9 +69,9 @@ document
         })
         .catch((error) => {
           console.error("Error:", error);
-          flashAlert("An error occurred. Please try again.");
+          flashAlert("An error occurred. Please try again.", "error");
         });
     } else {
-      flashAlert("Please enter a valid NetID.");
+      flashAlert("Please enter a valid NetID.", "error");
     }
   });
