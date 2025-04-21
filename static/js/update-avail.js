@@ -29,6 +29,10 @@ function showTab(tab) {
       const weeklyInputs = document.querySelectorAll('input[name$="_conflicts"]');
       for (const input of weeklyInputs) {
         const value = input.value.trim();
+        if (input.value && value === "") {
+          flashAlert("Conflict input cannot be just spaces.", "error");
+          return false;
+        }
         if (value && !weeklyPattern.test(value)) {
           flashAlert("Please use correct formatting: HH:MMAM/PM - HH:MMAM/PM separated by semicolons.", "error");
           return false;
@@ -39,6 +43,11 @@ function showTab(tab) {
     else if (isOneTimeVisible) {
       const oneTimeInput = document.getElementById('one-time-conflict');
       const value = oneTimeInput.value.trim();
+      if (input.value && value === "") {
+        flashAlert("Conflict input cannot be just spaces.", "error");
+        return false;
+      }
+
       if (value) {
         if (!oneTimePattern.test(value)) {
           flashAlert("Please use correct formatting: MM/DD.HH:MMAM/PM - MM/DD.HH:MMAM/PM separated by semicolons.", "error");
