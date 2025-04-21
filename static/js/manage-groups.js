@@ -168,12 +168,11 @@ edit.forEach(function (edit) {
           .then((response) => response.json()) // Convert response to JSON
           .then((data) => {
             if (data.success) {
-              flashAlert("Changes saved!", "success");
-              editModal.style.display = "none";
               location.reload();
+              editModal.style.display = "none";
             } else {
               flashAlert(data.error, "error");
-              editModal.style.display = "none"; // Close modal on success
+              editModal.style.display = "none";
             }
           })
           .catch((error) => {
@@ -216,7 +215,6 @@ document.getElementById("create-group").addEventListener("click", function () {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        flashAlert("Group successfully created", "success");
         document.getElementById("create-modal").classList.add("hidden");
         location.reload();
       } else {
@@ -267,7 +265,6 @@ deleteModal
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          flashAlert("Group successfully deleted", "success");
           deleteModal.classList.add("hidden");
           location.reload();
         } else {

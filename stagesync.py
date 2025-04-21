@@ -655,7 +655,7 @@ def update_group_name():
                 params = [(group_id, netid) for netid in add]
                 execute_values(cur, query, params)
                 conn.commit()
-
+        flash("Changes for \"" + group_name + "\" saved!", "success")
         return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:
@@ -692,7 +692,7 @@ def create_group():
                 """
                 cur.execute(query, (group_name,))
                 conn.commit()
-
+        flash("Group \"" + group_name + "\" successfully created", "success")
         return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:
@@ -743,7 +743,7 @@ def delete_group():
                 """
                 cur.execute(query, (group_id,))
                 conn.commit()
-
+        flash("Group successfully deleted", "success")
         return jsonify({"success": True}), 200  # Return success with status code 200
 
     except Exception as e:

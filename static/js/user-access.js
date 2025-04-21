@@ -30,7 +30,6 @@ document
         .then((response) => response.json())
         .then(() => {
           location.reload(); // Reload the page to reflect changes
-          window.scrollTo(0, 0); // Scroll to top of page
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -65,7 +64,6 @@ document
         .then((response) => response.json())
         .then(() => {
           location.reload(); // Reload the page to reflect changes
-          window.scrollTo(0, 0); // Scroll to top of page
         })
         .catch((error) => {
           console.error("Error:", error);
