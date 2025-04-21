@@ -599,8 +599,6 @@ def update_group_name():
                 """
                 cur.execute(query, (new_group_name, group_name))
                 conn.commit()
-                
-                print("mald2")
 
                 # Remove selected members from group
                 query = """
