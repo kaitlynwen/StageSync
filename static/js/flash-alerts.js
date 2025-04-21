@@ -56,7 +56,7 @@ function flashAlert(message, category = "info", duration = 3000) {
   if (duration > 0) {
     setTimeout(() => {
       alert.classList.add("opacity-0");
-      setTimeout(() => alert.remove(), 300);
+      setTimeout(() => alert.remove(), 600);
     }, duration);
   }
 }

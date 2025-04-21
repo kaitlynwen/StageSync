@@ -2,7 +2,7 @@
 {% if messages %}
 <div id="alert-container" class="flex flex-col">
     {% for category, message in messages %}
-    <div class="alert w-full px-4 py-3 rounded-md relative transition-all duration-300 opacity-100
+    <div class="alert w-1/4 px-4 py-3 rounded-md relative transition-all duration-300 opacity-100
           {% if category == 'success' %}
             bg-green-100 border border-green-400 text-green-700
           {% elif category == 'error' %}

@@ -30,18 +30,18 @@ function showTab(tab) {
       for (const input of weeklyInputs) {
         const value = input.value.trim();
         if (value && !weeklyPattern.test(value)) {
-          showErrorModal("Please use correct formatting: HH:MMAM/PM - HH:MMAM/PM separated by semicolons.");
+          flashAlert("Please use correct formatting: HH:MMAM/PM - HH:MMAM/PM separated by semicolons.", "error");
           return false;
         }
       }
     }
 
-    if (isOneTimeVisible) {
+    else if (isOneTimeVisible) {
       const oneTimeInput = document.getElementById('one-time-conflict');
       const value = oneTimeInput.value.trim();
       if (value) {
         if (!oneTimePattern.test(value)) {
-          showErrorModal("Please use correct formatting: MM/DD.HH:MMAM/PM - MM/DD.HH:MMAM/PM separated by semicolons.");
+          flashAlert("Please use correct formatting: MM/DD.HH:MMAM/PM - MM/DD.HH:MMAM/PM separated by semicolons.", "error");
           return false;
         }
 
@@ -59,7 +59,7 @@ function showTab(tab) {
 
             // If the conflict date is before today
             if (conflictDate.setHours(0,0,0,0) < now.setHours(0,0,0,0)) {
-              alert(`One-time conflict date ${month + 1}/${day} is in the past. Please remove or fix it.`);
+              flashAlert(`One-time conflict date ${month + 1}/${day} is in the past. Please remove or fix it.`, "error");
               return false;
             }
           }
