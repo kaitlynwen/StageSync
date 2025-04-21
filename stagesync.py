@@ -127,7 +127,6 @@ def check_admin():
     if request.path.startswith("/static/"):
         return
     user_info = get_user_info()
-    g.user_info = user_info
     if user_info.get("is_admin") is None:
         return render_template("unauthorized-user.html", user=user_info)
 
