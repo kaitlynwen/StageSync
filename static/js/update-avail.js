@@ -69,3 +69,26 @@ function showTab(tab) {
 
     return true;
   }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    const saveBtn = document.getElementById('saveBtn');
+  
+    if (!form || !saveBtn) return;
+  
+    form.addEventListener('submit', (e) => {
+      if (!validateConflicts()) {
+        e.preventDefault();
+        return;
+      }
+  
+      // Disable the button + show spinner
+      saveBtn.disabled = true;
+      saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      saveBtn.innerHTML = `
+        <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
+        Saving...
+      `;
+    });
+  });
+  
