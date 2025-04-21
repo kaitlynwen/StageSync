@@ -1025,6 +1025,20 @@ def restore_draft_schedule():
                     WHERE d.id = e.publishid;
                 """
                 )
+                
+                cur.execute(
+                    """
+                    INSERT INTO draft_schedule (id, title, start, "end", location, groupid, created_at)
+                    SELECT 
+                        e.publishid, e.title, e.start, e."end", e.location, e.groupid, e.created_at
+                    FROM events e
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM draft_schedule d
+                        WHERE d.id = e.publishid
+                    );
+                    """
+                )
 
                 # Commit the transaction
                 conn.commit()
