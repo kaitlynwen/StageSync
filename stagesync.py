@@ -362,32 +362,42 @@ def upload():
 
                             # Check if event already exists
                             cur.execute(
-                                """SELECT id FROM events WHERE start = %s AND "end" = %s AND location = %s""",
+                                """SELECT id FROM draft_schedule WHERE start = %s AND "end" = %s AND location = %s""",
                                 (start_time_utc, end_time_utc, event["location"]),
                             )
                             existing_events = cur.fetchall()
 
-                            # Delete existing events
+                            # If an event already exists, update it
                             for e in existing_events:
-                                cur.execute("DELETE FROM events WHERE id = %s", (e[0],))
+                                cur.execute(
+                                    """UPDATE draft_schedule
+                                    SET title = %s, start = %s, "end" = %s, location = %s, groupid = %s, created_at = %s
+                                    WHERE id = %s""",
+                                    (
+                                        event["title"],
+                                        start_time_utc,  # Store UTC start time
+                                        end_time_utc,  # Store UTC end time
+                                        event["location"],
+                                        event["groupid"],
+                                        datetime.now(ZoneInfo("UTC")),  # Store UTC time for created_at
+                                        e[0],  # ID of the existing event
+                                    ),
+                                )
 
-                            # Insert new event
-                            cur.execute(
-                                """INSERT INTO events (title, start, "end", location, "groupid", created_at) 
-                                   VALUES (%s, %s, %s, %s, %s, %s)""",
-                                (
-                                    event["title"],
-                                    start_time_utc,  # Store UTC start time
-                                    end_time_utc,  # Store UTC end time
-                                    event["location"],
-                                    event["groupid"],
-                                    datetime.now(
-                                        ZoneInfo("UTC")
-                                    ),  # Store UTC time for created_at
-                                ),
-                            )
-
-                        conn.commit()
+                            # If no existing event was found, insert a new one
+                            if not existing_events:
+                                cur.execute(
+                                    """INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at)
+                                    VALUES (%s, %s, %s, %s, %s, %s)""",
+                                    (
+                                        event["title"],
+                                        start_time_utc,  # Store UTC start time
+                                        end_time_utc,  # Store UTC end time
+                                        event["location"],
+                                        event["groupid"],
+                                        datetime.now(ZoneInfo("UTC")),  # Store UTC time for created_at
+                                    ),
+                                )
 
                 flash("File uploaded and events saved successfully!", "success")
                 return redirect(url_for("upload"))
@@ -461,7 +471,7 @@ def update_event():
                         "end" = %s,
                         location = %s,
                         groupid = %s
-                    WHERE publish_id = %s;
+                    WHERE id = %s;
                 """
                 cur.execute(update_query, (title, start, end, location, groupid, event_id))
                 conn.commit()
@@ -942,7 +952,7 @@ def draft():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    SELECT d.publish_id, d.title, d.start, d."end", d.groupid, r.name
+                    SELECT d.id, d.title, d.start, d."end", d.groupid, r.name
                     FROM draft_schedule d
                     LEFT JOIN rehearsal_spaces r ON d.location = r.name
                     ORDER BY d.start ASC
@@ -1000,15 +1010,13 @@ def restore_draft_schedule():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Delete all rows in draft_schedule table
-                cur.execute("DELETE FROM draft_schedule")
-
                 # Copy all events from events table into draft_schedule
                 cur.execute(
                     """
-                    INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at, publish_id)
-                    SELECT title, start, "end", location, groupid, created_at, id
-                    FROM events
+                    INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at)
+                    SELECT e.title, e.start, e."end", e.location, e.groupid, e.created_at
+                    FROM events e
+                    JOIN draft_schedule d ON d.id = e.publishid;
                 """
                 )
 
@@ -1027,47 +1035,12 @@ def publish_draft():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                # Get the last published event ID
-                cur.execute("SELECT MAX(id) FROM events")
-                last_id = cur.fetchone()[0] or 0
-                
+                cur.execute("DELETE FROM events")
                 cur.execute(
                     """
-                    INSERT INTO events (title, location, start, "end", groupid)
-                    SELECT title, location, start, "end", groupid
-                    FROM draft_schedule
-                    WHERE publish_id > %s;
-                    """,
-                    (last_id,)
-                )
-                
-                cur.execute(
-                    "DELETE FROM draft_schedule WHERE publish_id > %s", (last_id,)
-                )
-                
-                cur.execute(
-                    """
-                    DELETE FROM events
-                    WHERE id NOT IN (
-                        SELECT publish_id FROM draft_schedule WHERE publish_id IS NOT NULL
-                    );
-                    """
-                )
-                
-                # Update events in the `events` table where publish_id is in table
-                cur.execute(
-                    """
-                    UPDATE events
-                    SET 
-                        title = draft_schedule.title,
-                        start = draft_schedule.start,
-                        "end" = draft_schedule.end,
-                        location = draft_schedule.location,
-                        groupid = draft_schedule.groupid,
-                        created_at = draft_schedule.created_at
-                    FROM draft_schedule
-                    WHERE events.id = draft_schedule.publish_id;
-                """
+                    INSERT INTO events (title, start, "end", location, groupid, created_at, publishid)
+                    SELECT title, start, "end", location, groupid, NOW(), id
+                    FROM draft_schedule;"""
                 )
 
         return jsonify({"message": "Schedule published successfully!"})
@@ -1112,17 +1085,12 @@ def add_event():
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
-                publish_id = 0
-                # Get the last published event ID
-                cur.execute("SELECT MAX(publish_id) FROM draft_schedule")
-                publish_id = cur.fetchone()[0] + 1 or 0
-                
                 insert_query = """
-                    INSERT INTO draft_schedule (title, location, start, "end", groupid, publish_id)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    RETURNING id, title, location, start, "end", groupid, publish_id;
+                    INSERT INTO draft_schedule (title, location, start, "end", groupid)
+                    VALUES (%s, %s, %s, %s, %s)
+                    RETURNING id, title, location, start, "end", groupid;
                 """
-                cur.execute(insert_query, (title, location, start, end, group_id, publish_id))
+                cur.execute(insert_query, (title, location, start, end, group_id))
                 event = cur.fetchone()
                 conn.commit()
 
@@ -1133,8 +1101,7 @@ def add_event():
             "location": event[2],
             "start": event[3].isoformat(),
             "end": event[4].isoformat(),
-            "group_id": event[5],
-            "publish_id": event[6],  # This will be NULL initially
+            "group_id": event[5]
         }
 
         return (
@@ -1168,7 +1135,7 @@ def delete_event():
             with conn.cursor() as cur:
                 delete_query = """
                     DELETE FROM draft_schedule
-                    WHERE publish_id = %s;
+                    WHERE id = %s;
                 """
                 cur.execute(delete_query, (event_id,))
                 conn.commit() 
@@ -1180,7 +1147,7 @@ def delete_event():
 
     except Exception as e:
         print("Error adding event:", str(e))
-        return jsonify({"error": "Failed to add event"}), 500
+        return jsonify({"error": "Failed to delete event"}), 500
 
 
 @app.route("/download-calendar", methods=["GET"])

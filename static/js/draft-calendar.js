@@ -224,6 +224,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const end = document.getElementById("end-time").value;
       const groupId = document.getElementById("group").value;
 
+      if (end < start) {
+        flashAlert("Event end time cannot be before start time.", "error");
+        return;
+      }
+
       if (!title || !location || !start || !end) {
         flashAlert("Please fill in all required fields.", "warning");
         return;
@@ -391,3 +396,15 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   });
 });
+
+// Helper function to display loading spinner while performing async tasks
+function withLoading(button, asyncCallback) {
+  const originalHTML = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Loading...`;
+
+  return asyncCallback().finally(() => {
+    button.disabled = false;
+    button.innerHTML = originalHTML;
+  });
+}
