@@ -21,15 +21,12 @@ edit.forEach(function (edit) {
 
     // List of members in group
     const members = JSON.parse(this.dataset.members);
-    // console.log(members)
 
     // netIDs of members in group
     const memberNetids = members.map(item => item.netid);
-    // console.log(memberNetids);
 
     // List of members
     const allMembers = JSON.parse(this.dataset.allMembers);
-    // console.log(allMembers)
 
     // Filter members in group from all members
     // https://stackoverflow.com/questions/34901593/how-to-filter-an-array-from-all-elements-of-another-array
@@ -39,29 +36,31 @@ edit.forEach(function (edit) {
     // Update modal content dynamically
     modalContent.innerHTML = `
     <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-600">
-      <h2 class="text-lg font-bold text-indigo-500">Change Group Name:</h2>
-      <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl close">&times;</button>
-    </div>
-    <div class="p-4 space-y-4">
-      <input type="text" id="group-title" value="${groupName}" class="w-full px-3 py-2 border rounded-md" />
-      <div class="flex justify-between items-start">
-        <div class="w-1/2">
-          <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Remove Existing Members:</h2>
-          <div id="remove-members"></div>
-        </div>
+  <h2 class="text-lg font-bold text-indigo-500">Change Group Name:</h2>
+  <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl close">&times;</button>
+</div>
 
-        <div class="w-1/2">
-          <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Add New Members:</h2>
-          <div id="add-members"></div>
-        </div>
-      </div>
-      <br>
-      <div style="display: flex; justify-content: flex-end;">
-        <button id="save-group" class="bg-indigo-500 hover:bg-indigo-700 text-white px-2 py-1 rounded text-sm mb-2">
-          Save
-        </button>
-      </div>
+<div class="p-4 space-y-4 overflow-y-auto">
+  <input type="text" id="group-title" value="${groupName}" class="w-full px-3 py-2 border rounded-md" />
+  <div class="flex justify-between items-start gap-4">
+    <div class="w-1/2">
+      <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Remove Existing Members:</h2>
+      <div id="remove-members"></div>
     </div>
+
+    <div class="w-1/2">
+      <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Add New Members:</h2>
+      <div id="add-members"></div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky bottom-0 right-0 w-full bg-white dark:bg-neutral-800 p-4 border-t border-gray-200 dark:border-gray-600 flex justify-end">
+  <button id="save-group" class="bg-indigo-500 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm">
+    Save
+  </button>
+</div>
+
     `;
 
     let removeMembersHtml = '';
@@ -69,7 +68,7 @@ edit.forEach(function (edit) {
       const member = members[i];
       removeMembersHtml += `
           <input type="checkbox"
-          class="remove-member-checkbox"
+          class="remove-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
           value="${member.netid}" /> 
           ${member.first_name} ${member.last_name}
         <br />
@@ -81,7 +80,7 @@ edit.forEach(function (edit) {
       const availableMember = availableMembers[i];
       addMembersHtml += `
           <input type="checkbox"
-          class="add-member-checkbox"
+          class="add-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
           value="${availableMember.netid}" /> 
           ${availableMember.first_name} ${availableMember.last_name}
         <br />
