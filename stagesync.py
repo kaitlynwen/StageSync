@@ -18,7 +18,6 @@ from flask import (
     request,
     jsonify,
     flash,
-    get_flashed_messages,
 )
 from datetime import datetime
 from ics import Calendar, Event
@@ -196,15 +195,13 @@ def update():
                 conflicts[idx] = (
                     f"{start_time_dt.strftime('%I:%M%p')}-{end_time_dt.strftime('%I:%M%p')}"
                 )
-
-        messages = get_flashed_messages()
+                
         return render_template(
             "update.html",
             user=user_info,
             weekly_conflicts=weekly_conflicts,
             one_time_conflicts=one_time_conflicts,
-            conflict_notes=conflict_notes,
-            messages=messages
+            conflict_notes=conflict_notes
         )
 
     else:
@@ -308,7 +305,7 @@ def update():
         success_message = "Availability successfully updated!"
         notify_admins_user_updated(user_netid)
 
-        flash(success_message)
+        flash(success_message, "success")
         return redirect(url_for("update"))
 
 
