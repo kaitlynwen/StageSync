@@ -583,6 +583,16 @@ def update_group_name():
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
+                #Check if Group already exists
+                query = """
+                    SELECT 1 
+                    FROM rehearsal_groups 
+                    WHERE title = %s
+                """
+                cur.execute(query, (new_group_name,))
+                if cur.fetchone():
+                    return jsonify({"error": "Group already exists"}), 400
+                    
                 # Update the title for given group
                 query = """
                     UPDATE rehearsal_groups
@@ -630,11 +640,20 @@ def create_group():
         # Connect to the database
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
+                #Check if Group already exists
+                query = """
+                    SELECT 1 
+                    FROM rehearsal_groups 
+                    WHERE title = %s
+                """
+                cur.execute(query, (group_name,))
+                if cur.fetchone():
+                    return jsonify({"error": "Group already exists"}), 400
+                
                 # Create new group
                 query = """
                     INSERT INTO rehearsal_groups (title)
                     VALUES (%s)
-                    ON CONFLICT DO NOTHING
                 """
                 cur.execute(query, (group_name,))
                 conn.commit()
