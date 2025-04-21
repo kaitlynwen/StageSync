@@ -133,15 +133,19 @@ def extract_schedule(file, filename, group_name):
     warnings = []  # Store warnings to flash later
     
     # Extract date range
-    date_range_match = re.search(r"\((\d{1,2}_\d{1,2}-\d{1,2}_\d{1,2})\)", filename)
-    date_range = date_range_match.group(1) if date_range_match else "Unknown"
+    date_range_match = re.search(r"\(\s*(\d{1,2}_\d{1,2})\s*-\s*(\d{1,2}_\d{1,2})\s*\)", filename)
+    date_range = "Unknown"
 
-    try:
-        start_date_str, end_date_str = date_range.split("-")
+    if date_range_match:
+        start_date_str = date_range_match.group(1)
+        end_date_str = date_range_match.group(2)
+        
+        date_range = start_date_str + '-' + end_date_str
+        
         start_date = datetime.strptime(start_date_str, "%m_%d").replace(year=datetime.now().year)
         end_date = datetime.strptime(end_date_str, "%m_%d").replace(year=datetime.now().year)
         dates = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
-    except ValueError:
+    else:
         warnings.append("Invalid date range format in filename.")
         dates = []
 
