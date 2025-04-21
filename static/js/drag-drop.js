@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const maxSize = 5 * 1024 * 1024; // 5MB limit
   const allowedTypes = [
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "text/csv"
+    "text/csv",
   ];
 
   // Handle manual file selection (click)
@@ -15,19 +15,19 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Prevent default drag behaviors
-  ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+  ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
     dropzone.addEventListener(eventName, (event) => event.preventDefault());
   });
 
   // Highlight dropzone when file is dragged over
-  ["dragenter", "dragover"].forEach(eventName => {
+  ["dragenter", "dragover"].forEach((eventName) => {
     dropzone.addEventListener(eventName, () => {
       dropzone.classList.add("border-indigo-500", "bg-neutral-100");
     });
   });
 
   // Remove highlight when dragging ends
-  ["dragleave", "drop"].forEach(eventName => {
+  ["dragleave", "drop"].forEach((eventName) => {
     dropzone.addEventListener(eventName, () => {
       dropzone.classList.remove("border-indigo-500", "bg-neutral-100");
     });
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const file = event.dataTransfer.files[0]; // Get the dropped file
     if (file) {
       handleFile(file);
-      
+
       // Assign the dropped file to the hidden file input
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
@@ -55,7 +55,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (file.size > maxSize) {
-      flashAlert("File size exceeds 5MB. Please upload a smaller file.", "error");
+      flashAlert(
+        "File size exceeds 5MB. Please upload a smaller file.",
+        "error"
+      );
       return;
     }
 

@@ -165,27 +165,29 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label for="event-title"
-                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Title</label>
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                      Title <span class="text-red-500">*</span>
+                  </label>
                   <input type="text" id="event-title" required
                     class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white" />
                 </div>
                 <div>
                   <label for="location" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
-                    Location
+                    Location <span class="text-red-500">*</span>
                   </label>
                   <input type="dtext" id="location"
                     class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300" required>
                 </div>
                 <div>
                   <label for="start-time" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
-                    Start Time (EST)
+                    Start Time (EST) <span class="text-red-500">*</span>
                   </label>
                   <input type="datetime-local" id="start-time"
                     class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300" required>
                 </div>
                 <div>
                   <label for="end-time" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
-                    End Time (EST)
+                    End Time (EST) <span class="text-red-500">*</span>
                   </label>
                   <input type="datetime-local" id="end-time"
                     class="w-full p-2.5 rounded-lg bg-neutral-50 border border-neutral-300" required>
@@ -237,27 +239,34 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label for="edit-event-title"
-                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Title</label>
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    Title <span class="text-red-500">*</span>
+                  </label>
                   <input type="text" id="edit-event-title" required
                     class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white" />
                 </div>
                 <div>
                   <label for="edit-location"
-                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Location</label>
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    Location <span class="text-red-500">*</span>
+                  </label>
                   <input type="text" id="edit-location"
                     class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white"
                     required />
                 </div>
                 <div>
                   <label for="edit-start-time"
-                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">Start Time (EST)</label>
+                    class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    Start Time (EST) <span class="text-red-500">*</span>
+                  </label>
                   <input type="datetime-local" id="edit-start-time"
                     class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white"
                     required />
                 </div>
                 <div>
-                  <label for="edit-end-time" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">End
-                    Time (EST)</label>
+                  <label for="edit-end-time" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+                    End Time (EST) <span class="text-red-500">*</span>
+                  </label>
                   <input type="datetime-local" id="edit-end-time"
                     class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-neutral-600 dark:border-neutral-500 dark:text-white"
                     required />

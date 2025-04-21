@@ -43,7 +43,7 @@ function showTab(tab) {
     else if (isOneTimeVisible) {
       const oneTimeInput = document.getElementById('one-time-conflict');
       const value = oneTimeInput.value.trim();
-      if (input.value && value === "") {
+      if (oneTimeInput.value && value === "") {
         flashAlert("Conflict input cannot be just spaces.", "error");
         return false;
       }

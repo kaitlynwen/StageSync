@@ -8,6 +8,16 @@ document.getElementById("remove-admin-button").addEventListener("click", functio
     // Submit the form
     document.getElementById("remove-admin-form").submit();
   } else {
-    flatshAlert("Please select at least one user.", "error");
+    flashAlert("Please select at least one user.", "error");
+  }
+});
+
+document.getElementById("addAdminBtn").addEventListener("click", function (e) {
+  const dropdown = document.getElementById("memberDropdown");
+  const selectedValue = dropdown.value;
+
+  if (!selectedValue) {
+    e.preventDefault();
+    flashAlert("Please select a member before adding.", "error");
   }
 });

@@ -581,14 +581,15 @@ def update_group_name():
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 #Check if Group already exists
-                query = """
-                    SELECT 1 
-                    FROM rehearsal_groups 
-                    WHERE title = %s
-                """
-                cur.execute(query, (new_group_name,))
-                if cur.fetchone():
-                    return jsonify({"error": "Group already exists"}), 400
+                if group_name != new_group_name:
+                    query = """
+                        SELECT 1 
+                        FROM rehearsal_groups 
+                        WHERE title = %s
+                    """
+                    cur.execute(query, (new_group_name,))
+                    if cur.fetchone():
+                        return jsonify({"error": "Group already exists"}), 400
                     
                 # Update the title for given group
                 query = """
@@ -598,6 +599,8 @@ def update_group_name():
                 """
                 cur.execute(query, (new_group_name, group_name))
                 conn.commit()
+                
+                print("mald2")
 
                 # Remove selected members from group
                 query = """

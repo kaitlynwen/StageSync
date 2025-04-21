@@ -13,7 +13,9 @@ var span = document.getElementsByClassName("close")[0];
 edit.forEach(function (edit) {
   edit.addEventListener("click", function () {
     // Close the dropdown menu
-    const dropdownMenu = edit.closest(".relative").querySelector("[id^='dropdownMenu']");
+    const dropdownMenu = edit
+      .closest(".relative")
+      .querySelector("[id^='dropdownMenu']");
     if (dropdownMenu) dropdownMenu.classList.add("hidden");
 
     const groupName = this.dataset.groupName;
@@ -23,70 +25,80 @@ edit.forEach(function (edit) {
     const members = JSON.parse(this.dataset.members);
 
     // netIDs of members in group
-    const memberNetids = members.map(item => item.netid);
+    const memberNetids = members.map((item) => item.netid);
 
     // List of members
     const allMembers = JSON.parse(this.dataset.allMembers);
 
     // Filter members in group from all members
     // https://stackoverflow.com/questions/34901593/how-to-filter-an-array-from-all-elements-of-another-array
-    const availableMembers = allMembers.filter(item => !memberNetids.includes(item.netid));
+    const availableMembers = allMembers.filter(
+      (item) => !memberNetids.includes(item.netid)
+    );
     // console.log(availableMembers)
 
     // Update modal content dynamically
     modalContent.innerHTML = `
-    <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-600">
-  <h2 class="text-lg font-bold text-indigo-500">Change Group Name:</h2>
-  <button type="button" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl close">&times;</button>
-</div>
-
-<div class="p-4 space-y-4 overflow-y-auto">
-  <input type="text" id="group-title" value="${groupName}" class="w-full px-3 py-2 border rounded-md" />
-  <div class="flex justify-between items-start gap-4">
-    <div class="w-1/2">
-      <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Remove Existing Members:</h2>
-      <div id="remove-members"></div>
+    <div class="flex justify-between items-center p-4 border-b border-neutral-200 dark:border-neutral-800">
+      <h2 class="text-lg font-bold text-neutral-950">Edit Group</h2>
+      <button type="button" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-white text-xl close">&times;</button>
     </div>
 
-    <div class="w-1/2">
-      <h2 class="text-lg font-bold text-indigo-500 py-4">Check to Add New Members:</h2>
-      <div id="add-members"></div>
+    <div class="p-4 space-y-4 overflow-y-auto">
+      <label for="group-title" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+        Group Name <span class="text-red-500">*</span>
+      </label>
+      <input type="text" id="group-title" value="${groupName}" class="w-64 px-3 py-2 border bg-neutral-50 border-neutral-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white" />
+      <div class="flex justify-between items-start gap-4">
+        <div class="w-1/2">
+          <p class="text-sm font-medium text-neutral-900 dark:text-white py-4">Remove Existing Members</p>
+          <div id="remove-members"></div>
+        </div>
+
+        <div class="w-1/2">
+          <p class="text-sm font-medium text-neutral-900 dark:text-white py-4">Add New Members</p>
+          <div id="add-members"></div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<div class="sticky bottom-0 right-0 w-full bg-white dark:bg-neutral-800 p-4 border-t border-gray-200 dark:border-gray-600 flex justify-end">
-  <button id="save-group" class="bg-indigo-500 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm">
-    Save
-  </button>
-</div>
+    <div class="sticky bottom-0 right-0 w-full bg-white dark:bg-neutral-800 p-4 border-t border-neutral-200 dark:border-neutral-600 flex justify-end">
+      <button id="save-group" class="bg-indigo-500 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm">
+        Save
+      </button>
+    </div>`;
 
-    `;
-
-    let removeMembersHtml = '';
+    let removeMembersHtml = "";
     for (let i = 0; i < members.length; i++) {
       const member = members[i];
+      const id = `remove-${member.netid}`;
+    
       removeMembersHtml += `
+        <div>
           <input type="checkbox"
-          class="remove-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
-          value="${member.netid}" /> 
-          ${member.first_name} ${member.last_name}
-        <br />
+            id="${id}"
+            class="remove-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
+            value="${member.netid}" />
+          <label for="${id}">${member.first_name} ${member.last_name}</label>
+        </div>
       `;
-    }
+    }    
 
-    let addMembersHtml = '';
+    let addMembersHtml = "";
     for (let i = 0; i < availableMembers.length; i++) {
       const availableMember = availableMembers[i];
+      const id = `add-${availableMember.netid}`;
+    
       addMembersHtml += `
+        <div>
           <input type="checkbox"
-          class="add-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
-          value="${availableMember.netid}" /> 
-          ${availableMember.first_name} ${availableMember.last_name}
-        <br />
-      `;
+            id="${id}"
+            class="add-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
+            value="${availableMember.netid}" /> 
+          <label for="${id}">${availableMember.first_name} ${availableMember.last_name}</label>
+        </div>
+      `;    
     }
-
 
     // Insert the generated checkboxes into the modal
     document.getElementById("remove-members").innerHTML = removeMembersHtml;
@@ -97,57 +109,77 @@ edit.forEach(function (edit) {
       editModal.style.display = "none";
     };
 
-    document.getElementById("save-group").addEventListener("click", function () {
+    document
+      .getElementById("save-group")
+      .addEventListener("click", function () {
+        // Disable the button + show spinner
+        const saveBtn = document.getElementById('save-group');
+      saveBtn.disabled = true;
+      saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      saveBtn.innerHTML = `
+        <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
+        Saving...
+      `;
 
-      var newGroupName = document.getElementById("group-title").value;
+        var newGroupName = document.getElementById("group-title").value;
 
-      // Get all checked checkboxes for remove members
-      const removeChecked = document.querySelectorAll(
-        ".remove-member-checkbox:checked"
-      );
+        // Get all checked checkboxes for remove members
+        const removeChecked = document.querySelectorAll(
+          ".remove-member-checkbox:checked"
+        );
 
-      // Create an array of netid values of selected remove users
-      const netidsToRemove = Array.from(removeChecked).map(
-        (checkbox) => checkbox.value
-      );
+        // Create an array of netid values of selected remove users
+        const netidsToRemove = Array.from(removeChecked).map(
+          (checkbox) => checkbox.value
+        );
 
-      // Get all checked checkboxes for remove members
-      const addChecked = document.querySelectorAll(
-        ".add-member-checkbox:checked"
-      );
+        console.log(netidsToRemove);
 
-      // Create an array of netid values of selected remove users
-      const netidsToAdd = Array.from(addChecked).map(
-        (checkbox) => checkbox.value
-      );
+        // Get all checked checkboxes for remove members
+        const addChecked = document.querySelectorAll(
+          ".add-member-checkbox:checked"
+        );
 
-      // Get CSRF token for validation
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+        // Create an array of netid values of selected remove users
+        const netidsToAdd = Array.from(addChecked).map(
+          (checkbox) => checkbox.value
+        );
 
-      // Send update request to backend
-      fetch("/update-group-info", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, },
-        body: JSON.stringify({
-          groupId, groupName, newGroupName,
-          remove: netidsToRemove, add: netidsToAdd
-        }),
-      })
-        .then(response => response.json()) // Convert response to JSON
-        .then(data => {
-          if (data.success) {
-            flashAlert("Changes saved!", "success");
-            editModal.style.display = "none";
-            location.reload();
-          } else {
-            flashAlert("An error occured: " + data.message, "error");
-            editModal.style.display = "none"; // Close modal on success
-          }
+        // Get CSRF token for validation
+        const csrfToken = document
+          .querySelector('meta[name="csrf-token"]')
+          .getAttribute("content");
+
+        // Send update request to backend
+        fetch("/update-group-info", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({
+            groupId,
+            groupName,
+            newGroupName,
+            remove: netidsToRemove,
+            add: netidsToAdd,
+          }),
         })
-        .catch(error => {
-          console.error("Fetch error:", error);
-        });
-    });
+          .then((response) => response.json()) // Convert response to JSON
+          .then((data) => {
+            if (data.success) {
+              flashAlert("Changes saved!", "success");
+              editModal.style.display = "none";
+              location.reload();
+            } else {
+              flashAlert("An error occured: " + data.message, "error");
+              editModal.style.display = "none"; // Close modal on success
+            }
+          })
+          .catch((error) => {
+            console.error("Fetch error:", error);
+          });
+      });
     // Show the modal
     editModal.style.display = "flex";
   });
@@ -158,7 +190,7 @@ window.onclick = function (event) {
   if (event.target == editModal) {
     editModal.style.display = "none";
   }
-}
+};
 
 // Create Group Modal (Utilizes Tailwind Flowbite)
 document.getElementById("create-group").addEventListener("click", function () {
@@ -169,7 +201,9 @@ document.getElementById("create-group").addEventListener("click", function () {
     return;
   }
 
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+  const csrfToken = document
+    .querySelector('meta[name="csrf-token"]')
+    .getAttribute("content");
 
   fetch("/create-group", {
     method: "POST",
@@ -201,47 +235,55 @@ var deleteModal = document.getElementById("delete-modal");
 document.querySelectorAll(".dropdown-delete").forEach(function (deleteButton) {
   deleteButton.addEventListener("click", function () {
     // Close the dropdown menu
-    const dropdownMenu = deleteButton.closest(".relative").querySelector("[id^='dropdownMenu']");
+    const dropdownMenu = deleteButton
+      .closest(".relative")
+      .querySelector("[id^='dropdownMenu']");
     if (dropdownMenu) dropdownMenu.classList.add("hidden");
 
     const groupId = this.dataset.groupId;
 
-    deleteModal.querySelector("button[data-modal-hide='delete-modal']").dataset.groupId = groupId;
+    deleteModal.querySelector(
+      "button[data-modal-hide='delete-modal']"
+    ).dataset.groupId = groupId;
 
     deleteModal.classList.remove("hidden");
   });
 });
 
-deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventListener("click", function () {
-  const groupId = this.dataset.groupId;
+deleteModal
+  .querySelector("button[data-modal-hide='delete-modal']")
+  .addEventListener("click", function () {
+    const groupId = this.dataset.groupId;
 
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
 
-  fetch("/delete-group", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, },
-    body: JSON.stringify({ groupId }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        flashAlert("Group successfully deleted", "success");
-        deleteModal.classList.add("hidden");
-        location.reload();
-      } else {
-        flashAlert("An error occurred: " + data.message, "error");
-        deleteModal.classList.add("hidden");
-      }
+    fetch("/delete-group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+      body: JSON.stringify({ groupId }),
     })
-    .catch(error => {
-      console.error("Fetch error:", error);
-      deleteModal.classList.add("hidden");  // Hide the modal on network error
-    });
-});
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          flashAlert("Group successfully deleted", "success");
+          deleteModal.classList.add("hidden");
+          location.reload();
+        } else {
+          flashAlert("An error occurred: " + data.message, "error");
+          deleteModal.classList.add("hidden");
+        }
+      })
+      .catch((error) => {
+        console.error("Fetch error:", error);
+        deleteModal.classList.add("hidden"); // Hide the modal on network error
+      });
+  });
 
 // Close modal when user clicks outside of it
 window.onclick = function (event) {
   if (event.target == deleteModal) {
-    deleteModal.classList.add("hidden");  // Hide the modal when clicked outside
+    deleteModal.classList.add("hidden"); // Hide the modal when clicked outside
   }
 };
