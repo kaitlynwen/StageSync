@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!file) return;
 
     if (!allowedTypes.includes(file.type)) {
-      flashAlert("Invalid file type. Only XLSX or CSV allowed.", "error");
+      flashAlert("Invalid file type. Only XLSX allowed.", "error");
       return;
     }
 
