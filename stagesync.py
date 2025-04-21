@@ -18,6 +18,7 @@ from flask import (
     request,
     jsonify,
     flash,
+    g,
 )
 from datetime import datetime
 from ics import Calendar, Event
@@ -121,17 +122,23 @@ def check_csrf():
 
 # --------------------------------------------------------------------
 
+@app.before_request
+def check_admin():
+    if request.path.startswith("/static/"):
+        return
+    user_info = get_user_info()
+    g.user_info = user_info
+    if user_info.get("is_admin") is None:
+        return render_template("unauthorized-user.html", user=user_info)
+
+# --------------------------------------------------------------------
 
 # Routes
 @app.route("/", methods=["GET"])
 @app.route("/home", methods=["GET"])
 def home():
     user_info = get_user_info()
-    is_admin = user_info["is_admin"]
-    if is_admin is None:
-        return render_template("unauthorized-user.html", user=user_info)
     return render_template("home.html", user=user_info)
-
 
 @app.route("/settings", methods=["GET"])
 def settings():
