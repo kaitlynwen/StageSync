@@ -37,7 +37,7 @@
     {% endif %}
 
     <!-- Main Content Section -->
-    <div class="flex-1 flex flex-col pt-18 sm:pt-6 pb-18 px-6 sm:px-10">
+    <div class="flex-1 flex flex-col pt-18 pb-8 sm:pt-6 px-6 sm:px-10">
       <div class="flex justify-between items-center mt-2">
         <div>
           <p class="text-3xl font-bold dark:text-neutral-200">Settings</p>
@@ -63,14 +63,14 @@
           <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
           <div class="flex items-center px-2 mt-2">
             <input type="checkbox" id="activity-updates" name="notifications" value="activity" {% if settings.activity
-              %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-neutral-300 rounded focus:ring-indigo-500" />
+              %}checked{% endif %} class="w-5 h-5 bg-neutral-50 border border-neutral-300 text-indigo-500 rounded-md focus:ring-indigo-500" />
             <label for="activity-updates" class="ml-2 text-neutral-800 dark:text-neutral-400">
               Receive schedule updates
             </label>
           </div>
           <div class="flex items-center px-2 mt-6">
             <input type="checkbox" id="reminders" name="notifications" value="reminders" {% if settings.reminders
-              %}checked{% endif %} class="w-5 h-5 text-indigo-600 border-neutral-300 rounded focus:ring-indigo-500" />
+              %}checked{% endif %} class="w-5 h-5 bg-neutral-50 border border-neutral-300 text-indigo-500 rounded-md focus:ring-indigo-500" />
             <label for="reminders" class="ml-2 text-neutral-800 dark:text-neutral-400">
               Receive reminders for events
             </label>
@@ -78,14 +78,14 @@
           <div class="flex items-center px-2 mt-6">
             <input type="checkbox" id="availability-updates" name="notifications" value="availability" {% if
               settings.reminders %}checked{% endif %}
-              class="w-5 h-5 text-indigo-600 border-neutral-300 rounded focus:ring-indigo-500" />
+              class="w-5 h-5 text-indigo-600 bg-neutral-50 border border-neutral-300 text-indigo-500 rounded-md focus:ring-indigo-500" />
             <label for="availability-updates" class="ml-2 text-neutral-800 dark:text-neutral-400">
               Recieve availability updates
             </label>
           </div>
 
           <button type="submit"
-            class="mt-4 px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            class="mt-4 px-5 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 transition-colors">
             Save Preferences
           </button>
 
@@ -114,11 +114,6 @@
       </div>
     </div>
   </main>
-
-  <!-- Footer Section -->
-  <footer class="hidden sm:block mt-auto size-full sticky-bottom">
-    {% include 'footer.html' %}
-  </footer>
 
   <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 
