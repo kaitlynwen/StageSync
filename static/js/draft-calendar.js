@@ -177,7 +177,6 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           headers: {"X-CSRFToken": csrfToken,}
         });
-        const data = await response.json();
         flashAndReload("Schedule restored successfully.", "success");
       } catch (error) {
         flashAlert("Failed to restore schedule.", "error");
@@ -376,14 +375,19 @@ function formatDate(date) {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-// Helper function to display loading spinner while performing async tasks
-function withLoading(button, asyncCallback) {
-  const originalHTML = button.innerHTML;
-  button.disabled = true;
-  button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Loading...`;
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form');
+  const generateBtn = document.getElementById('generateBtn');
 
-  return asyncCallback().finally(() => {
-    button.disabled = false;
-    button.innerHTML = originalHTML;
+  if (!form || !generateBtn) return;
+
+  form.addEventListener('submit', (e) => {
+    // Disable the button + show spinner
+    generateBtn.disabled = true;
+    generateBtn.classList.add('opacity-60', 'cursor-not-allowed');
+    generateBtn.innerHTML = `
+      <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
+      Generating...
+    `;
   });
-}
+});

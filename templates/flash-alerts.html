@@ -1,16 +1,16 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-<div id="alert-container" class="flex flex-col">
+<div id="alert-container" class="flex flex-col fixed top-4 right-4 space-y-2 z-50 w-1/4">
     {% for category, message in messages %}
-    <div class="alert w-1/4 px-4 py-3 rounded-md relative transition-all duration-300 opacity-100
+    <div class="alert px-4 py-3 rounded-md relative transition-opacity duration-300 opacity-100 border
           {% if category == 'success' %}
-            bg-green-100 border border-green-400 text-green-700
+            bg-green-100 border-green-400 text-green-700
           {% elif category == 'error' %}
-            bg-red-100 border border-red-400 text-red-700
+            bg-red-100 border-red-400 text-red-700
           {% elif category == 'warning' %}
-            bg-yellow-100 border border-yellow-400 text-yellow-700
+            bg-yellow-100 border-yellow-400 text-yellow-700
           {% elif category == 'info' %}
-            bg-blue-100 border border-blue-400 text-blue-700
+            bg-blue-100 border-blue-400 text-blue-700
           {% endif %}
         " role="alert">
         <div class="flex justify-between items-center">
