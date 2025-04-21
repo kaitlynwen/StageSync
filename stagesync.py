@@ -7,6 +7,7 @@
 
 import os
 import psycopg2
+import re
 import parsedata
 from io import BytesIO
 from flask import (
@@ -101,7 +102,22 @@ def is_oauth(request):
     return False
 
 
+
 # --------------------------------------------------------------------
+
+
+
+
+
+def sanitize_notes(notes):
+    # Strip suspicious characters, then escape
+    return escape(re.sub(r"[^\w\s.,!?@#%&()\-:;'/\"]+", "", notes))
+
+
+
+# --------------------------------------------------------------------
+
+
 
 
 # Force HTTPS request
@@ -222,7 +238,7 @@ def update():
         }
 
         one_time_conflicts = escape(request.form["one_time_conflict"])
-        conflict_notes = escape(request.form["conflict_notes"])
+        conflict_notes = sanitize_notes(request.form["conflict_notes"])
 
         # Parse and insert weekly conflicts, convert times to UTC before saving
         for day, conflicts in weekly_conflicts.items():
