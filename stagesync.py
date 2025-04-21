@@ -105,12 +105,14 @@ def is_oauth(request):
 
 # --------------------------------------------------------------------
 
+# Strip suspicious characters, then escape
 
 
 
+def clean_text(text):
+    return escape(re.sub(r"[^\w\s.,!?@#%&()\-:;'/\"]+", "", text))
 
 def sanitize_notes(notes):
-    # Strip suspicious characters, then escape
     return escape(re.sub(r"[^\w\s.,!?@#%&()\-:;'/\"]+", "", notes))
 
 
@@ -443,7 +445,7 @@ def generate():
         warnings.extend(event_update_warnings)
 
         for warning, category in warnings:
-            flash(warning, category=category)
+            flash(escape(warning), category=escape(category))
 
         send_schedule_update_email()
         
@@ -467,12 +469,21 @@ def update_event():
     event_id = data.get("id")
     start = data.get("start")
     end = data.get("end")
-    title = data.get("title")
-    location = data.get("location")
+    title = clean_text(data.get("title", ""))
+    location = clean_text(data.get("location", ""))
     groupid = data.get("groupid")
-    
+
+    if len(title) > 100:
+        return jsonify({"error": "Event title too long"}), 400
+
     if groupid == "":
         groupid = None
+
+    elif groupid is not None:
+        try:
+            groupid = int(groupid)
+        except ValueError:
+            return jsonify({"error": "Invalid group ID"}), 400
 
     if not all([event_id, start, end]):
         return jsonify({"error": "Missing required fields"}), 400
