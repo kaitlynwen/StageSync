@@ -136,11 +136,11 @@ edit.forEach(function (edit) {
         .then(response => response.json()) // Convert response to JSON
         .then(data => {
           if (data.success) {
-            alert("Changes saved!");
+            flashAlert("Changes saved!", "success");
             editModal.style.display = "none";
             location.reload();
           } else {
-            alert("An error occured: " + data.message);
+            flashAlert("An error occured: " + data.message, "error");
             editModal.style.display = "none"; // Close modal on success
           }
         })
@@ -165,7 +165,7 @@ document.getElementById("create-group").addEventListener("click", function () {
   const groupName = document.getElementById("new-group").value.trim();
 
   if (!groupName) {
-    alert("Group name cannot be empty");
+    flashAlert("Group name cannot be empty", "error");
     return;
   }
 
@@ -182,11 +182,11 @@ document.getElementById("create-group").addEventListener("click", function () {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        alert("Group successfully created");
+        flashAlert("Group successfully created", "success");
         document.getElementById("create-modal").classList.add("hidden");
         location.reload();
       } else {
-        alert("An error occurred: " + data.message);
+        flashAlert("An error occurred: " + data.message, "error");
       }
     })
     .catch((error) => {
@@ -225,11 +225,11 @@ deleteModal.querySelector("button[data-modal-hide='delete-modal']").addEventList
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert("Group successfully deleted");
+        flashAlert("Group successfully deleted", "success");
         deleteModal.classList.add("hidden");
         location.reload();
       } else {
-        alert("An error occurred: " + data.message);
+        flashAlert("An error occurred: " + data.message, "error");
         deleteModal.classList.add("hidden");
       }
     })
