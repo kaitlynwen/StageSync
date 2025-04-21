@@ -38,8 +38,8 @@ def get_user_info():
 
             with conn.cursor() as cur:
                 query = "SELECT is_admin FROM users "
-                query += "WHERE netid = '" + netid + "'"
-                cur.execute(query)
+                query += "WHERE netid = %s"
+                cur.execute(query, (netid,))
 
                 row = cur.fetchone()
                 if row:

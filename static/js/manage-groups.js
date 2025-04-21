@@ -172,7 +172,7 @@ edit.forEach(function (edit) {
               editModal.style.display = "none";
               location.reload();
             } else {
-              flashAlert("An error occured: " + data.message, "error");
+              flashAlert(data.error, "error");
               editModal.style.display = "none"; // Close modal on success
             }
           })
@@ -220,7 +220,7 @@ document.getElementById("create-group").addEventListener("click", function () {
         document.getElementById("create-modal").classList.add("hidden");
         location.reload();
       } else {
-        flashAlert("An error occurred: " + data.message, "error");
+        flashAlert(data.error, "error");
       }
     })
     .catch((error) => {

@@ -626,7 +626,7 @@ def update_group_name():
                     """
                     cur.execute(query, (new_group_name,))
                     if cur.fetchone():
-                        return jsonify({"error": "Group already exists"}), 400
+                        return jsonify({"error": "Group name already exists"}), 400
                     
                 # Update the title for given group
                 query = """
@@ -683,7 +683,7 @@ def create_group():
                 """
                 cur.execute(query, (group_name,))
                 if cur.fetchone():
-                    return jsonify({"error": "Group already exists"}), 400
+                    return jsonify({"error": "Group name already exists"}), 400
                 
                 # Create new group
                 query = """
