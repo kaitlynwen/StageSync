@@ -1013,10 +1013,16 @@ def restore_draft_schedule():
                 # Copy all events from events table into draft_schedule
                 cur.execute(
                     """
-                    INSERT INTO draft_schedule (title, start, "end", location, groupid, created_at)
-                    SELECT e.title, e.start, e."end", e.location, e.groupid, e.created_at
+                   UPDATE draft_schedule d
+                    SET
+                        title = e.title,
+                        start = e.start,
+                        "end" = e."end",
+                        location = e.location,
+                        groupid = e.groupid,
+                        created_at = e.created_at
                     FROM events e
-                    JOIN draft_schedule d ON d.id = e.publishid;
+                    WHERE d.id = e.publishid;
                 """
                 )
 
