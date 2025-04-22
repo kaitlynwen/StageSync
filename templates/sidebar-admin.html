@@ -1,15 +1,15 @@
 <!-- Hamburger Button -->
 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button"
-  class="fixed top-4 left-4 z-50 inline-flex items-center py-1 px-2 text-sm text-neutral-950 bg-opacity-0 rounded-md hover:bg-neutral-200 sm:hidden focus:outline-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:ring-neutral-900 bg-white dark:bg-neutral-800">
-  <span class="sr-only">Open sidebar</span>
-  <i class='bx bx-menu bx-md'></i>
+   class="fixed top-4 left-4 z-50 inline-flex items-center py-1 px-2 text-sm text-neutral-950 bg-opacity-0 rounded-md hover:bg-neutral-200 sm:hidden focus:outline-none dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 dark:focus:ring-neutral-900 bg-white dark:bg-neutral-800">
+   <span class="sr-only">Open sidebar</span>
+   <i class='bx bx-menu bx-md'></i>
 </button>
 
 <!-- Sidebar -->
 <aside id="logo-sidebar"
-  class="fixed top-0 left-0 z-40 w-64 h-full bg-neutral-50 dark:bg-neutral-800 transform -translate-x-full sm:translate-x-0 sm:static sm:h-auto transition-transform duration-300 ease-in-out"
-  aria-label="Sidebar">
-   <div class="h-full px-6 py-6 overflow-y-auto bg-neutral-50 dark:bg-neutral-800">
+   class="fixed top-0 left-0 z-40 w-64 h-screen bg-neutral-50 dark:bg-neutral-800 transform -translate-x-full sm:translate-x-0 transition-transform duration-300 ease-in-out"
+   aria-label="Sidebar">
+   <div class="h-full px-6 py-6 flex flex-col justify-between overflow-y-auto bg-neutral-50 dark:bg-neutral-800">
       <!-- Logo Section -->
       <a href="{{ url_for('home') }}" class="flex items-center pt-12 sm:pt-2 ps-2.5 mb-5 group">
          <img class="h-6 me-3 sm:h-7" src="/static/img/Logo.png" alt="StageSync Logo" />
@@ -17,111 +17,114 @@
             class="self-center text-2xl font-bold whitespace-nowrap dark:text-neutral-50 group-hover:text-neutral-800 dark:group-hover:text-white">StageSync</span>
       </a>
 
-      <ul class="space-y-2 text-sm">
-         <!-- Settings Section -->
-         <li>
-            <a href="{{ url_for('settings') }}"
-               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-               <i
-                  class="shrink-0 bx bxs-cog bx-sm transition duration-75"></i>
-               <span class="flex-1 ms-3 whitespace-nowrap">Settings</span>
-            </a>
-         </li>
-         <!-- Main Menu Label -->
-         <li
-            class="flex items-center p-2 text-xs uppercase font-bold text-neutral-800 dark:text-neutral-200">
-            Main Menu
-         </li>
-         <!-- Home Button -->
-         <li>
-            <a href="{{ url_for('home') }}"
-               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-               <i
-                  class="shrink-0 bx bxs-home bx-sm transition duration-75"></i>
-               <span class="flex-1 ms-3 whitespace-nowrap">Home</span>
-            </a>
-         </li>
-         <!-- Update Button -->
-         <li>
-            <a href="{{ url_for('update') }}"
-               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-               <i
-                  class="shrink-0 bx bxs-edit bx-sm transition duration-75"></i>
-               <span class="flex-1 ms-3 whitespace-nowrap">Update Availability</span>
-            </a>
-         </li>
-         <!-- Admin Menu Label -->
-         <li
-            class="flex items-center p-2 text-xs uppercase font-bold text-neutral-800 dark:text-neutral-200">
-            Admin Menu
-         </li>
-         <!-- Upload Data Button -->
-         <li>
-            <a href="{{ url_for('upload') }}"
-               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-               <i
-                  class="shrink-0 bx bx-upload bx-sm transition duration-75"></i>
-               <span class="flex-1 ms-3 whitespace-nowrap">Rehearsal Data</span>
-            </a>
-         </li>
-         <!-- Generate Schedule Button -->
-         <li>
-            <a href="{{ url_for('generate') }}"
-               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-               <i
-                  class="shrink-0 bx bxs-calendar bx-sm transition duration-75"></i>
-               <span class="flex-1 ms-3 whitespace-nowrap">Generate Schedule</span>
-            </a>
-         </li>
-         <!-- Published Schedule Button -->
-         <li>
-            <a href="{{ url_for('publish') }}"
-               class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-               <i
-                  class="shrink-0 bx bxs-cloud-upload bx-sm transition duration-75"></i>
-               <span class="flex-1 ms-3 whitespace-nowrap">Published Schedule</span>
-            </a>
-         </li>
+      <div class="flex flex-col justify-between flex-grow">
+         <ul class="space-y-2 text-sm">
+            <!-- Settings Section -->
+            <li>
+               <a href="{{ url_for('settings') }}"
+                  class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                  <i class="shrink-0 bx bxs-cog bx-sm transition duration-75"></i>
+                  <span class="flex-1 ms-3 whitespace-nowrap">Settings</span>
+               </a>
+            </li>
+            <!-- Main Menu Label -->
+            <li class="flex items-center p-2 text-xs uppercase font-bold text-neutral-800 dark:text-neutral-200">
+               Main Menu
+            </li>
+            <!-- Home Button -->
+            <li>
+               <a href="{{ url_for('home') }}"
+                  class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                  <i class="shrink-0 bx bxs-home bx-sm transition duration-75"></i>
+                  <span class="flex-1 ms-3 whitespace-nowrap">Home</span>
+               </a>
+            </li>
+            <!-- Update Button -->
+            <li>
+               <a href="{{ url_for('update') }}"
+                  class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                  <i class="shrink-0 bx bxs-edit bx-sm transition duration-75"></i>
+                  <span class="flex-1 ms-3 whitespace-nowrap">Update Availability</span>
+               </a>
+            </li>
+            <!-- Admin Menu Label -->
+            <li class="flex items-center p-2 text-xs uppercase font-bold text-neutral-800 dark:text-neutral-200">
+               Admin Menu
+            </li>
+            <!-- Upload Data Button -->
+            <li>
+               <a href="{{ url_for('upload') }}"
+                  class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                  <i class="shrink-0 bx bx-upload bx-sm transition duration-75"></i>
+                  <span class="flex-1 ms-3 whitespace-nowrap">Rehearsal Data</span>
+               </a>
+            </li>
+            <!-- Generate Schedule Button -->
+            <li>
+               <a href="{{ url_for('generate') }}"
+                  class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                  <i class="shrink-0 bx bxs-calendar bx-sm transition duration-75"></i>
+                  <span class="flex-1 ms-3 whitespace-nowrap">Generate Schedule</span>
+               </a>
+            </li>
+            <!-- Published Schedule Button -->
+            <li>
+               <a href="{{ url_for('publish') }}"
+                  class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                  <i class="shrink-0 bx bxs-cloud-upload bx-sm transition duration-75"></i>
+                  <span class="flex-1 ms-3 whitespace-nowrap">Published Schedule</span>
+               </a>
+            </li>
 
-         <li>
-            <button type="button"
-               class="flex items-center w-full py-1 px-2 text-sm text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group"
-               aria-controls="dropdown" data-collapse-toggle="dropdown">
-               <i class= "bx bxs-user-detail bx-sm shrink-0 transition duration-75"
-                  aria-hidden="true">
-               </i>
-               <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Manage Members</span>
-               <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-               </svg>
-            </button>
-            <ul id="dropdown" class="hidden py-2 space-y-2 text-sm">
-               <li>
-                  <a href="{{ url_for('manage_users') }}"
-                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-                     Manage Admins
-                  </a>
-               </li>
-               <li>
-                  <a href="{{ url_for('manage_groups') }}"
-                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-                     Manage Groups
-                  </a>
-               </li>
-               <li>
-                  <a href="{{ url_for('user_access') }}"
-                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-                     User Access Control
-                  </a>
-               </li>
-               <li>
-                  <a href="{{ url_for('availability') }}"
-                     class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
-                     View Availability
-                  </a>
-               </li>
-            </ul>
-         </li>
-      </ul>
+            <li>
+               <button type="button"
+                  class="flex items-center w-full py-1 px-2 text-sm text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group"
+                  aria-controls="dropdown" data-collapse-toggle="dropdown">
+                  <i class="bx bxs-user-detail bx-sm shrink-0 transition duration-75" aria-hidden="true">
+                  </i>
+                  <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Manage Members</span>
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 10 6">
+                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 4 4 4-4" />
+                  </svg>
+               </button>
+               <ul id="dropdown" class="hidden py-2 space-y-2 text-sm">
+                  <li>
+                     <a href="{{ url_for('manage_users') }}"
+                        class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                        Manage Admins
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{{ url_for('manage_groups') }}"
+                        class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                        Manage Groups
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{{ url_for('user_access') }}"
+                        class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                        User Access Control
+                     </a>
+                  </li>
+                  <li>
+                     <a href="{{ url_for('availability') }}"
+                        class="flex items-center w-full py-1 px-2 text-neutral-800 transition duration-75 rounded-md hover:bg-neutral-200 pl-11 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+                        View Availability
+                     </a>
+                  </li>
+               </ul>
+            </li>
+         </ul>
+      </div>
+
+      <div class="mt-6">
+         <form method="POST" action="{{ url_for('logoutapp') }}"
+            class="flex items-center py-1 px-2 text-neutral-800 rounded-md hover:bg-neutral-200 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-300 group">
+            <i class="shrink-0 bx bx-log-out bx-sm transition duration-75"></i>
+            <span class="flex-1 ms-3 whitespace-nowrap text-sm">Log Out</span>
+         </form>
+      </div>
    </div>
 </aside>
