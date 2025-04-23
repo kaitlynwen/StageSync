@@ -116,9 +116,11 @@ def logoutapp():
 
 @app.route('/logoutcas', methods=['GET'])
 def logoutcas():
+    # Log out of the application session
+    flask.session.clear()
 
-    # Log out of the CAS session, and then the application.
-    logout_url = (_CAS_URL + 'logout?service='
+    # Redirect to CAS login
+    logout_url = (_CAS_URL + 'logout?service=' 
         + urllib.parse.quote(
-            re.sub('logoutcas', 'logoutapp', flask.request.url)))
-    flask.abort(flask.redirect(logout_url))
+            flask.url_for('home', _external=True)))
+    return flask.redirect(logout_url)

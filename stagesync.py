@@ -141,7 +141,7 @@ def check_csrf():
 
 @app.before_request
 def check_admin():
-    if request.path.startswith("/static/") or request.path.startswith("/unauthorized"):
+    if request.path.startswith("/static/") or request.path.startswith("/unauthorized") or request.path.startswith("/logoutcas"):
         return
     user_info = get_user_info()
 
