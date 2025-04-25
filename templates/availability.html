@@ -61,7 +61,8 @@
           class="flex items-center w-full max-w-4xl">
           <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
           <select id="memberDropdown" name="selected_netid"
-            class="w-60 px-4 py-2 font-sm border bg-neutral-50 border-neutral-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white"
+            class="w-60 px-4 py-2 font-sm border border-2 bg-neutral-50 border-neutral-200 focus:ring-indigo-500 
+            focus:border-indigo-500 rounded-md text-neutral-700 dark:bg-neutral-800 dark:border-neutral-800 dark:text-neutral-200"
             required>
             <option value="" disabled selected>Select a member</option>
             {% for member in members %}

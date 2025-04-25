@@ -12,6 +12,10 @@
   box-shadow: none !important;
 }
 
+.fc-button {
+  transition-duration: 300ms;
+}
+
 /* FullCalendar Dark Mode */
 html.dark .fc-theme-standard td,
 html.dark .fc-theme-standard tr,

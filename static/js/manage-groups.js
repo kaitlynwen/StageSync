@@ -40,30 +40,32 @@ edit.forEach(function (edit) {
     // Update modal content dynamically
     modalContent.innerHTML = `
     <div class="flex justify-between items-center p-4 border-b border-neutral-200 dark:border-neutral-800">
-      <h2 class="text-lg font-bold text-neutral-950">Edit Group</h2>
-      <button type="button" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-white text-xl close">&times;</button>
+      <h2 class="text-lg font-bold text-neutral-950 dark:text-neutral-200">Edit Group</h2>
+      <button type="button" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 text-xl close">&times;</button>
     </div>
 
     <div class="p-4 space-y-4 overflow-y-auto">
-      <label for="group-title" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white">
+      <label for="group-title" class="block mb-2 text-sm font-medium text-neutral-900 dark:text-neutral-200">
         Group Name <span class="text-red-500">*</span>
       </label>
-      <input type="text" id="group-title" value="${groupName}" class="w-64 px-3 py-2 border bg-neutral-50 border-neutral-200 focus:ring-indigo-500 focus:border-indigo-500 rounded-md text-neutral-700 dark:bg-neutral-800 dark:text-white" />
+      <input type="text" id="group-title" value="${groupName}" class="w-64 px-3 py-2 bg-neutral-50 border border-neutral-200 text-neutral-900 text-sm 
+                    rounded-md focus:ring-indigo-500 focus:border-indigo-500 block
+                    dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-200 border-2" />
       <div class="flex justify-between items-start gap-4">
         <div class="w-1/2">
-          <p class="text-sm font-medium text-neutral-900 dark:text-white py-4">Remove Existing Members</p>
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-200 py-4">Remove Existing Members</p>
           <div id="remove-members"></div>
         </div>
 
         <div class="w-1/2">
-          <p class="text-sm font-medium text-neutral-900 dark:text-white py-4">Add New Members</p>
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-200 py-4">Add New Members</p>
           <div id="add-members"></div>
         </div>
       </div>
     </div>
 
     <div class="sticky bottom-0 right-0 w-full bg-white dark:bg-neutral-800 p-4 border-t border-neutral-200 dark:border-neutral-600 flex justify-end">
-      <button id="save-group" class="bg-indigo-500 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm">
+      <button id="save-group" class="bg-indigo-500 hover:bg-indigo-700 text-neutral-200 px-4 py-2 rounded text-sm">
         Save
       </button>
     </div>`;
@@ -77,7 +79,9 @@ edit.forEach(function (edit) {
         <div>
           <input type="checkbox"
             id="${id}"
-            class="remove-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 dark:bg-neutral-700 dark:border-neutral-600 rounded-xs"
+            class="remove-member-checkbox text-indigo-500 bg-neutral-100 border-neutral-300 rounded-sm 
+            focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 
+            dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-200 border-2 rounded-xs pl-2"
             value="${member.netid}" />
           <label for="${id}">${member.first_name} ${member.last_name}</label>
         </div>
