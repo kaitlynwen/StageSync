@@ -1066,9 +1066,16 @@ def restore_draft_schedule():
                     );
                     """
                 )
-
-                # Commit the transaction
-                conn.commit()
+                
+                cur.execute(
+                    """
+                    DELETE FROM draft_schedule
+                    WHERE id NOT IN (
+                        SELECT publishid FROM events
+                        WHERE publishid IS NOT NULL
+                    );
+                    """
+                )
 
         return jsonify({"message": "Draft schedule restored successfully!"})
 
