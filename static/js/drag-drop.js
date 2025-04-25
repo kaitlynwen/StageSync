@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const maxSize = 5 * 1024 * 1024; // 5MB limit
   const allowedTypes = [
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "text/csv",
   ];
 
   // Handle manual file selection (click)
@@ -65,4 +64,19 @@ document.addEventListener("DOMContentLoaded", function () {
     // Update UI to show selected file name
     dropzoneContent.innerHTML = `<p class="text-sm font-semibold text-green-600">Selected: ${file.name}</p>`;
   }
+
+  const uploadForm = document.getElementById("upload-form");
+
+  // Save the initial dropzone HTML for reset
+  const originalDropzoneContent = dropzoneContent.innerHTML;
+
+  // Reset dropzone on form reset
+  uploadForm.addEventListener("reset", function () {
+    // Reset dropzone HTML
+    dropzoneContent.innerHTML = originalDropzoneContent;
+
+    // Also hide the file name display (if visible)
+    document.getElementById("file-name").classList.add("hidden");
+    document.getElementById("file-name").textContent = "";
+  });
 });
