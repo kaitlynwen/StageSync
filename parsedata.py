@@ -64,35 +64,47 @@ def adjust_event_date(event_date, start_time, end_time):
 ########################################################################
 
 def combine_consecutive_slots(schedule):
-    """Combine consecutive time slots into a single event."""
+    """Combine consecutive time slots into a single event, across midnight if needed."""
     combined_schedule = []
 
-    schedule.sort(key=lambda x: (x["Location"], x["Start Date"], parse_time(x["Start"])))
+    for event in schedule:
+        event["parsed_start"] = datetime.strptime(event["Start Date"], "%Y-%m-%d") \
+            .replace(hour=parse_time(event["Start"]).hour, minute=parse_time(event["Start"]).minute)
+        event["parsed_end"] = datetime.strptime(event["End Date"], "%Y-%m-%d") \
+            .replace(hour=parse_time(event["End"]).hour, minute=parse_time(event["End"]).minute)
+
+    # Sort by Location, then start datetime
+    schedule.sort(key=lambda x: (x["Location"], x["parsed_start"]))
 
     previous_event = None
     for event in schedule:
         if previous_event is None:
             previous_event = event
         else:
-            prev_end_time = parse_time(previous_event["End"])
-            current_start_time = parse_time(event["Start"])
-
-            # Check if the events are consecutive (i.e., one ends exactly when the next starts)
+            # Check if locations match and times are consecutive
             if (
-                current_start_time == prev_end_time
-                and event["Location"] == previous_event["Location"]
+                previous_event["Location"] == event["Location"]
+                and previous_event["parsed_end"] == event["parsed_start"]
             ):
-                # Combine events by updating the previous event's end time
+                # Extend previous event's end time
                 previous_event["End"] = event["End"]
                 previous_event["End Date"] = event["End Date"]
+                previous_event["parsed_end"] = event["parsed_end"]  # update the parsed_end too
             else:
+                # Save the previous event
                 combined_schedule.append(previous_event)
                 previous_event = event
 
     if previous_event is not None:
         combined_schedule.append(previous_event)
 
+    # Remove helper parsed fields
+    for event in combined_schedule:
+        event.pop("parsed_start", None)
+        event.pop("parsed_end", None)
+
     return combined_schedule
+
 
 ########################################################################
 
@@ -135,7 +147,6 @@ def extract_schedule(file, filename, group_name):
     # Extract date range
     date_range_match = re.search(r"\(\s*(\d{1,2}_\d{1,2})\s*-\s*(\d{1,2}_\d{1,2})\s*\)", filename)
     date_range = "Unknown"
-
     if date_range_match:
         start_date_str = date_range_match.group(1)
         end_date_str = date_range_match.group(2)
@@ -169,12 +180,12 @@ def extract_schedule(file, filename, group_name):
                     try:
                         time_range = df[time_col][idx]
                         start_time, end_time = parse_time_range(time_range)
-
+                        
                         event_dates = [date for date in dates if date.strftime("%A").lower() == sheet_name.lower()]
                         if not event_dates:
                             warnings.append(f"Could not match sheet '{sheet_name}' to a valid date.")
                             continue
-
+                        
                         for event_date in event_dates:
                             start_date, end_date = adjust_event_date(event_date, start_time, end_time)
                             schedule.append({
@@ -185,6 +196,7 @@ def extract_schedule(file, filename, group_name):
                                 "Location": col,
                                 "GroupId": None,
                             })
+                            
                     except Exception as e:
                         warnings.append(f"Error processing row {idx} in sheet '{sheet_name}': {str(e)}")
 
@@ -200,7 +212,7 @@ def extract_schedule(file, filename, group_name):
 
 if __name__ == "__main__":
     # Ensure the file path is correct and exists
-    file_path = "sample pac data/Spring Rehearsal Schedule (3_30-4_05).xlsx"  # Update if needed
+    file_path = "sample pac data/Spring Rehearsal Schedule (5_5 - 5_31).xlsx"  # Update if needed
     if not os.path.exists(file_path):
         print(f"Error: The file '{file_path}' does not exist.")
     else:
