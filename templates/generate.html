@@ -65,7 +65,7 @@
         <form action="{{ url_for('generate') }}" method="POST">
           <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
           <div class="flex justify-between items-center">
-            <button type="button"
+            <button type="button" id="discardBtn"
               class="text-indigo-500 font-semibold border-2 border-indigo-500 hover:bg-indigo-100 rounded-md 
               text-sm py-2 px-4 text-center me-2 mb-2 dark:hover:bg-indigo-950 dark:hover:text-indigo-400 
               dark:hover:border-indigo-400 transition duration-300"
@@ -77,7 +77,7 @@
             hover:border-indigo-700 rounded-md text-sm py-2 px-4 text-center mb-2 transition duration-300 me-2 mb-2">
               Generate
             </button>
-            <button type="button" data-modal-target="publish-modal" data-modal-toggle="publish-modal"
+            <button type="button" data-modal-target="publish-modal" data-modal-toggle="publish-modal" id="publishBtn"
               class="text-neutral-50 font-semibold border-2 border-indigo-700 bg-indigo-700 hover:bg-indigo-900 
               hover:border-indigo-900 rounded-md text-sm py-2 px-4 text-center mb-2 transition duration-300">
               Publish

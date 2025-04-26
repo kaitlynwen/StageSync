@@ -300,6 +300,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       await withLoading(submitBtn, async () => {
         try {
+          const deleteButton = document.getElementById("delete-event-button");
+
+          deleteButton.discard = true;
+          deleteButton.classList.add('opacity-60', 'cursor-not-allowed');
+
           const res = await fetch("/update-event", {
             method: "POST",
             headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, },
@@ -330,6 +335,10 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!confirm("Are you sure you want to delete this event?")) return;
 
       const eventId = document.getElementById("edit-event-id").value;
+      const updateBtn = document.getElementById("update-event-button");
+
+      updateBtn.disabled = true;
+      updateBtn
 
       btn.disabled = true;
       const originalHTML = btn.innerHTML;
@@ -383,13 +392,21 @@ function formatDate(date) {
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.querySelector('form');
   const generateBtn = document.getElementById('generateBtn');
+  const publishBtn = document.getElementById('publishBtn');
+  const discardBtn = document.getElementById('discardBtn');
 
   if (!form || !generateBtn) return;
 
   form.addEventListener('submit', (e) => {
-    // Disable the button + show spinner
+    // Disable buttons + show spinner
     generateBtn.disabled = true;
+    publishBtn.disabled = true;
+    discardBtn.disabled = true;
+
     generateBtn.classList.add('opacity-60', 'cursor-not-allowed');
+    publishBtn.classList.add('opacity-60', 'cursor-not-allowed');
+    discardBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
     generateBtn.innerHTML = `
       <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
       Generating...
