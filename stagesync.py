@@ -108,12 +108,11 @@ def is_oauth(request):
 # Strip suspicious characters, then escape
 
 
-
 def clean_text(text):
-    return escape(re.sub(r"[^\w\s.,!?@#%&()\-:;'/\"]+", "", text))
+    return escape(re.sub(r"[^\w\s.,!?@#%&()\-:;'/\"|]+", "", text))
 
 def sanitize_notes(notes):
-    return escape(re.sub(r"[^\w\s.,!?@#%&()\-:;'/\"]+", "", notes))
+    return escape(re.sub(r"[^\w\s.,!?@#%&()\-:;'/\"|]+", "", notes))
 
 
 
