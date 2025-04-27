@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # ----------------------------------------------------------------------
 # db_helpers.py
 # Author: Kaitlyn Wen, Michael Igbinoba, Timothy Sim
@@ -8,21 +6,23 @@
 # contain queries to the PostgreSQL database
 # ----------------------------------------------------------------------
 
+
 import os
-
-from flask import jsonify, request
-import auth
+import requests
 import psycopg2
-import dotenv
 from email.message import EmailMessage
-import smtplib
-
+from flask import jsonify, request
+from dotenv import load_dotenv
 from datetime_helpers import *
+import auth
+
 
 # ----------------------------------------------------------------------
 
-dotenv.load_dotenv()
+load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+SENDGRID_FROM = "cs-stagesync@princeton.edu"
 
 # ----------------------------------------------------------------------
 
@@ -415,9 +415,46 @@ def get_reminder_emails():
     except Exception as e:
         print(f"Error fetching reminder emails: {e}")
         return []
+    
+# ----------------------------------------------------------------------
 
+def send_email_sendgrid(subject, recipients, body):
+    if not SENDGRID_API_KEY:
+        print("Missing SendGrid API key.")
+        return
 
-# ------------------------------------------------------------
+    for to_email in recipients:
+        try:
+            response = requests.post(
+                "https://api.sendgrid.com/v3/mail/send",
+                headers={
+                    "Authorization": f"Bearer {SENDGRID_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "personalizations": [
+                        {
+                            "to": [{"email": to_email}],
+                            "subject": subject
+                        }
+                    ],
+                    "from": {"email": SENDGRID_FROM},
+                    "content": [
+                        {
+                            "type": "text/plain",
+                            "value": body
+                        }
+                    ]
+                }
+            )
+            if response.status_code >= 400:
+                print(f"Failed to send email to {to_email}: {response.text}")
+            else:
+                print(f"Email sent to {to_email} via SendGrid API.")
+        except Exception as e:
+            print(f"Error sending to {to_email}: {e}")
+
+# ----------------------------------------------------------------------
 
 def send_schedule_update_email():
     recipients = get_reminder_emails()
@@ -425,23 +462,17 @@ def send_schedule_update_email():
         print("No recipients for schedule update email.")
         return
 
-    msg = EmailMessage()
-    msg["Subject"] = "Schedule Updated"
-    msg["From"] = "michaeligbinoba68@gmail.com"
-    msg["To"] = ", ".join(recipients)
-    msg.set_content("The rehearsal schedule has been updated.")
+    subject = "Schedule Updated"
+    body = (
+        "Hello,\n\n"
+        "The rehearsal schedule on StageSync has been updated.\n"
+        "Please log in to check your updated availability and group assignments.\n\n"
+        "Thanks,\nThe StageSync Team"
+    )
 
-    try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(os.getenv("SMTP_USER"), os.getenv("SMTP_PASS"))
-            server.send_message(msg)
-        print("Schedule update email sent.")
-    except Exception as e:
-        print(f"Error sending schedule email: {e}")
+    send_email_sendgrid(subject, recipients, body)
 
-
-# ------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 def notify_admins_user_updated(netid):
     try:
@@ -457,21 +488,18 @@ def notify_admins_user_updated(netid):
         if not emails:
             return
 
-        msg = EmailMessage()
-        msg["Subject"] = f"{netid} Updated Availability"
-        msg["From"] = os.getenv("SMTP_USER")
-        msg["To"] = ", ".join(emails)
-        msg.set_content(f"User {netid} has just updated their availability on StageSync.")
+        subject = f"{netid} Updated Availability"
+        body = (
+            f"Hello Admin,\n\n"
+            f"User {netid} has just updated their availability on StageSync.\n"
+            "You may want to review their status or regenerate the schedule if needed.\n\n"
+            "Best,\nStageSync Notification"
+        )
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(os.getenv("SMTP_USER"), os.getenv("SMTP_PASS"))
-            server.send_message(msg)
+        send_email_sendgrid(subject, emails, body)
 
-        print("Admin update notification sent.")
     except Exception as e:
         print(f"Failed to notify admins: {e}")
-
 # ------------------------------------------------------------
 
 def add_admin(netid):
