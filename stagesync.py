@@ -140,7 +140,9 @@ def check_csrf():
 
 @app.before_request
 def check_admin():
-    if request.path.startswith("/static/") or request.path.startswith("/unauthorized") or request.path.startswith("/logoutcas"):
+    if (request.path.startswith("/static/")
+        or request.path.startswith("/unauthorized")
+        or request.path.startswith("/logoutcas")):
         return
     user_info = get_user_info()
 
@@ -862,6 +864,15 @@ def unauthorize():
             flash("Cannot remove netids with prefix 'cs-': " + ", ".join(cs_netids), "error")
             return (
                 jsonify({"success": False, "message": "Cannot remove admin netids with prefix 'cs-': " + ", ".join(cs_netids)}),
+                400,
+            )
+        
+        # Prevent developers from being removed for grading purposes
+        stagesync_netids = [n for n in netids if n in {"kw8166", "ts2188", "mi0894"}]
+        if stagesync_netids:
+            flash("Cannot remove developer(s): " + ", ".join(stagesync_netids), "error")
+            return (
+                jsonify({"success": False, "message": "Cannot remove developers(s): " + ", ".join(stagesync_netids)}),
                 400,
             )
 
