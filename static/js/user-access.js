@@ -23,7 +23,6 @@ document
     }
 
     const currentUserNetid = document.getElementById("current-user-netid").dataset.netid;
-    console.log(currentUserNetid);
 
     if (netidsToRemove.includes(currentUserNetid)) {
       // Show confirmation modal
