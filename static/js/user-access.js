@@ -17,7 +17,48 @@ document
 
     // console.log("NetIDs:", netidsToRemove); for testing
 
-    if (netidsToRemove.length > 0) {
+    if (netidsToRemove.length === 0) {
+      flashAlert("Please select at least one user.", "error");
+      return;
+    }
+
+    const currentUserNetid = document.getElementById("current-user-netid").dataset.netid;
+    console.log(currentUserNetid);
+
+    if (netidsToRemove.includes(currentUserNetid)) {
+      // Show confirmation modal
+      const deleteModal = document.getElementById("self-remove-modal");
+      deleteModal.classList.remove("hidden");
+      document.body.style.overflow = 'hidden'; 
+
+      // When confirm button is clicked
+      document.getElementById("confirm-self-remove").onclick = function () {
+        // Send the data to the server (via AJAX or form submission)
+        fetch("/unauthorize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({ netids: netidsToRemove }),
+        })
+          .then((response) => response.json())
+          .then(() => {
+            location.reload(); // Reload the page to reflect changes
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            flashAlert("An error occurred. Please try again.", "error");
+          });
+        deleteModal.classList.add("hidden");
+        document.body.style.overflow = '';
+      };
+
+      document.getElementById("cancel-self-remove").onclick = function () {
+        deleteModal.classList.add("hidden");
+        document.body.style.overflow = '';
+      };
+    } else {
       // Send the data to the server (via AJAX or form submission)
       fetch("/unauthorize", {
         method: "POST",
@@ -33,10 +74,8 @@ document
         })
         .catch((error) => {
           console.error("Error:", error);
-          // flashAlert("An error occurred. Please try again.");
+          flashAlert("An error occurred. Please try again.", "error");
         });
-    } else {
-      flashAlert("Please select at least one user.", "error");
     }
   });
 
