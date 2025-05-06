@@ -197,7 +197,6 @@ def update():
         # Convert the weekly conflicts times from UTC to EST for display
         for day, conflicts in weekly_conflicts.items():
             for idx, conflict in enumerate(conflicts):
-
                 start_time, end_time = conflict.split("-")
                 start_time = start_time.strip()
                 end_time = end_time.strip()
@@ -227,21 +226,58 @@ def update():
         user_info = get_user_info()
         user_netid = user_info["user"]
 
-        delete_conflict(user_netid)
-
-        # Access and sanitize
-        weekly_conflicts = {
-            "Monday": escape(request.form["monday_conflicts"]),
-            "Tuesday": escape(request.form["tuesday_conflicts"]),
-            "Wednesday": escape(request.form["wednesday_conflicts"]),
-            "Thursday": escape(request.form["thursday_conflicts"]),
-            "Friday": escape(request.form["friday_conflicts"]),
-            "Saturday": escape(request.form["saturday_conflicts"]),
-            "Sunday": escape(request.form["sunday_conflicts"]),
+        # Access and sanitize raw inputs first
+        raw_weekly_conflicts = {
+            "Monday": request.form["monday_conflicts"],
+            "Tuesday": request.form["tuesday_conflicts"],
+            "Wednesday": request.form["wednesday_conflicts"],
+            "Thursday": request.form["thursday_conflicts"],
+            "Friday": request.form["friday_conflicts"],
+            "Saturday": request.form["saturday_conflicts"],
+            "Sunday": request.form["sunday_conflicts"],
         }
 
-        one_time_conflicts = escape(request.form["one_time_conflict"])
-        conflict_notes = sanitize_notes(request.form["conflict_notes"])
+        one_time_raw = request.form["one_time_conflict"]
+        notes_raw = request.form["conflict_notes"]
+
+        # Character limit checks 
+        for day, val in raw_weekly_conflicts.items():
+            if len(val) > 100:
+                flash(f"{day} conflicts exceed 100 characters. Please shorten your input.", "error")
+                return render_template(
+                    "update.html",
+                    user=user_info,
+                    weekly_conflicts=raw_weekly_conflicts,
+                    one_time_conflicts=one_time_raw,
+                    conflict_notes=notes_raw
+                )
+
+        if len(one_time_raw) > 100:
+            flash("One-time conflicts exceed 100 characters. Please shorten your input.", "error")
+            return render_template(
+                "update.html",
+                user=user_info,
+                weekly_conflicts=raw_weekly_conflicts,
+                one_time_conflicts=one_time_raw,
+                conflict_notes=notes_raw
+            )
+
+        if len(notes_raw) > 100:
+            flash("Conflict notes exceed 100 characters. Please shorten your input.", "error")
+            return render_template(
+                "update.html",
+                user=user_info,
+                weekly_conflicts=raw_weekly_conflicts,
+                one_time_conflicts=one_time_raw,
+                conflict_notes=notes_raw
+            )
+
+        # If all inputs are valid, sanitize and begin database operations
+        delete_conflict(user_netid)
+
+        weekly_conflicts = {day: escape(val) for day, val in raw_weekly_conflicts.items()}
+        one_time_conflicts = escape(one_time_raw)
+        conflict_notes = sanitize_notes(notes_raw)
 
         # Parse and insert weekly conflicts, convert times to UTC before saving
         for day, conflicts in weekly_conflicts.items():
@@ -252,47 +288,29 @@ def update():
                     end_time = end_time.strip()
 
                     try:
-                        # Convert to naive datetime objects first
                         start_time_est = datetime.strptime(start_time, "%I:%M%p")
                         end_time_est = datetime.strptime(end_time, "%I:%M%p")
-
-                        # Localize to EST (Eastern Standard Time)
                         est = ZoneInfo("US/Eastern")
-                        start_time_est = start_time_est.replace(tzinfo=est)
-                        end_time_est = end_time_est.replace(tzinfo=est)
-
+                        start_time_utc = convert_to_utc(start_time_est.replace(tzinfo=est))
+                        end_time_utc = convert_to_utc(end_time_est.replace(tzinfo=est))
+                        insert_weekly_conflict(user_netid, day, start_time_utc, end_time_utc)
                     except ValueError as e:
                         print(f"Error parsing time: {e}")
                         continue
 
-                    # Convert to UTC before saving
-                    start_time_utc = convert_to_utc(start_time_est)
-                    end_time_utc = convert_to_utc(end_time_est)
-
-                    # Store the conflicts in UTC
-                    insert_weekly_conflict(
-                        user_netid, day, start_time_utc, end_time_utc
-                    )
-
-        # Handle one-time conflicts (same logic as above)
         if one_time_conflicts:
-            one_time_list = one_time_conflicts.split(";")
-            for conflict in one_time_list:
+            for conflict in one_time_conflicts.split(";"):
                 date_str, time_range = conflict.split(".")
                 date_str = date_str.strip()
                 time_range = time_range.strip()
 
-                # Parse the date and convert to datetime
                 try:
-                    date = datetime.strptime(date_str, "%m/%d").replace(
-                        year=datetime.now().year
-                    )
+                    date = datetime.strptime(date_str, "%m/%d").replace(year=datetime.now().year)
                     day = date.strftime("%A")
                 except ValueError as e:
                     print(f"Error parsing date: {e}")
                     continue
 
-                # Split the start and end times
                 start_time, end_time = time_range.split("-")
                 start_time = start_time.strip()
                 end_time = end_time.strip()
@@ -300,25 +318,14 @@ def update():
                 try:
                     start_time_est = datetime.strptime(start_time, "%I:%M%p")
                     end_time_est = datetime.strptime(end_time, "%I:%M%p")
-
-                    # Localize to EST (Eastern Standard Time)
                     est = ZoneInfo("US/Eastern")
-                    start_time_est = start_time_est.replace(tzinfo=est)
-                    end_time_est = end_time_est.replace(tzinfo=est)
-
+                    start_time_utc = convert_to_utc(start_time_est.replace(tzinfo=est))
+                    end_time_utc = convert_to_utc(end_time_est.replace(tzinfo=est))
+                    insert_one_time_conflict(user_netid, date, day, start_time_utc, end_time_utc, conflict_notes)
                 except ValueError as e:
                     print(f"Error parsing time: {e}")
                     continue
 
-                # Convert to UTC before saving
-                start_time_utc = convert_to_utc(start_time_est)
-                end_time_utc = convert_to_utc(end_time_est)
-
-                insert_one_time_conflict(
-                    user_netid, date, day, start_time_utc, end_time_utc, conflict_notes
-                )
-
-        # Get updated conflicts (converted to UTC for saving)
         weekly_conflicts = get_weekly_conflict(user_netid)
         one_time_conflicts, conflict_notes = get_one_time_conflict(user_netid)
         success_message = "Availability successfully updated!"
