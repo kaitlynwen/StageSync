@@ -244,6 +244,9 @@ def update():
         for day, val in raw_weekly_conflicts.items():
             if len(val) > 100:
                 flash(f"{day} conflicts exceed 100 characters. Please shorten your input.", "error")
+                for d, val in raw_weekly_conflicts.items():
+                    if isinstance(val, str):
+                        raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
                 return render_template(
                     "update.html",
                     user=user_info,
@@ -254,6 +257,9 @@ def update():
 
         if len(one_time_raw) > 100:
             flash("One-time conflicts exceed 100 characters. Please shorten your input.", "error")
+            for d, val in raw_weekly_conflicts.items():
+                if isinstance(val, str):
+                    raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
             return render_template(
                 "update.html",
                 user=user_info,
@@ -264,6 +270,9 @@ def update():
 
         if len(notes_raw) > 100:
             flash("Conflict notes exceed 100 characters. Please shorten your input.", "error")
+            for d, val in raw_weekly_conflicts.items():
+                if isinstance(val, str):
+                    raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
             return render_template(
                 "update.html",
                 user=user_info,
