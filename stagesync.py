@@ -965,8 +965,10 @@ def events():
             location = event[4] if event[4] else ""
 
             # Ensure start and end are timezone-aware datetime objects
-            start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
-            end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+            if isinstance(start, str):
+                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+            if isinstance(end, str):
+                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
             # Localize to UTC if naive
             if start.tzinfo is None:
@@ -1023,8 +1025,10 @@ def draft():
             location = event[5] if event[5] else ""
 
             # Ensure start and end are datetime objects
-            start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
-            end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+            if isinstance(start, str):
+                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+            if isinstance(end, str):
+                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
             # Localize to UTC if naive
             if start.tzinfo is None:
