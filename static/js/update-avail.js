@@ -82,6 +82,7 @@ function showTab(tab) {
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('form');
     const saveBtn = document.getElementById('saveBtn');
+    const discardBtn = document.getElementById('discardBtn');
   
     if (!form || !saveBtn) return;
   
@@ -93,11 +94,37 @@ function showTab(tab) {
   
       // Disable the button + show spinner
       saveBtn.disabled = true;
+      discardBtn.disabled = true;
+
       saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      discardBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
       saveBtn.innerHTML = `
         <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
         Saving...
       `;
     });
+
+    discardBtn.addEventListener("click", (e) => {
+      // Disable both buttons
+      e.preventDefault();
+      discardBtn.disabled = true;
+      saveBtn.disabled = true;
+
+      discardBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
+      const originalDiscardText = discardBtn.textContent;
+      discardBtn.textContent = "Resetting...";
+
+      form.reset();
+
+      setTimeout(() => {
+        discardBtn.disabled = false;
+        saveBtn.disabled = false;
+        discardBtn.textContent = originalDiscardText;
+        discardBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+        saveBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+      }, 500);
+    });
   });
-  

@@ -168,7 +168,9 @@ document.addEventListener("DOMContentLoaded", function () {
     .addEventListener("click", async function (e) {
       const btn = e.currentTarget;
       btn.disabled = true;
+      btn.classList.add('opacity-60', 'cursor-not-allowed');
       const originalHTML = btn.innerHTML;
+      
       btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Restoring...`;
 
       try {
@@ -193,6 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const btn = e.currentTarget;
       btn.disabled = true;
       const originalHTML = btn.innerHTML;
+      btn.classList.add('opacity-60', 'cursor-not-allowed');
       btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Publishing...`;
 
       try {
@@ -338,11 +341,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const updateBtn = document.getElementById("update-event-button");
 
       updateBtn.disabled = true;
-      updateBtn
+      updateBtn.classList.add('opacity-60', 'cursor-not-allowed');
 
       btn.disabled = true;
       const originalHTML = btn.innerHTML;
       btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Deleting...`;
+      btn.classList.add('opacity-60', 'cursor-not-allowed');
 
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       
@@ -418,10 +422,19 @@ document.addEventListener('DOMContentLoaded', () => {
 function withLoading(button, asyncCallback) {
   const originalHTML = button.innerHTML;
   button.disabled = true;
+  button.classList.add('opacity-60', 'cursor-not-allowed');
   button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Loading...`;
 
   return asyncCallback().finally(() => {
     button.disabled = false;
     button.innerHTML = originalHTML;
+  });
+}
+
+function checkInputLen() {
+  input.addEventListener('input', () => {
+    if (input.value.length >= input.maxLength) {
+      flashAlert('Input cannot exceed 100 characters!','error')
+    }
   });
 }

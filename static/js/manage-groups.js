@@ -50,7 +50,8 @@ edit.forEach(function (edit) {
       </label>
       <input type="text" id="group-title" value="${groupName}" class="w-64 px-3 py-2 bg-neutral-50 border border-neutral-200 text-neutral-900 text-sm 
                     rounded-md focus:ring-indigo-500 focus:border-indigo-500 block
-                    dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-200 border-2" />
+                    dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-200 border-2" 
+                    maxlength = 100/>
       <div class="flex justify-between items-start gap-4">
         <div class="w-1/2">
           <p class="text-sm font-medium text-neutral-900 dark:text-neutral-200 py-4">Remove Existing Members</p>
@@ -118,12 +119,12 @@ edit.forEach(function (edit) {
       .addEventListener("click", function () {
         // Disable the button + show spinner
         const saveBtn = document.getElementById('save-group');
-      saveBtn.disabled = true;
-      saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
-      saveBtn.innerHTML = `
-        <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
-        Saving...
-      `;
+        saveBtn.disabled = true;
+        saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        saveBtn.innerHTML = `
+          <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
+          Saving...
+        `;
 
         var newGroupName = document.getElementById("group-title").value;
 
@@ -197,12 +198,26 @@ window.onclick = function (event) {
 
 // Create Group Modal (Utilizes Tailwind Flowbite)
 document.getElementById("create-group").addEventListener("click", function () {
+  const createBtn = this;
+  const cancelBtn = document.getElementById("cancelBtn")
   const groupName = document.getElementById("new-group").value.trim();
 
   if (!groupName) {
     flashAlert("Group name cannot be empty", "error");
     return;
   }
+
+  // Disable the button and update UI
+  createBtn.disabled = true;
+  cancelBtn.disabled = true;
+
+  createBtn.classList.add("opacity-60", "cursor-not-allowed");
+  cancelBtn.classList.add("opacity-60", "cursor-not-allowed");
+
+  createBtn.innerHTML = `
+    <span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>
+    Creating...
+  `;
 
   const csrfToken = document
     .querySelector('meta[name="csrf-token"]')
@@ -223,10 +238,27 @@ document.getElementById("create-group").addEventListener("click", function () {
         location.reload();
       } else {
         flashAlert(data.error, "error");
+        // Re-enable on failure
+        createBtn.disabled = false;
+        cancelBtn.disabled = false;
+
+        createBtn.classList.remove("opacity-60", "cursor-not-allowed");
+        cancelBtn.classList.remove("opacity-60", "cursor-not-allowed");
+
+        createBtn.innerHTML = "Create";
       }
     })
     .catch((error) => {
       console.error("Fetch error:", error);
+      flashAlert("An error occurred. Please try again.", "error");
+      // Re-enable on error
+      createBtn.disabled = false;
+      cancelBtn.disabled = false;
+
+      createBtn.classList.remove("opacity-60", "cursor-not-allowed");
+      cancelBtn.classList.remove("opacity-60", "cursor-not-allowed");
+
+      createBtn.innerHTML = "Create";
     });
 });
 

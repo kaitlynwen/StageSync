@@ -125,9 +125,11 @@
       <div class="flex justify-between mt-6">
         <form id="authorize-form">
           <label for="netid" class="font-sm mr-2 dark:text-neutral-200">NetID to Authorize:</label>
-          <input type="text" id="netid" name="netid" class="px-4 py-2 font-sm border rounded-md"
+          <input type="text" id="netid" name="netid" class="px-4 py-2 font-sm border rounded-md bg-neutral-100 border-neutral-300 
+          focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-neutral-800 focus:ring-2 
+          dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-200"
             placeholder="Enter NetID" required />
-          <button type="submit"
+          <button type="submit" id="authorizeBtn"
             class="text-white bg-indigo-500 border-2 border-indigo-500 hover:bg-indigo-700 hover:border-indigo-700 py-2 px-4 rounded-md ml-2">
             Authorize
           </button>

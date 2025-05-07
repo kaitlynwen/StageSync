@@ -1,6 +1,7 @@
 document.getElementById("remove-admin-button").addEventListener("click", function () {
   const checkedCheckboxes = document.querySelectorAll(".admin-checkbox:checked");
   const netidsToRemove = Array.from(checkedCheckboxes).map(cb => cb.value);
+  const button = this;
 
   if (netidsToRemove.length > 0) {
     const currentUserNetid = document.getElementById("current-user-netid").dataset.netid;
@@ -26,8 +27,11 @@ document.getElementById("remove-admin-button").addEventListener("click", functio
       };
 
     } else {
-      document.getElementById("netids-to-remove").value = JSON.stringify(netidsToRemove);
-      document.getElementById("remove-admin-form").submit();
+        button.disabled = true;
+        button.classList.add('opacity-60', 'cursor-not-allowed');
+        button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Removing...`;
+        document.getElementById("netids-to-remove").value = JSON.stringify(netidsToRemove);
+        document.getElementById("remove-admin-form").submit();
     }
 
   } else {
@@ -38,9 +42,18 @@ document.getElementById("remove-admin-button").addEventListener("click", functio
 document.getElementById("addAdminBtn").addEventListener("click", function (e) {
   const dropdown = document.getElementById("memberDropdown");
   const selectedValue = dropdown.value;
+  const button = this;
 
   if (!selectedValue) {
     e.preventDefault();
     flashAlert("Please select a member before adding.", "error");
+  }
+  else {
+    button.disabled = true;
+    button.classList.add('opacity-60', 'cursor-not-allowed');
+    button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Adding...`;
+    setTimeout(() => {
+      button.closest("form").submit();
+    }, 100);
   }
 });

@@ -7,6 +7,8 @@ document
       ".member-checkbox:checked"
     );
 
+    const button = this;
+
     // Get CSRF token for validation
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
@@ -32,7 +34,10 @@ document
 
       // When confirm button is clicked
       document.getElementById("confirm-self-remove").onclick = function () {
-        // Send the data to the server (via AJAX or form submission)
+        button.disabled = true;
+        button.classList.add('opacity-60', 'cursor-not-allowed');
+        button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Removing...`;
+        
         fetch("/unauthorize", {
           method: "POST",
           headers: {
@@ -58,7 +63,10 @@ document
         document.body.style.overflow = '';
       };
     } else {
-      // Send the data to the server (via AJAX or form submission)
+      button.disabled = true;
+      button.classList.add('opacity-60', 'cursor-not-allowed');
+      button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Removing...`;
+        
       fetch("/unauthorize", {
         method: "POST",
         headers: {
@@ -85,12 +93,16 @@ document
     event.preventDefault(); // Prevent the form from submitting normally
 
     const netid = document.getElementById("netid").value.trim();
+    const button = document.getElementById("authorizeBtn");
 
     // Get CSRF token for validation
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
     if (netid) {
       // Send a request to add the user as an admin
+      button.disabled = true;
+      button.classList.add('opacity-60', 'cursor-not-allowed');
+      button.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full mr-2"></span>Adding...`;
       fetch("/authorize", {
         method: "POST",
         headers: {

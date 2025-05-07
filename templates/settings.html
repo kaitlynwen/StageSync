@@ -84,7 +84,7 @@
             </label>
           </div>
 
-          <button type="submit"
+          <button type="submit" id="submit-button"
             class="mt-4 px-5 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-700 transition-colors">
             Save Preferences
           </button>
@@ -115,6 +115,7 @@
     </div>
   </main>
 
+  <script src="{{ url_for('static', filename='js/flash-alerts.js') }}"></script>
   <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 
 </body>
