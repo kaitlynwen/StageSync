@@ -6,13 +6,13 @@ import time
 driver = webdriver.Chrome()
 
 try:
-    driver.get("https://stagesync-928b5ae8eae2.herokuapp.com/home")
+    driver.get("https://stagesync-928b5ae8eae2.herokuapp.com/generate-schedule")
 
     username_input = driver.find_element(By.ID, "username")
     password_input = driver.find_element(By.ID, "password")
 
-    username_input.send_keys("INSERT USERNAME")
-    password_input.send_keys("INSERT PASSWORD")
+    username_input.send_keys("USERNAME")
+    password_input.send_keys("PASSWORD")
 
     # Submit the CAS authentication login
     password_input.send_keys(Keys.RETURN)
@@ -21,7 +21,7 @@ try:
 
     # Check if known event actually got rendered
     events = driver.find_elements(By.CLASS_NAME, "fc-timegrid-col-events")
-    found = any("Antifragile | NS Warm Up" in event.text for event in events)
+    found = any("Test | NS Warm Up" in event.text for event in events)
 
     assert found, "Expected event not found on calendar"
 
