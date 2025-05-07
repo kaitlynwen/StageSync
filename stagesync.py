@@ -245,39 +245,40 @@ def update():
             if len(val) > 100:
                 flash(f"{day} conflicts exceed 100 characters. Please shorten your input.", "error")
                 for d, val in raw_weekly_conflicts.items():
-                    if isinstance(val, str):
-                        raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
+                    raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
+                    one_time_list = [v.strip() for v in one_time_raw.split(";") if v.strip()]
                 return render_template(
                     "update.html",
                     user=user_info,
                     weekly_conflicts=raw_weekly_conflicts,
-                    one_time_conflicts=one_time_raw,
+                    one_time_conflicts=one_time_list,
                     conflict_notes=notes_raw
                 )
 
         if len(one_time_raw) > 100:
             flash("One-time conflicts exceed 100 characters. Please shorten your input.", "error")
             for d, val in raw_weekly_conflicts.items():
-                if isinstance(val, str):
-                    raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
+                raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
+                one_time_list = [v.strip() for v in one_time_raw.split(";") if v.strip()]
             return render_template(
                 "update.html",
                 user=user_info,
                 weekly_conflicts=raw_weekly_conflicts,
-                one_time_conflicts=one_time_raw,
+                one_time_conflicts=one_time_list,
                 conflict_notes=notes_raw
             )
 
         if len(notes_raw) > 100:
             flash("Conflict notes exceed 100 characters. Please shorten your input.", "error")
             for d, val in raw_weekly_conflicts.items():
-                if isinstance(val, str):
-                    raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
+                raw_weekly_conflicts[d] = [v.strip() for v in val.split(";") if v.strip()]
+                one_time_list = [v.strip() for v in one_time_raw.split(";") if v.strip()]
+            
             return render_template(
                 "update.html",
                 user=user_info,
                 weekly_conflicts=raw_weekly_conflicts,
-                one_time_conflicts=one_time_raw,
+                one_time_conflicts=one_time_list,
                 conflict_notes=notes_raw
             )
 
@@ -964,10 +965,8 @@ def events():
             location = event[4] if event[4] else ""
 
             # Ensure start and end are timezone-aware datetime objects
-            if isinstance(start, str):
-                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
-            if isinstance(end, str):
-                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+            start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+            end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
             # Localize to UTC if naive
             if start.tzinfo is None:
@@ -1024,10 +1023,8 @@ def draft():
             location = event[5] if event[5] else ""
 
             # Ensure start and end are datetime objects
-            if isinstance(start, str):
-                start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
-            if isinstance(end, str):
-                end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+            start = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+            end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
 
             # Localize to UTC if naive
             if start.tzinfo is None:
