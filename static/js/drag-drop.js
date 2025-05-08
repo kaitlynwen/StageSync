@@ -20,9 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Prevent default drag behaviors only when submitting
   ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
     dropzone.addEventListener(eventName, (event) => {
-      if (isSubmitting) {
-        event.preventDefault(); // Prevent the drag-and-drop if submitting
-      }
+      event.preventDefault();
     });
   });
 
@@ -44,6 +42,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle dropped files
   dropzone.addEventListener("drop", (event) => {
+    event.preventDefault();
+
     if (isSubmitting) return; // Prevent dropping files during submission
 
     const file = event.dataTransfer.files[0]; // Get the dropped file
