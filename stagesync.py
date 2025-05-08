@@ -180,8 +180,10 @@ def update_settings():
     selected = request.form.getlist("notifications")
     activity = "activity" in selected
     reminders = "reminders" in selected
-    save_user_settings(user_netid, activity, reminders)
+    availability = "availability" in selected
+    save_user_settings(user_netid, activity, reminders, availability)
     return redirect(url_for("settings"))
+
 
 
 @app.route("/update-availability", methods=["GET", "POST"])
