@@ -10,8 +10,8 @@ load_dotenv()
 
 class Configs:
     def __init__(self):
-        self.CONSUMER_KEY = "0JeE9Ekhps68U2_S8gk29oDgQlwa"
-        self.CONSUMER_SECRET = "waORdCSITaX22tGftAIF20TjfVYa"
+        self.CONSUMER_KEY = os.getenv("CONSUMER_KEY")
+        self.CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
         self.BASE_URL = os.getenv("BASE_URL", "https://api.princeton.edu:443/active-directory/1.0.6")
         self.USERS_BASIC = "/users/basic"
         self.REFRESH_TOKEN_URL="https://api.princeton.edu:443/token"

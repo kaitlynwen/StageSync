@@ -366,39 +366,43 @@ def get_user_settings(netid):
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT receive_activity_updates, receive_reminders FROM user_settings WHERE user_netid = %s",
+                    "SELECT receive_activity_updates, receive_reminders, receive_availability_updates FROM user_settings WHERE user_netid = %s",
                     (netid,),
                 )
                 row = cur.fetchone()
                 if row:
-                    return {"activity": bool(row[0]), "reminders": bool(row[1])}
+                    return {
+                        "activity": bool(row[0]),
+                        "reminders": bool(row[1]),
+                        "availability": bool(row[2])
+                    }
     except Exception as e:
         print(f"Error fetching settings: {e}")
-    return {"activity": False, "reminders": False}
+    return {"activity": False, "reminders": False, "availability": False}
 
 
 
 # ----------------------------------------------------------------------
 
 
-def save_user_settings(netid, activity, reminders):
+def save_user_settings(netid, activity, reminders, availability):
     try:
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO user_settings (user_netid, receive_activity_updates, receive_reminders)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO user_settings (user_netid, receive_activity_updates, receive_reminders, receive_availability_updates)
+                    VALUES (%s, %s, %s, %s)
                     ON CONFLICT (user_netid)
                     DO UPDATE SET receive_activity_updates = EXCLUDED.receive_activity_updates,
-                                  receive_reminders = EXCLUDED.receive_reminders
+                                  receive_reminders = EXCLUDED.receive_reminders,
+                                  receive_availability_updates = EXCLUDED.receive_availability_updates
                     """,
-                    (netid, activity, reminders),
+                    (netid, activity, reminders, availability),
                 )
                 conn.commit()
     except Exception as e:
         print(f"Error saving settings: {e}")
-
 
 # ------------------------------------------------------------
 
@@ -479,8 +483,10 @@ def notify_admins_user_updated(netid):
         with psycopg2.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT email FROM users
-                    WHERE is_admin = TRUE
+                    SELECT u.email
+                    FROM users u
+                    JOIN user_settings us ON u.netid = us.user_netid
+                    WHERE u.is_admin = TRUE AND us.receive_availability_updates = TRUE
                 """)
                 rows = cur.fetchall()
                 emails = [email for (email,) in rows]
@@ -501,6 +507,42 @@ def notify_admins_user_updated(netid):
     except Exception as e:
         print(f"Failed to notify admins: {e}")
 # ------------------------------------------------------------
+
+def send_event_reminders():
+    try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+
+                # Target events that begin exactly 1 day from now 
+                cur.execute("""
+                    SELECT e.title, e.start, e.location, u.email
+                    FROM events e
+                    JOIN group_members gm ON e.groupid = gm.groupid
+                    JOIN user_settings us ON gm.netid = us.user_netid
+                    JOIN users u ON gm.netid = u.netid
+                    WHERE us.receive_reminders = TRUE
+                    AND e.start BETWEEN NOW() + INTERVAL '23 hours' AND NOW() + INTERVAL '25 hours'
+                """)
+                rows = cur.fetchall()
+
+        grouped = {}
+        for title, start, location, email in rows:
+            if email not in grouped:
+                grouped[email] = []
+            grouped[email].append((title, start, location))
+
+        for email, events in grouped.items():
+            message = "You have the following event(s) scheduled for tomorrow:\n\n"
+            for title, start, location in events:
+                local_time = convert_from_utc(start)
+                message += f"- {title} at {local_time.strftime('%I:%M %p')} in {location}\n"
+            message += "\nThanks,\nThe StageSync Team"
+            send_email_sendgrid("Reminder: Tomorrow's Events", [email], message)
+
+    except Exception as e:
+        print(f"Error sending reminders: {e}")
+
+# --------------------------------------------------------------------------------------------
 
 def add_admin(netid):
     if not netid:
